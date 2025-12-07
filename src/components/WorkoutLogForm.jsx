@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { FaCheckCircle } from 'react-icons/fa';
 
 const WorkoutLogForm = () => {
     const [exerciseName, setExerciseName] = useState('');
@@ -8,6 +9,10 @@ const WorkoutLogForm = () => {
     const [feeling, setFeeling] = useState('רגיל');
     const [selectedDay, setSelectedDay] = useState('ראשון');
     const [errors, setErrors] = useState({});
+
+    // State for Modal
+    const [showModal, setShowModal] = useState(false);
+    const [lastSavedWorkout, setLastSavedWorkout] = useState(null);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -50,9 +55,22 @@ const WorkoutLogForm = () => {
         const updatedProgram = [...existingProgram, newWorkout];
         localStorage.setItem('trainingProgram', JSON.stringify(updatedProgram));
 
-        alert('האימון נשמר בהצלחה!');
+        // Update state to show modal instead of alert
+        setLastSavedWorkout(newWorkout);
+        setShowModal(true);
+        
+        // Reset form fields (Optional - keep user input or clear it? Clearing is standard)
+        setExerciseName('');
+        setWeightLifted('');
+        setSetsCount('');
+        setRepsCount('');
+        setFeeling('רגיל');
 
         console.log('Workout Logged:', newWorkout);
+    };
+
+    const closeModal = () => {
+        setShowModal(false);
     };
 
     return (
@@ -147,6 +165,32 @@ const WorkoutLogForm = () => {
                     </button>
                 </div>
             </form>
+
+            {/* Success Modal */}
+            {showModal && lastSavedWorkout && (
+                <div className="modal-overlay" onClick={closeModal}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-icon">
+                            <FaCheckCircle />
+                        </div>
+                        <h3>האימון נשמר בהצלחה!</h3>
+                        <div className="workout-summary">
+                            <p><strong>יום:</strong> {lastSavedWorkout.day}</p>
+                            <p><strong>תרגיל:</strong> {lastSavedWorkout.name}</p>
+                            <div className="summary-stats">
+                                <span>{lastSavedWorkout.weight} ק"ג</span>
+                                <span>•</span>
+                                <span>{lastSavedWorkout.sets} סטים</span>
+                                <span>•</span>
+                                <span>{lastSavedWorkout.reps} חזרות</span>
+                            </div>
+                        </div>
+                        <button className="btn-primary" onClick={closeModal}>
+                            סגור
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
