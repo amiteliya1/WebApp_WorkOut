@@ -1,203 +1,206 @@
 :root {
   --bg-color: #121212;
   --card-bg: #1e1e1e;
+  --card-bg-lighter: #252525;
   --text-color: #e0e0e0;
   --accent-color: #00e676;
-  /* Neon Green */
   --accent-hover: #00c853;
   --secondary-text: #b0b0b0;
   --font-family: 'Roboto', sans-serif;
+  --header-height: 70px;
 }
 
 body {
   margin: 0;
   padding: 0;
   background-color: var(--bg-color);
-  background-image: linear-gradient(to bottom right, #121212, #2c3e50);
-  background-attachment: fixed;
   color: var(--text-color);
   font-family: var(--font-family);
   min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
 }
 
-/* Layout Structure */
 #root {
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  padding: 0;
+  margin: 0;
+  max-width: none;
 }
+
+/* --- Layout Structure --- */
 
 .site-layout {
-  width: 100%;
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
 }
 
+/* Header (Full Width & Navigation) */
 .site-header {
+  height: var(--header-height);
   width: 100%;
-  margin-bottom: 40px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.layout-content {
-  display: flex;
-  gap: 20px;
-  width: 100%;
-  align-items: flex-start;
-}
-
-.site-main {
-  flex: 1;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-}
-
-/* Sidebar Styles */
-.sidebar {
-  min-width: 200px;
   background-color: var(--card-bg);
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  border-bottom: 1px solid #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   position: sticky;
-  top: 20px;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  box-sizing: border-box;
 }
 
-.sidebar-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.sidebar-btn {
-  background-color: transparent;
-  color: var(--text-color);
-  border: 2px solid transparent;
-  padding: 12px 20px;
-  border-radius: 12px;
-  font-weight: 600;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  text-align: right;
+.header-content {
+  width: 100%;
+  max-width: 1200px;
+  padding: 0 20px;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
-  width: 100%;
-}
-
-.sidebar-btn:hover {
-  color: var(--accent-color);
-  background-color: rgba(255, 255, 255, 0.05);
-  border-color: rgba(0, 230, 118, 0.3);
-}
-
-.sidebar-btn.active {
-  background-color: var(--accent-color);
-  color: #121212;
-  box-shadow: 0 0 20px rgba(0, 230, 118, 0.4);
-  border-color: var(--accent-color);
-}
-
-.sidebar-btn svg {
-  font-size: 1.2rem;
-}
-
-.app-header {
-  width: 100%;
-  margin-bottom: 40px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  justify-content: space-between; /* Space between Nav and Logo */
+  box-sizing: border-box;
+  flex-direction: row-reverse; /* Logo on Right, Nav on Left (RTL) */
 }
 
 .site-title {
-  font-size: 3rem;
-  margin-bottom: 20px;
+  font-size: 1.8rem;
+  font-weight: bold;
   color: var(--accent-color);
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  margin: 0;
+  letter-spacing: 1px;
+  white-space: nowrap;
 }
 
-.nav-container {
-  background-color: var(--card-bg);
-  padding: 15px 30px;
-  border-radius: 50px;
+/* Desktop Navigation */
+.desktop-nav {
   display: flex;
   gap: 20px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  align-items: center;
 }
 
-.main-content {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .site-title {
-    font-size: 2rem;
-  }
-
-  .nav-container {
-    padding: 10px 20px;
-    gap: 10px;
-    flex-wrap: wrap;
-    justify-content: center;
-    border-radius: 20px;
-  }
-
-  .layout-content {
-    flex-direction: column;
-  }
-
-  .sidebar {
-    min-width: 100%;
-    position: relative;
-    top: 0;
-  }
-
-  .sidebar-nav {
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  .sidebar-btn {
-    flex: 1;
-    min-width: 120px;
-    justify-content: center;
-    text-align: center;
-  }
-}
-
-/* Utility Classes */
-.card {
-  background-color: var(--card-bg);
-  border-radius: 16px;
-  padding: 40px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-  margin-bottom: 20px;
+.nav-link {
+  background: transparent;
+  border: none;
   color: var(--text-color);
-  width: 100%;
-  max-width: 600px;
-  /* Optimal reading width */
-  text-align: right;
-  /* Hebraic content usually looks better right-aligned inside the card */
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-/* Center content inside card if needed */
-.card.center-text {
+.nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--accent-color);
+}
+
+.nav-link.active {
+  background-color: var(--accent-color);
+  color: #121212;
+  box-shadow: 0 0 10px rgba(0, 230, 118, 0.4);
+}
+
+.header-hamburger {
+  display: none; /* Hidden on Desktop */
+  background: none;
+  border: none;
+  color: var(--text-color);
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+/* Main Container */
+.main-container {
+  display: flex;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 30px 20px;
+  box-sizing: border-box;
+  flex: 1;
+  position: relative;
+}
+
+/* Sidebar (Mobile Only) */
+.mobile-sidebar-wrapper {
+  display: none; /* Completely hidden on desktop */
+}
+
+/* Main Content Area */
+.site-main {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+}
+
+/* Home Page Grid Styles */
+.home-page-container {
+  width: 100%;
+}
+
+.section-title {
   text-align: center;
+  margin-bottom: 30px;
+  font-size: 2rem;
+  color: var(--text-color);
+}
+
+.workouts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  width: 100%;
+}
+
+.workout-card { 
+  background-color: var(--card-bg-lighter);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  border: 1px solid #333;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.workout-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 230, 118, 0.2);
+  border-color: var(--accent-color);
+}
+
+.workout-card.completed {
+    opacity: 0.7;
+    border-color: var(--accent-color);
+}
+
+/* Footer */
+.site-footer {
+  width: 100%;
+  background-color: var(--card-bg);
+  border-top: 1px solid #333;
+  padding: 20px;
+  text-align: center;
+  color: var(--secondary-text);
+  margin-top: auto;
+  box-sizing: border-box;
+}
+
+/* Components & UI */
+.card {
+  background-color: var(--card-bg-lighter);
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  margin-bottom: 24px;
+  border: 1px solid #333;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .btn-primary {
@@ -207,10 +210,13 @@ body {
   padding: 12px 24px;
   border-radius: 8px;
   font-weight: bold;
-  font-size: 16px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
   width: 100%;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 20px;
 }
 
 .btn-primary:hover {
@@ -219,68 +225,140 @@ body {
   box-shadow: 0 4px 12px rgba(0, 230, 118, 0.4);
 }
 
-.nav-btn {
-  background-color: transparent;
-  color: var(--text-color);
-  border: 2px solid transparent;
-  padding: 10px 20px;
-  border-radius: 25px;
-  font-weight: 600;
-  font-size: 1.1rem;
-  transition: all 0.3s ease;
-}
-
-.nav-btn:hover {
-  color: var(--accent-color);
-  background-color: rgba(255, 255, 255, 0.05);
-}
-
-.nav-btn.active {
-  background-color: var(--accent-color);
-  color: #121212;
-  box-shadow: 0 0 20px rgba(0, 230, 118, 0.4);
-}
-
 /* Form Styles */
-input,
-select {
-  background-color: #2c2c2c;
-  border: 1px solid #444;
-  color: var(--text-color);
-  padding: 14px;
-  border-radius: 8px;
-  font-size: 16px;
-  width: 100%;
-  box-sizing: border-box;
-  margin-bottom: 5px;
+.workout-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  text-align: right;
 }
 
-input:focus,
-select:focus {
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 14px;
+  background-color: #121212;
+  border: 1px solid #444;
+  border-radius: 8px;
+  color: var(--text-color);
+  font-size: 1rem;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease;
+}
+
+input:focus, select:focus, textarea:focus {
   outline: none;
   border-color: var(--accent-color);
   box-shadow: 0 0 0 2px rgba(0, 230, 118, 0.2);
 }
 
 label {
-  color: var(--secondary-text);
-  font-weight: 500;
   display: block;
   margin-bottom: 8px;
-  font-size: 0.95rem;
+  color: var(--secondary-text);
+  font-weight: 500;
+  text-align: right;
 }
 
-/* List Styles */
-ul {
-  list-style: none;
-  padding: 0;
-  width: 100%;
-}
+/* --- Responsive (Mobile Adaptation) --- */
 
-li {
-  border-bottom: 1px solid #333;
-}
+@media (max-width: 768px) {
+  .desktop-nav {
+    display: none; /* Hide desktop nav on mobile */
+  }
 
-li:last-child {
-  border-bottom: none;
+  .header-hamburger {
+    display: block; /* Show hamburger on mobile */
+  }
+
+  /* Show sidebar wrapper only when open/needed on mobile */
+  .mobile-sidebar-wrapper {
+    display: block; 
+  }
+
+  /* Sidebar Drawer Styles */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    right: 0; 
+    left: auto;
+    width: 280px;
+    height: 100vh;
+    margin: 0;
+    padding: 20px;
+    background-color: var(--card-bg);
+    transform: translateX(100%); /* Start hidden */
+    transition: transform 0.3s ease;
+    z-index: 200;
+    border-left: 1px solid #333; /* Border on left for RTL drawer */
+    box-shadow: -5px 0 15px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 40px;
+  }
+
+  .mobile-sidebar-wrapper.open .sidebar {
+    transform: translateX(0);
+  }
+  
+  /* Need to ensure Sidebar component renders correctly with new CSS context */
+  .sidebar-btn {
+    width: 100%;
+    justify-content: flex-end;
+    padding: 15px;
+    font-size: 1.1rem;
+  }
+
+  .mobile-close-btn {
+    display: block;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    color: white;
+    font-size: 1.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+
+  .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 150;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease;
+    backdrop-filter: blur(3px);
+  }
+
+  .sidebar-overlay.open {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .main-container {
+    padding: 15px;
+  }
+
+  .workout-form {
+    grid-template-columns: 1fr;
+  }
 }

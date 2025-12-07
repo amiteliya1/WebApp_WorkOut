@@ -56,11 +56,11 @@ const WorkoutLogForm = () => {
     };
 
     return (
-        <div className="card" style={{ maxWidth: '500px', margin: '0 auto' }}>
+        <div className="card">
             <h2>יומן אימון</h2>
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <form onSubmit={handleSubmit} className="workout-form">
 
-                <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'right' }}>
+                <div className="form-group full-width">
                     <label htmlFor="day">יום בשבוע:</label>
                     <select
                         id="day"
@@ -76,7 +76,7 @@ const WorkoutLogForm = () => {
                     </select>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'right' }}>
+                <div className="form-group full-width">
                     <label htmlFor="exerciseName">שם התרגיל:</label>
                     <input
                         type="text"
@@ -89,7 +89,7 @@ const WorkoutLogForm = () => {
                     {errors.exerciseName && <span style={{ color: '#ff5252', fontSize: '12px' }}>{errors.exerciseName}</span>}
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'right' }}>
+                <div className="form-group">
                     <label htmlFor="weightLifted">משקל הרמה (ק"ג):</label>
                     <input
                         type="number"
@@ -102,7 +102,7 @@ const WorkoutLogForm = () => {
                     {errors.weightLifted && <span style={{ color: '#ff5252', fontSize: '12px' }}>{errors.weightLifted}</span>}
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'right' }}>
+                <div className="form-group">
                     <label htmlFor="setsCount">מספר סטים:</label>
                     <input
                         type="number"
@@ -115,7 +115,7 @@ const WorkoutLogForm = () => {
                     {errors.setsCount && <span style={{ color: '#ff5252', fontSize: '12px' }}>{errors.setsCount}</span>}
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'right' }}>
+                <div className="form-group">
                     <label htmlFor="repsCount">מספר חזרות:</label>
                     <input
                         type="number"
@@ -128,7 +128,7 @@ const WorkoutLogForm = () => {
                     {errors.repsCount && <span style={{ color: '#ff5252', fontSize: '12px' }}>{errors.repsCount}</span>}
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'right' }}>
+                <div className="form-group">
                     <label htmlFor="feeling">הרגשה כללית:</label>
                     <select
                         id="feeling"
@@ -141,9 +141,11 @@ const WorkoutLogForm = () => {
                     </select>
                 </div>
 
-                <button type="submit" className="btn-primary">
-                    שמור אימון
-                </button>
+                <div className="form-group full-width">
+                    <button type="submit" className="btn-primary">
+                        שמור אימון
+                    </button>
+                </div>
             </form>
         </div>
     );

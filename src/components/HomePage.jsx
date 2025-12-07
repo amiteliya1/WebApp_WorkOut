@@ -24,18 +24,10 @@ const HomePage = () => {
         }
     };
 
-    const toggleDayCompleted = (id) => {
-        setWorkouts((prevWorkouts) =>
-            prevWorkouts.map((workout) =>
-                workout.id === id ? { ...workout, completed: !workout.completed } : workout
-            )
-        );
-    };
-
     return (
-        <div className="card">
-            <h2>תוכנית אימונים שבועית</h2>
-            <ul>
+        <div className="home-page-container">
+            <h2 className="section-title">תוכנית אימונים שבועית</h2>
+            <div className="workouts-grid">
                 {workouts.map((workout) => (
                     <WorkoutDayCard
                         key={workout.id}
@@ -43,7 +35,7 @@ const HomePage = () => {
                         onToggle={() => handleDayClick(workout.day)}
                     />
                 ))}
-            </ul>
+            </div>
         </div>
     );
 };
