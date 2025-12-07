@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import Layout from './components/Layout'
 import HomePage from './components/HomePage'
 import WorkoutLogForm from './components/WorkoutLogForm'
 import ExerciseApiPage from './components/ExerciseApiPage'
@@ -12,6 +13,13 @@ function App() {
   const handleMuscleSelect = (muscleName) => {
     setSelectedMuscle(muscleName);
     setCurrentPage('Exercises');
+  };
+
+  const handleNavigate = (page) => {
+    setCurrentPage(page);
+    if (page === 'Exercises') {
+      setSelectedMuscle(null);
+    }
   };
 
   const renderPage = () => {
@@ -31,34 +39,9 @@ function App() {
   };
 
   return (
-    <div>
-      <h1 style={{ marginBottom: '30px', fontSize: '3rem', textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>WORKOUT TRACKER</h1>
-      <nav className="nav-container">
-        <button
-          onClick={() => setCurrentPage('Home')}
-          className={`nav-btn ${currentPage === 'Home' ? 'active' : ''}`}
-        >
-          בית
-        </button>
-        <button
-          onClick={() => setCurrentPage('Form')}
-          className={`nav-btn ${currentPage === 'Form' ? 'active' : ''}`}
-        >
-          טופס
-        </button>
-        <button
-          onClick={() => {
-            setCurrentPage('Exercises');
-            setSelectedMuscle(null);
-          }}
-          className={`nav-btn ${currentPage === 'Exercises' ? 'active' : ''}`}
-        >
-          ספריית תרגילים
-        </button>
-      </nav>
-
+    <Layout currentPage={currentPage} onNavigate={handleNavigate}>
       {renderPage()}
-    </div>
+    </Layout>
   )
 }
 
