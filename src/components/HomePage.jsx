@@ -9,6 +9,7 @@ const WEEKLY_WORKOUT = [
     { id: 4, day: 'רביעי', focus: 'מנוחה / אירובי קל', completed: false },
     { id: 5, day: 'חמישי', focus: 'גוף עליון (Upper)', completed: false },
     { id: 6, day: 'שישי', focus: 'אימון לבחירה / השלמות', completed: false },
+    { id: 7, day: 'שבת', focus: 'מנוחה מוחלטת', completed: false },
 ];
 
 const HomePage = () => {
