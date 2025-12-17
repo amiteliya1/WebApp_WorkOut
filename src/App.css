@@ -13,7 +13,9 @@ body {
   margin: 0;
   padding: 0;
   background-color: var(--bg-color);
-  background-image: linear-gradient(to bottom right, #121212, #2c3e50);
+  background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1470&auto=format&fit=crop');
+  background-size: cover;
+  background-position: center;
   background-attachment: fixed;
   color: var(--text-color);
   font-family: var(--font-family);
