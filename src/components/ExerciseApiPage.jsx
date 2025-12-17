@@ -3,7 +3,6 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 const ExerciseApiPage = () => {
-    const [exercises, setExercises] = useState([]);
     const [uniqueCategories, setUniqueCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -26,8 +25,6 @@ const ExerciseApiPage = () => {
                     ...exercise,
                     category: categoriesMap[exercise.category] || { name: 'Unknown' }
                 }));
-
-                setExercises(exercisesWithCategories);
 
                 const categoriesSet = new Set();
                 exercisesWithCategories.forEach(exercise => {

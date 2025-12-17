@@ -14,7 +14,7 @@ const WEEKLY_WORKOUT = [
 ];
 
 const HomePage = () => {
-    const [workouts, setWorkouts] = useState(WEEKLY_WORKOUT);
+    const workouts = WEEKLY_WORKOUT;
     const { favorites, removeFavorite } = useFavorites();
 
     const handleDayClick = (dayName) => {
@@ -27,14 +27,6 @@ const HomePage = () => {
         } else {
             alert(`אין אימונים רשומים ליום ${dayName}.`);
         }
-    };
-
-    const toggleDayCompleted = (id) => {
-        setWorkouts((prevWorkouts) =>
-            prevWorkouts.map((workout) =>
-                workout.id === id ? { ...workout, completed: !workout.completed } : workout
-            )
-        );
     };
 
     return (
