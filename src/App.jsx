@@ -23,7 +23,7 @@ function App() {
             to="/form" 
             className={({ isActive }) => `nav-btn ${isActive ? 'active' : ''}`}
           >
-            טופס
+            בניית תוכנית
           </NavLink>
           <NavLink 
             to="/exercises" 
