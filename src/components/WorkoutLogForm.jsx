@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { FaCheckCircle } from 'react-icons/fa';
 
 const WorkoutLogForm = () => {
     const [exerciseName, setExerciseName] = useState('');
@@ -9,10 +8,6 @@ const WorkoutLogForm = () => {
     const [feeling, setFeeling] = useState('רגיל');
     const [selectedDay, setSelectedDay] = useState('ראשון');
     const [errors, setErrors] = useState({});
-
-    // State for Modal
-    const [showModal, setShowModal] = useState(false);
-    const [lastSavedWorkout, setLastSavedWorkout] = useState(null);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -55,30 +50,17 @@ const WorkoutLogForm = () => {
         const updatedProgram = [...existingProgram, newWorkout];
         localStorage.setItem('trainingProgram', JSON.stringify(updatedProgram));
 
-        // Update state to show modal instead of alert
-        setLastSavedWorkout(newWorkout);
-        setShowModal(true);
-        
-        // Reset form fields (Optional - keep user input or clear it? Clearing is standard)
-        setExerciseName('');
-        setWeightLifted('');
-        setSetsCount('');
-        setRepsCount('');
-        setFeeling('רגיל');
+        alert('האימון נשמר בהצלחה!');
 
         console.log('Workout Logged:', newWorkout);
     };
 
-    const closeModal = () => {
-        setShowModal(false);
-    };
-
     return (
-        <div className="card">
+        <div className="card" style={{ maxWidth: '500px', margin: '0 auto' }}>
             <h2>יומן אימון</h2>
-            <form onSubmit={handleSubmit} className="workout-form">
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-                <div className="form-group full-width">
+                <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'right' }}>
                     <label htmlFor="day">יום בשבוע:</label>
                     <select
                         id="day"
@@ -91,11 +73,10 @@ const WorkoutLogForm = () => {
                         <option value="רביעי">רביעי</option>
                         <option value="חמישי">חמישי</option>
                         <option value="שישי">שישי</option>
-                        <option value="שבת">שבת</option>
                     </select>
                 </div>
 
-                <div className="form-group full-width">
+                <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'right' }}>
                     <label htmlFor="exerciseName">שם התרגיל:</label>
                     <input
                         type="text"
@@ -108,7 +89,7 @@ const WorkoutLogForm = () => {
                     {errors.exerciseName && <span style={{ color: '#ff5252', fontSize: '12px' }}>{errors.exerciseName}</span>}
                 </div>
 
-                <div className="form-group">
+                <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'right' }}>
                     <label htmlFor="weightLifted">משקל הרמה (ק"ג):</label>
                     <input
                         type="number"
@@ -121,7 +102,7 @@ const WorkoutLogForm = () => {
                     {errors.weightLifted && <span style={{ color: '#ff5252', fontSize: '12px' }}>{errors.weightLifted}</span>}
                 </div>
 
-                <div className="form-group">
+                <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'right' }}>
                     <label htmlFor="setsCount">מספר סטים:</label>
                     <input
                         type="number"
@@ -134,7 +115,7 @@ const WorkoutLogForm = () => {
                     {errors.setsCount && <span style={{ color: '#ff5252', fontSize: '12px' }}>{errors.setsCount}</span>}
                 </div>
 
-                <div className="form-group">
+                <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'right' }}>
                     <label htmlFor="repsCount">מספר חזרות:</label>
                     <input
                         type="number"
@@ -147,7 +128,7 @@ const WorkoutLogForm = () => {
                     {errors.repsCount && <span style={{ color: '#ff5252', fontSize: '12px' }}>{errors.repsCount}</span>}
                 </div>
 
-                <div className="form-group">
+                <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'right' }}>
                     <label htmlFor="feeling">הרגשה כללית:</label>
                     <select
                         id="feeling"
@@ -160,38 +141,10 @@ const WorkoutLogForm = () => {
                     </select>
                 </div>
 
-                <div className="form-group full-width">
-                    <button type="submit" className="btn-primary">
-                        שמור אימון
-                    </button>
-                </div>
+                <button type="submit" className="btn-primary">
+                    שמור אימון
+                </button>
             </form>
-
-            {/* Success Modal */}
-            {showModal && lastSavedWorkout && (
-                <div className="modal-overlay" onClick={closeModal}>
-                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                        <div className="modal-icon">
-                            <FaCheckCircle />
-                        </div>
-                        <h3>האימון נשמר בהצלחה!</h3>
-                        <div className="workout-summary">
-                            <p><strong>יום:</strong> {lastSavedWorkout.day}</p>
-                            <p><strong>תרגיל:</strong> {lastSavedWorkout.name}</p>
-                            <div className="summary-stats">
-                                <span>{lastSavedWorkout.weight} ק"ג</span>
-                                <span>•</span>
-                                <span>{lastSavedWorkout.sets} סטים</span>
-                                <span>•</span>
-                                <span>{lastSavedWorkout.reps} חזרות</span>
-                            </div>
-                        </div>
-                        <button className="btn-primary" onClick={closeModal}>
-                            סגור
-                        </button>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };

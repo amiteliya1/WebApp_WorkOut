@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
-const ExerciseApiPage = ({ setMuscleAndNavigate }) => {
+const ExerciseApiPage = () => {
     const [exercises, setExercises] = useState([]);
     const [uniqueCategories, setUniqueCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -51,11 +53,7 @@ const ExerciseApiPage = ({ setMuscleAndNavigate }) => {
     }, []);
 
     const handleCategoryClick = (categoryName) => {
-        if (setMuscleAndNavigate) {
-            setMuscleAndNavigate(categoryName);
-        } else {
-            console.log(`Category clicked: ${categoryName}`);
-        }
+        navigate(`/exercises/${categoryName}`);
     };
 
     if (loading) {
