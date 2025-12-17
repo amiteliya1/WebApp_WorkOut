@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { useFavorites } from '../context/FavoritesContext';
-import { FaHeart, FaRegHeart } from 'react-icons/fa'; // נשתמש באייקונים ללבבות
+import { FaHeart, FaRegHeart } from 'react-icons/fa';
 
-// Replace with your actual YouTube Data API key
 const YOUTUBE_API_KEY = 'AIzaSyAWG8a5jKvgXYcJ0fXzkuB0zi4_tfPAuqE';
 
 const VideoPlayerPage = () => {

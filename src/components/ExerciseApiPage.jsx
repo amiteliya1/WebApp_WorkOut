@@ -29,7 +29,6 @@ const ExerciseApiPage = () => {
 
                 setExercises(exercisesWithCategories);
 
-                // Extract unique categories and add extra ones
                 const categoriesSet = new Set();
                 exercisesWithCategories.forEach(exercise => {
                     if (exercise.category.name !== 'Unknown') {

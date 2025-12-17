@@ -73,6 +73,7 @@ const WorkoutLogForm = () => {
                         <option value="רביעי">רביעי</option>
                         <option value="חמישי">חמישי</option>
                         <option value="שישי">שישי</option>
+                        <option value="שבת">שבת</option>
                     </select>
                 </div>
 
