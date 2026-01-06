@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { removeFavorite } from '../store/slices/favoritesSlice';
 import WorkoutDayCard from './WorkoutDayCard';
-import { useFavorites } from '../context/FavoritesContext';
 import { FaHeart, FaTrash } from 'react-icons/fa';
 
 const WEEKLY_WORKOUT = [
@@ -15,7 +16,8 @@ const WEEKLY_WORKOUT = [
 
 const HomePage = () => {
     const workouts = WEEKLY_WORKOUT;
-    const { favorites, removeFavorite } = useFavorites();
+    const favorites = useSelector((state) => state.favorites.items);
+    const dispatch = useDispatch();
 
     const handleDayClick = (dayName) => {
         const storedProgram = JSON.parse(localStorage.getItem('trainingProgram') || '[]');
@@ -60,7 +62,7 @@ const HomePage = () => {
                                         {video.snippet.title}
                                     </a>
                                     <button
-                                        onClick={() => removeFavorite(video.id.videoId)}
+                                        onClick={() => dispatch(removeFavorite(video.id.videoId))}
                                         style={{
                                             background: 'none',
                                             border: 'none',

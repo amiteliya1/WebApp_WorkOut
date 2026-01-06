@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React from 'react';
 import { useParams } from 'react-router-dom';
-import { useFavorites } from '../context/FavoritesContext';
+import { useSelector, useDispatch } from 'react-redux';
+import { addFavorite, removeFavorite } from '../store/slices/favoritesSlice';
+import { useApi } from '../hooks/useApi';
 import { FaHeart, FaRegHeart } from 'react-icons/fa';
 
 const YOUTUBE_API_KEY = 'AIzaSyAWG8a5jKvgXYcJ0fXzkuB0zi4_tfPAuqE';
@@ -9,37 +10,36 @@ const YOUTUBE_API_KEY = 'AIzaSyAWG8a5jKvgXYcJ0fXzkuB0zi4_tfPAuqE';
 const VideoPlayerPage = () => {
     const { muscle } = useParams();
     const searchTerm = muscle;
-    const [videos, setVideos] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const { addFavorite, removeFavorite, isFavorite } = useFavorites();
+    const dispatch = useDispatch();
+    const favorites = useSelector((state) => state.favorites.items);
 
-    useEffect(() => {
-        const fetchVideos = async () => {
-            try {
-                const response = await axios.get('https://www.googleapis.com/youtube/v3/search', {
-                    params: {
-                        part: 'snippet',
-                        maxResults: 8,
-                        q: `${searchTerm} Gym Workout`,
-                        key: YOUTUBE_API_KEY,
-                        type: 'video',
-                        videoDuration: 'short'
-                    }
-                });
-                setVideos(response.data.items);
-                setLoading(false);
-            } catch (err) {
-                setError('שגיאה בחיפוש סרטונים. אנא נסה שנית מאוחר יותר.');
-                setLoading(false);
-                console.error("Error fetching videos:", err);
+    const isFavorite = (videoId) => {
+        return favorites.some(fav => fav.id.videoId === videoId);
+    };
+
+    const { data, loading, error } = useApi(
+        searchTerm ? 'https://www.googleapis.com/youtube/v3/search' : null,
+        {
+            params: {
+                part: 'snippet',
+                maxResults: 8,
+                q: `${searchTerm} Gym Workout`,
+                key: YOUTUBE_API_KEY,
+                type: 'video',
+                videoDuration: 'short'
             }
-        };
-
-        if (searchTerm) {
-            fetchVideos();
         }
-    }, [searchTerm]);
+    );
+
+    const videos = data?.items || [];
+
+    const handleToggleFavorite = (video) => {
+        if (isFavorite(video.id.videoId)) {
+            dispatch(removeFavorite(video.id.videoId));
+        } else {
+            dispatch(addFavorite(video));
+        }
+    };
 
     if (loading) {
         return <div>מחפש סרטונים עבור "{searchTerm}"... ⏳</div>;
@@ -68,13 +68,7 @@ const VideoPlayerPage = () => {
                                     {video.snippet.title}
                                 </a>
                                 <button
-                                    onClick={() => {
-                                        if (isFavorite(video.id.videoId)) {
-                                            removeFavorite(video.id.videoId);
-                                        } else {
-                                            addFavorite(video);
-                                        }
-                                    }}
+                                    onClick={() => handleToggleFavorite(video)}
                                     style={{
                                         background: 'none',
                                         border: 'none',

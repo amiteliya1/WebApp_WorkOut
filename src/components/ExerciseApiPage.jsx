@@ -1,52 +1,37 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useApi } from '../hooks/useApi';
 
 const ExerciseApiPage = () => {
-    const [uniqueCategories, setUniqueCategories] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [exercisesResponse, categoriesResponse] = await Promise.all([
-                    axios.get('https://wger.de/api/v2/exercise/?language=2&limit=10'),
-                    axios.get('https://wger.de/api/v2/exercisecategory/')
-                ]);
+    const { data: exercisesData, loading, error } = useApi('https://wger.de/api/v2/exercise/?language=2&limit=10');
+    const { data: categoriesData } = useApi('https://wger.de/api/v2/exercisecategory/');
 
-                const categoriesMap = {};
-                categoriesResponse.data.results.forEach(category => {
-                    categoriesMap[category.id] = category;
-                });
+    const uniqueCategories = React.useMemo(() => {
+        if (!exercisesData || !categoriesData) return [];
 
-                const exercisesWithCategories = exercisesResponse.data.results.map(exercise => ({
-                    ...exercise,
-                    category: categoriesMap[exercise.category] || { name: 'Unknown' }
-                }));
+        const categoriesMap = {};
+        categoriesData.results.forEach(category => {
+            categoriesMap[category.id] = category;
+        });
 
-                const categoriesSet = new Set();
-                exercisesWithCategories.forEach(exercise => {
-                    if (exercise.category.name !== 'Unknown') {
-                        categoriesSet.add(exercise.category.name);
-                    }
-                });
-                categoriesSet.add('Chest');
-                categoriesSet.add('Back');
+        const exercisesWithCategories = exercisesData.results.map(exercise => ({
+            ...exercise,
+            category: categoriesMap[exercise.category] || { name: 'Unknown' }
+        }));
 
-                setUniqueCategories(Array.from(categoriesSet));
-
-                setLoading(false);
-            } catch (err) {
-                setError('שגיאה בטעינת הנתונים. אנא נסה שנית מאוחר יותר.');
-                setLoading(false);
-                console.error("Error fetching data:", err);
+        const categoriesSet = new Set();
+        exercisesWithCategories.forEach(exercise => {
+            if (exercise.category.name !== 'Unknown') {
+                categoriesSet.add(exercise.category.name);
             }
-        };
+        });
+        categoriesSet.add('Chest');
+        categoriesSet.add('Back');
 
-        fetchData();
-    }, []);
+        return Array.from(categoriesSet);
+    }, [exercisesData, categoriesData]);
 
     const handleCategoryClick = (categoryName) => {
         navigate(`/exercises/${categoryName}`);
