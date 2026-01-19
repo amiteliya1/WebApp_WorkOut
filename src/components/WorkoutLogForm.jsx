@@ -56,12 +56,12 @@ const WorkoutLogForm = () => {
     };
 
     return (
-        <div className="card" style={{ maxWidth: '500px', margin: '0 auto' }}>
+        <div className="card workout-form-card">
             <h2>יומן אימון</h2>
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <form onSubmit={handleSubmit} className="workout-form">
 
-                <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'right' }}>
-                    <label htmlFor="day">יום בשבוע:</label>
+                <div className="form-field">
+                    <label htmlFor="day">יום בשבוע</label>
                     <select
                         id="day"
                         value={selectedDay}
@@ -77,8 +77,8 @@ const WorkoutLogForm = () => {
                     </select>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'right' }}>
-                    <label htmlFor="exerciseName">שם התרגיל:</label>
+                <div className="form-field">
+                    <label htmlFor="exerciseName">שם התרגיל</label>
                     <input
                         type="text"
                         id="exerciseName"
@@ -87,11 +87,11 @@ const WorkoutLogForm = () => {
                         required
                         placeholder="לדוגמה: לחיצת חזה"
                     />
-                    {errors.exerciseName && <span style={{ color: '#ff5252', fontSize: '12px' }}>{errors.exerciseName}</span>}
+                    {errors.exerciseName && <span className="form-error">{errors.exerciseName}</span>}
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'right' }}>
-                    <label htmlFor="weightLifted">משקל הרמה (ק"ג):</label>
+                <div className="form-field">
+                    <label htmlFor="weightLifted">משקל הרמה (ק"ג)</label>
                     <input
                         type="number"
                         id="weightLifted"
@@ -100,11 +100,11 @@ const WorkoutLogForm = () => {
                         required
                         placeholder="0"
                     />
-                    {errors.weightLifted && <span style={{ color: '#ff5252', fontSize: '12px' }}>{errors.weightLifted}</span>}
+                    {errors.weightLifted && <span className="form-error">{errors.weightLifted}</span>}
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'right' }}>
-                    <label htmlFor="setsCount">מספר סטים:</label>
+                <div className="form-field">
+                    <label htmlFor="setsCount">מספר סטים</label>
                     <input
                         type="number"
                         id="setsCount"
@@ -113,11 +113,11 @@ const WorkoutLogForm = () => {
                         required
                         placeholder="0"
                     />
-                    {errors.setsCount && <span style={{ color: '#ff5252', fontSize: '12px' }}>{errors.setsCount}</span>}
+                    {errors.setsCount && <span className="form-error">{errors.setsCount}</span>}
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'right' }}>
-                    <label htmlFor="repsCount">מספר חזרות:</label>
+                <div className="form-field">
+                    <label htmlFor="repsCount">מספר חזרות</label>
                     <input
                         type="number"
                         id="repsCount"
@@ -126,11 +126,11 @@ const WorkoutLogForm = () => {
                         required
                         placeholder="0"
                     />
-                    {errors.repsCount && <span style={{ color: '#ff5252', fontSize: '12px' }}>{errors.repsCount}</span>}
+                    {errors.repsCount && <span className="form-error">{errors.repsCount}</span>}
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'right' }}>
-                    <label htmlFor="feeling">הרגשה כללית:</label>
+                <div className="form-field">
+                    <label htmlFor="feeling">הרגשה כללית</label>
                     <select
                         id="feeling"
                         value={feeling}
@@ -142,7 +142,7 @@ const WorkoutLogForm = () => {
                     </select>
                 </div>
 
-                <button type="submit" className="btn-primary">
+                <button type="submit" className="btn-primary form-submit-btn">
                     שמור אימון
                 </button>
             </form>

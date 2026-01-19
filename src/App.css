@@ -325,41 +325,144 @@ body.light-theme .nav-btn.active {
   box-shadow: 0 2px 8px rgba(0, 200, 83, 0.3);
 }
 
-/* Form Styles - Enhanced with Design Tokens */
-input,
-select {
+/* ============================================
+   Workout Form - Premium Design
+   ============================================ */
+.workout-form-card {
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.workout-form-card h2 {
+  margin-bottom: 32px;
+  text-align: right;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.workout-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  text-align: right;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+  gap: 8px;
+}
+
+/* Form Labels - Clean and Professional */
+.form-field label {
+  color: var(--muted);
+  font-weight: 500;
+  font-size: 0.875rem;
+  display: block;
+  margin: 0;
+  transition: color 300ms ease;
+}
+
+/* Form Inputs & Selects - Professional */
+.form-field input,
+.form-field select {
   background-color: var(--surface);
   border: 1px solid var(--border);
   color: var(--text);
-  padding: 14px;
+  padding: 14px 16px;
   border-radius: var(--radius);
   font-size: 16px;
+  font-family: inherit;
   width: 100%;
   box-sizing: border-box;
-  margin-bottom: 5px;
-  transition: all 200ms ease;
+  height: 48px;
+  transition: all 250ms ease;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
 }
 
-input:hover,
-select:hover {
-  border-color: rgba(255, 255, 255, 0.15);
+/* Placeholder Styling */
+.form-field input::placeholder {
+  color: var(--muted);
+  opacity: 0.6;
+}
+
+/* Hover State */
+.form-field input:hover,
+.form-field select:hover {
+  border-color: rgba(255, 255, 255, 0.2);
   background-color: rgba(255, 255, 255, 0.02);
 }
 
-input:focus,
-select:focus {
+/* Focus State - Quality Focus Ring */
+.form-field input:focus,
+.form-field select:focus {
+  outline: none;
+  border-color: var(--accent);
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.form-field input:focus-visible,
+.form-field select:focus-visible {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(0, 230, 118, 0.2);
   background-color: rgba(255, 255, 255, 0.03);
 }
 
-label {
-  color: var(--muted);
-  font-weight: 500;
+/* Select Arrow Styling */
+.form-field select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23e0e0e0' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: left 16px center;
+  padding-right: 16px;
+  padding-left: 40px;
+  cursor: pointer;
+}
+
+body.light-theme .form-field select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231a1a1a' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+}
+
+/* Form Error Messages */
+.form-error {
+  color: #ff5252;
+  font-size: 0.8125rem;
+  margin-top: 4px;
   display: block;
-  margin-bottom: 8px;
-  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+/* Form Submit Button - Premium */
+.form-submit-btn {
+  margin-top: 8px;
+  height: 52px;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.form-submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 230, 118, 0.4);
+}
+
+.form-submit-btn:active {
+  transform: translateY(0);
+}
+
+.form-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.form-submit-btn:disabled:hover {
+  transform: none;
+  box-shadow: var(--shadow);
 }
 
 /* List Styles - Enhanced */
@@ -394,28 +497,40 @@ body.light-theme .card:hover {
   border-color: rgba(0, 0, 0, 0.15);
 }
 
-body.light-theme input,
-body.light-theme select {
+/* Day Mode - Form Fields */
+body.light-theme .form-field input,
+body.light-theme .form-field select {
   background-color: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(0, 0, 0, 0.12);
   color: #1a1a1a;
 }
 
-body.light-theme input:hover,
-body.light-theme select:hover {
+body.light-theme .form-field input:hover,
+body.light-theme .form-field select:hover {
   background-color: #fafafa;
   border-color: rgba(0, 0, 0, 0.2);
 }
 
-body.light-theme input:focus,
-body.light-theme select:focus {
+body.light-theme .form-field input:focus,
+body.light-theme .form-field select:focus {
+  background-color: #ffffff;
+  border-color: var(--accent);
+}
+
+body.light-theme .form-field input:focus-visible,
+body.light-theme .form-field select:focus-visible {
   background-color: #ffffff;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(0, 200, 83, 0.2);
 }
 
-body.light-theme label {
+body.light-theme .form-field label {
   color: #666666;
+}
+
+body.light-theme .form-field input::placeholder {
+  color: #999999;
+  opacity: 0.7;
 }
 
 /* Day Mode - Navigation Enhancements */
@@ -438,4 +553,189 @@ body.light-theme li {
 
 body.light-theme li:hover {
   background-color: rgba(0, 200, 83, 0.05);
+}
+
+/* ============================================
+   Exercise Library - Muscle Cards Grid
+   ============================================ */
+.exercise-library-card {
+  max-width: 1000px;
+}
+
+.exercise-library-card h2 {
+  margin-bottom: 32px;
+  text-align: right;
+}
+
+.muscle-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  width: 100%;
+}
+
+/* Muscle Card - Premium Design */
+.muscle-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 300ms ease;
+  box-shadow: var(--shadow);
+  position: relative;
+  aspect-ratio: 4 / 3;
+  display: flex;
+  flex-direction: column;
+}
+
+.muscle-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  border-color: var(--accent);
+}
+
+.muscle-card:active {
+  transform: translateY(-2px);
+}
+
+.muscle-card:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 230, 118, 0.3);
+}
+
+/* Muscle Card Image Container */
+.muscle-card-image {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+/* Muscle Image - Actual or Placeholder */
+.muscle-image,
+.muscle-image-placeholder {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background-size: cover;
+  background-position: center;
+  transition: transform 300ms ease;
+}
+
+.muscle-card:hover .muscle-image,
+.muscle-card:hover .muscle-image-placeholder {
+  transform: scale(1.05);
+}
+
+/* Placeholder gradients for each muscle */
+.muscle-image-placeholder[data-muscle="abs"] {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.muscle-image-placeholder[data-muscle="legs"] {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.muscle-image-placeholder[data-muscle="chest"] {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.muscle-image-placeholder[data-muscle="back"] {
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
+
+.muscle-image-placeholder[data-muscle="arms"] {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.muscle-image-placeholder[data-muscle="shoulders"] {
+  background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+}
+
+/* Overlay on image */
+.muscle-card-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.3) 50%,
+    rgba(0, 0, 0, 0.6) 100%
+  );
+  transition: opacity 300ms ease;
+}
+
+body.light-theme .muscle-card-overlay {
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0.5) 100%
+  );
+}
+
+/* Muscle Card Content */
+.muscle-card-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20px;
+  z-index: 2;
+}
+
+.muscle-card-title {
+  color: #ffffff;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  text-align: right;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  transition: color 300ms ease;
+}
+
+body.light-theme .muscle-card-title {
+  color: #1a1a1a;
+  text-shadow: 0 2px 4px rgba(255, 255, 255, 0.8);
+}
+
+/* Loading & Error Messages */
+.loading-message,
+.error-message {
+  text-align: center;
+  padding: 40px;
+  font-size: 1.1rem;
+}
+
+.error-message {
+  color: #ff5252;
+}
+
+/* Responsive - Tablet */
+@media (max-width: 968px) {
+  .muscle-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+}
+
+/* Responsive - Mobile */
+@media (max-width: 640px) {
+  .muscle-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .muscle-card-title {
+    font-size: 1.25rem;
+  }
+
+  .muscle-card-content {
+    padding: 16px;
+  }
 }
