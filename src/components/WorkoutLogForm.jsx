@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import { FaTimes } from 'react-icons/fa';
 
 const WorkoutLogForm = () => {
+    const location = useLocation();
     const [exerciseName, setExerciseName] = useState('');
     const [weightLifted, setWeightLifted] = useState('');
     const [setsCount, setSetsCount] = useState('');
@@ -8,6 +11,30 @@ const WorkoutLogForm = () => {
     const [feeling, setFeeling] = useState('רגיל');
     const [selectedDay, setSelectedDay] = useState('ראשון');
     const [errors, setErrors] = useState({});
+    const [editingId, setEditingId] = useState(null);
+    const [isEditingFromHome, setIsEditingFromHome] = useState(false); // האם עורכים מהעמוד הבית
+
+    // טעינת נתונים אם הגענו מהעמוד הבית
+    useEffect(() => {
+        // אם הגענו מהעמוד הבית עם אימון לעריכה
+        if (location.state?.workoutToEdit) {
+            const workout = location.state.workoutToEdit;
+            setEditingId(workout.id);
+            setIsEditingFromHome(true); // סימון שזה מהעמוד הבית
+            setExerciseName(workout.name);
+            setWeightLifted(workout.weight);
+            setSetsCount(workout.sets);
+            setRepsCount(workout.reps);
+            setFeeling(workout.feeling);
+            setSelectedDay(workout.day);
+        } else if (location.state?.addToDay) {
+            // אם הגענו מהעמוד הבית להוספת אימון חדש ליום מסוים
+            setIsEditingFromHome(true);
+            setSelectedDay(location.state.addToDay);
+        } else {
+            setIsEditingFromHome(false);
+        }
+    }, [location.state]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -36,29 +63,84 @@ const WorkoutLogForm = () => {
 
         setErrors({});
 
-        const newWorkout = {
-            id: Date.now(),
-            day: selectedDay,
-            name: exerciseName,
-            weight: weightLifted,
-            sets: setsCount,
-            reps: repsCount,
-            feeling: feeling
-        };
+        // כל האימונים נשמרים רק ב-weeklyWorkouts (עמוד הבית)
+        const existingWeeklyWorkouts = JSON.parse(localStorage.getItem('weeklyWorkouts') || '[]');
+        
+        if (editingId && isEditingFromHome) {
+            // עדכון אימון קיים מהעמוד הבית
+            const updatedWeeklyWorkouts = existingWeeklyWorkouts.map(workout =>
+                workout.id === editingId
+                    ? {
+                        id: editingId,
+                        day: selectedDay,
+                        name: exerciseName,
+                        weight: weightLifted,
+                        sets: setsCount,
+                        reps: repsCount,
+                        feeling: feeling
+                    }
+                    : workout
+            );
+            localStorage.setItem('weeklyWorkouts', JSON.stringify(updatedWeeklyWorkouts));
+            alert('האימון עודכן בהצלחה!');
+        } else {
+            // הוספת אימון חדש - נשמר רק בעמוד הבית
+            const newWorkout = {
+                id: Date.now(),
+                day: selectedDay,
+                name: exerciseName,
+                weight: weightLifted,
+                sets: setsCount,
+                reps: repsCount,
+                feeling: feeling
+            };
+            const updatedWeeklyWorkouts = [...existingWeeklyWorkouts, newWorkout];
+            localStorage.setItem('weeklyWorkouts', JSON.stringify(updatedWeeklyWorkouts));
+            alert('האימון נשמר בהצלחה!');
+        }
 
-        const existingProgram = JSON.parse(localStorage.getItem('trainingProgram') || '[]');
-        const updatedProgram = [...existingProgram, newWorkout];
-        localStorage.setItem('trainingProgram', JSON.stringify(updatedProgram));
+        // איפוס הטופס
+        setExerciseName('');
+        setWeightLifted('');
+        setSetsCount('');
+        setRepsCount('');
+        setFeeling('רגיל');
+        setSelectedDay('ראשון');
+        setEditingId(null);
+        setIsEditingFromHome(false);
+        
+        // מעבר חזרה לעמוד הבית
+        window.location.href = '/';
+    };
 
-        alert('האימון נשמר בהצלחה!');
-
-        console.log('Workout Logged:', newWorkout);
+    const handleCancelEdit = () => {
+        setEditingId(null);
+        setIsEditingFromHome(false);
+        setExerciseName('');
+        setWeightLifted('');
+        setSetsCount('');
+        setRepsCount('');
+        setFeeling('רגיל');
+        setSelectedDay('ראשון');
+        
+        // חזרה לעמוד הבית
+        window.location.href = '/';
     };
 
     return (
-        <div className="card workout-form-card">
-            <h2>יומן אימון</h2>
-            <form onSubmit={handleSubmit} className="workout-form">
+        <div>
+            <div className="card workout-form-card">
+                <h2>{editingId ? 'ערוך אימון' : 'יומן אימון'}</h2>
+                {editingId && (
+                    <button
+                        type="button"
+                        onClick={handleCancelEdit}
+                        className="cancel-edit-btn"
+                    >
+                        <FaTimes /> ביטול עריכה
+                    </button>
+                )}
+                <form onSubmit={handleSubmit} className="workout-form">
 
                 <div className="form-field">
                     <label htmlFor="day">יום בשבוע</label>
@@ -143,9 +225,10 @@ const WorkoutLogForm = () => {
                 </div>
 
                 <button type="submit" className="btn-primary form-submit-btn">
-                    שמור אימון
+                    {editingId ? 'עדכן אימון' : 'שמור אימון'}
                 </button>
             </form>
+            </div>
         </div>
     );
 };

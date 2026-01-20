@@ -1,9 +1,10 @@
 import React from 'react';
 
-const WorkoutDayCard = ({ workout, onToggle }) => {
+const WorkoutDayCard = ({ workout, onToggle, isSelected }) => {
     return (
         <li
-            onClick={() => onToggle(workout.id)}
+            onClick={() => onToggle(workout.day)}
+            className={`workout-day-card ${isSelected ? 'selected' : ''}`}
             style={{
                 cursor: 'pointer',
                 textDecoration: workout.completed ? 'line-through' : 'none',

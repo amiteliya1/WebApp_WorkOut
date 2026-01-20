@@ -465,6 +465,477 @@ body.light-theme .form-field select {
   box-shadow: var(--shadow);
 }
 
+/* ============================================
+   Existing Workouts List
+   ============================================ */
+.existing-workouts-card {
+  margin-top: 32px;
+  max-width: 800px;
+}
+
+.existing-workouts-card h2 {
+  margin-bottom: 24px;
+  text-align: right;
+}
+
+.workout-day-section {
+  margin-bottom: 32px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 24px;
+}
+
+.workout-day-section:last-child {
+  border-bottom: none;
+}
+
+.workout-day-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.workout-day-header h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.delete-day-btn {
+  background: rgba(255, 82, 82, 0.1);
+  border: 1px solid rgba(255, 82, 82, 0.3);
+  color: #ff5252;
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 250ms ease;
+}
+
+.delete-day-btn:hover {
+  background: rgba(255, 82, 82, 0.2);
+  border-color: #ff5252;
+}
+
+.workout-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.workout-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  transition: all 250ms ease;
+}
+
+.workout-item:hover {
+  border-color: var(--accent);
+  box-shadow: var(--shadow);
+  transform: translateX(-4px);
+}
+
+.workout-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: right;
+}
+
+.workout-info strong {
+  font-size: 1.1rem;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.workout-details {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.workout-feeling {
+  color: var(--muted);
+  font-size: 0.875rem;
+  font-style: italic;
+}
+
+.workout-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.edit-btn,
+.delete-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 250ms ease;
+  font-size: 1rem;
+}
+
+.edit-btn {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.edit-btn:hover {
+  background: rgba(0, 230, 118, 0.1);
+  transform: scale(1.05);
+}
+
+.delete-btn {
+  color: #ff5252;
+  border-color: rgba(255, 82, 82, 0.3);
+}
+
+.delete-btn:hover {
+  background: rgba(255, 82, 82, 0.1);
+  border-color: #ff5252;
+  transform: scale(1.05);
+}
+
+.cancel-edit-btn {
+  background: rgba(255, 82, 82, 0.1);
+  border: 1px solid rgba(255, 82, 82, 0.3);
+  color: #ff5252;
+  padding: 10px 20px;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  transition: all 250ms ease;
+}
+
+.cancel-edit-btn:hover {
+  background: rgba(255, 82, 82, 0.2);
+  border-color: #ff5252;
+}
+
+/* Day Mode - Existing Workouts */
+body.light-theme .workout-item {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+body.light-theme .workout-item:hover {
+  border-color: var(--accent);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+body.light-theme .workout-day-header {
+  border-bottom-color: rgba(0, 0, 0, 0.1);
+}
+
+body.light-theme .workout-day-section {
+  border-bottom-color: rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================
+   Modal - Day Workouts
+   ============================================ */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  animation: fadeIn 200ms ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal-content {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  max-width: 800px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  animation: slideUp 300ms ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.day-workouts-modal {
+  padding: 32px;
+}
+
+.day-workouts-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.day-workouts-header h3 {
+  margin: 0;
+  font-size: 1.75rem;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.close-modal-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 250ms ease;
+  font-size: 1.2rem;
+  width: 40px;
+  height: 40px;
+}
+
+.close-modal-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: rotate(90deg);
+}
+
+body.light-theme .modal-overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+/* ============================================
+   Weekly Plan - Edit Day Focus
+   ============================================ */
+.weekly-plan-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.weekly-plan-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+  transition: background-color 200ms ease;
+}
+
+.weekly-plan-item:last-child {
+  border-bottom: none;
+}
+
+.weekly-plan-item:hover {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+body.light-theme .weekly-plan-item:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.workout-day-card {
+  flex: 1;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: var(--radius);
+  transition: all 200ms ease;
+}
+
+.workout-day-card:hover {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+body.light-theme .workout-day-card:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+.workout-day-card.selected {
+  background-color: rgba(0, 230, 118, 0.1) !important;
+  border-left: 3px solid var(--accent);
+  padding-right: 5px;
+}
+
+body.light-theme .workout-day-card.selected {
+  background-color: rgba(0, 200, 83, 0.1) !important;
+}
+
+.workout-day-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: right;
+}
+
+.workout-day-content strong {
+  min-width: 60px;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.workout-day-content span {
+  color: var(--muted);
+  flex: 1;
+}
+
+.edit-day-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--accent);
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 250ms ease;
+  font-size: 0.9rem;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+}
+
+.edit-day-btn:hover {
+  background: rgba(0, 230, 118, 0.1);
+  border-color: var(--accent);
+  transform: scale(1.05);
+}
+
+.edit-focus-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.edit-focus-input {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  font-family: inherit;
+  transition: all 250ms ease;
+}
+
+.edit-focus-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 230, 118, 0.2);
+}
+
+.edit-focus-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.save-focus-btn,
+.cancel-focus-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 6px 10px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 250ms ease;
+  font-size: 1rem;
+  width: 32px;
+  height: 32px;
+}
+
+.save-focus-btn {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.save-focus-btn:hover {
+  background: rgba(0, 230, 118, 0.1);
+  transform: scale(1.1);
+}
+
+.cancel-focus-btn:hover {
+  background: rgba(255, 82, 82, 0.1);
+  border-color: #ff5252;
+  color: #ff5252;
+  transform: scale(1.1);
+}
+
+.no-workouts-message {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--muted);
+}
+
+.no-workouts-message p {
+  font-size: 1.1rem;
+  margin-bottom: 16px;
+}
+
+.workout-day-card.selected {
+  background-color: rgba(0, 230, 118, 0.1) !important;
+  border-left: 3px solid var(--accent);
+  padding-right: 7px;
+}
+
+body.light-theme .workout-day-card.selected {
+  background-color: rgba(0, 200, 83, 0.1) !important;
+}
+
 /* List Styles - Enhanced */
 ul {
   list-style: none;
