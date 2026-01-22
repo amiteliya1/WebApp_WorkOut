@@ -1,74 +1,183 @@
-# Workout Tracker App
+# 💪 Workout Tracker - Full Stack Application
 
-A React-based application for tracking weekly workouts, logging new sessions, and discovering exercises via external APIs. This project was built as part of a React Homework assignment focusing on Routing and Global State management.
+פרויקט מלא של Workout Tracker עם React Client, Express Server, ו-MongoDB Atlas.
 
-## 🚀 Features
+## 📋 דרישות
 
-- **Weekly Schedule:** View your weekly workout plan on the Home page.
-- **Workout Log:** A form to log new workout sessions (sets, reps, weight).
-- **Exercise Library:** Browse exercises by category (fetched from wger API).
-- **Video Search:** Automatically search for relevant exercise videos on YouTube.
-- **Favorites System:** Save your favorite exercise videos to a global list accessible from the Home page.
+- Node.js (v18 או גבוה יותר)
+- npm או yarn
+- חשבון MongoDB Atlas (חינם)
 
-## 🛠 Technologies
+## 🚀 התקנה והרצה
 
-- **React** (Vite)
-- **React Router** (for navigation)
-- **Context API** (for global state management)
-- **Axios** (for API requests)
+### 1. התקנת תלויות
 
----
+#### Server:
+```bash
+cd server
+npm install
+```
 
-## 🧭 Routing (React Router)
+#### Client:
+```bash
+cd client
+npm install
+```
 
-The application uses `react-router-dom` to manage navigation between pages without refreshing the browser.
+### 2. הגדרת משתני סביבה
 
-- **`/` (Home):** Displays the weekly workout schedule and the user's favorite videos.
-- **`/form` (Log):** A form page to input data for new workout sessions.
-- **`/exercises` (API):** Fetches and displays exercise categories from an external API.
-- **`/exercises/:muscle`:** A dynamic route that searches for YouTube videos based on the selected muscle/category.
-- **`*` (404):** A "Not Found" page for handling invalid URLs.
+#### Server (.env):
+צור קובץ `server/.env`:
+```env
+PORT=3001
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/workout-tracker?retryWrites=true&w=majority
+```
 
-Navigation is handled via a persistent `Header` component using `<NavLink>` for active link styling.
+**איך לקבל MONGODB_URI:**
+1. היכנס ל-[MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
+2. צור Cluster (M0 FREE)
+3. צור Database User
+4. הוסף IP Address ל-Whitelist
+5. לחץ "Connect" → "Connect your application"
+6. העתק את ה-Connection String
+7. החלף `<password>` בסיסמה שיצרת
+8. הוסף `workout-tracker` בסוף (לפני `?`)
 
----
+#### Client (.env):
+צור קובץ `client/.env`:
+```env
+VITE_API_URL=http://localhost:3001
+```
 
-## 🌐 Global State (Context API)
+### 3. הרצת השרת
 
-We implemented a **FavoritesContext** to manage the state of the user's favorite videos across the application.
+```bash
+cd server
+npm run dev
+```
 
-### Implementation Details:
-1. **`FavoritesContext.jsx`:** Creates the context and provider. It holds the `favorites` array state.
-2. **Provider:** The entire app is wrapped in `<FavoritesProvider>` in `main.jsx`.
-3. **Usage:**
-   - **Video Player Page:** Users can click the heart icon (❤️) to add or remove a video from the global favorites list.
-   - **Home Page:** Consumes the context to display the list of "My Favorite Exercises" at the bottom of the page.
+השרת ירוץ על: `http://localhost:3001`
 
----
+### 4. הרצת Client
 
-## 📦 How to Run
+```bash
+cd client
+npm run dev
+```
 
-1. **Install dependencies:**
-   ```bash
-   npm install
-   ```
+ה-Client ירוץ על: `http://localhost:5173`
 
-2. **Start the development server:**
-   ```bash
-   npm run dev
-   ```
+## 📁 מבנה הפרויקט
 
-3. **Open in browser:**
-   Navigate to `http://localhost:5173` (or the port shown in your terminal).
+```
+workout-tracker/
+├── client/                 # React Client
+│   ├── src/
+│   │   ├── components/    # קומפוננטות קטנות
+│   │   ├── pages/         # דפים
+│   │   ├── hooks/         # Custom Hooks
+│   │   └── App.jsx
+│   ├── .env
+│   └── package.json
+│
+└── server/                 # Express Server
+    ├── src/
+    │   ├── config/        # הגדרות DB
+    │   ├── models/        # Mongoose Models
+    │   ├── routes/        # API Routes
+    │   ├── controllers/   # Business Logic
+    │   ├── middlewares/   # Error Handling
+    │   ├── app.js
+    │   └── server.js
+    ├── .env
+    └── package.json
+```
 
----
+## 🔌 API Endpoints
 
-## 📚 Homework Evolution
+### Workouts
 
-### Homework 1: React Basics
-In the first assignment, we established the core structure of the application. We created three main components: `HomePage`, `WorkoutLogForm`, and `ExerciseApiPage`. The navigation between these "pages" was handled naively using conditional rendering (a `renderPage` function) and local `useState` in the main `App` component. We also implemented data fetching using `useEffect` and `axios` to retrieve exercise categories and YouTube videos, managing the local state within each component.
+- `GET /api/workouts` - קבלת כל האימונים
+- `GET /api/workouts/:id` - קבלת אימון ספציפי
+- `POST /api/workouts` - יצירת אימון חדש
+- `PUT /api/workouts/:id` - עדכון אימון
+- `DELETE /api/workouts/:id` - מחיקת אימון
 
-### Homework 2: Router & Context
-In this second assignment, we upgraded the architecture to support a true Single Page Application (SPA).
-1. **Routing:** We replaced the conditional rendering with **React Router**. This allows for direct linking to specific pages (e.g., `/exercises/Chest`) and enables browser history navigation.
-2. **Global State:** We introduced **React Context** (`FavoritesContext`) to solve the prop-drilling issue. This allows the user to mark a video as a favorite in the `VideoPlayerPage` and have that data immediately available and displayed in the `HomePage`, demonstrating efficient cross-component data sharing.
+### Health Check
+
+- `GET /api/health` - בדיקת תקינות השרת
+
+## 🛠️ טכנולוגיות
+
+### Client:
+- React 19
+- Vite
+- React Router
+- Axios
+- Custom Hooks
+
+### Server:
+- Node.js
+- Express
+- Mongoose
+- CORS
+- dotenv
+
+### Database:
+- MongoDB Atlas
+
+## 🐛 Troubleshooting
+
+### שגיאת חיבור ל-MongoDB:
+
+1. **IP Address לא ב-Whitelist:**
+   - היכנס ל-MongoDB Atlas
+   - Network Access → Add IP Address
+   - הוסף את ה-IP שלך או "Allow Access from Anywhere" (0.0.0.0/0)
+
+2. **סיסמה שגויה:**
+   - ודא שהחלפת `<password>` ב-Connection String
+   - אם שכחת, צור User חדש
+
+3. **Cluster לא פעיל:**
+   - ודא שה-Cluster פועל (לא Paused)
+   - אם הוא Paused, לחץ Resume
+
+4. **Connection String שגוי:**
+   - ודא שה-Connection String מלא ונכון
+   - ודא שהוספת `workout-tracker` בסוף
+
+### שגיאת CORS:
+
+- ודא שה-Client רץ על `http://localhost:5173`
+- ודא שה-Server רץ על `http://localhost:3001`
+- ודא שה-`VITE_API_URL` ב-Client נכון
+
+### שגיאת Port:
+
+- אם Port 3001 תפוס, שנה ב-`.env`:
+  ```env
+  PORT=3002
+  ```
+- עדכן גם את `VITE_API_URL` ב-Client
+
+## 📝 הערות
+
+- הפרויקט משתמש ב-ES Modules (`"type": "module"`)
+- כל הקבצים משתמשים ב-`import/export`
+- השרת משתמש ב-nodemon לפיתוח (auto-reload)
+
+## 🎯 Features
+
+- ✅ CRUD מלא (Create, Read, Update, Delete)
+- ✅ ולידציה בצד לקוח ושרת
+- ✅ Custom Hooks (useWorkouts, useLocalStorage)
+- ✅ טיפול בשגיאות
+- ✅ Loading States
+- ✅ Empty States
+- ✅ חיפוש אימונים
+- ✅ Responsive Design
+
+## 📄 License
+
+ISC
