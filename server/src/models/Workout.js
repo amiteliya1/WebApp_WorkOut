@@ -22,6 +22,11 @@ const workoutSchema = new mongoose.Schema(
       maxlength: [500, 'Notes cannot exceed 500 characters'],
       trim: true,
     },
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
   },
   {
     timestamps: true,

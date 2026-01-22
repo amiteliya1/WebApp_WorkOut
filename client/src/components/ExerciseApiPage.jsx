@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApi } from '../hooks/useApi';
+import { useAuth } from '../hooks/useAuth';
 
 // Import muscle images
 import absImage from '../assets/muscles/abs.jpg.jpg';
@@ -12,6 +13,14 @@ import shouldersImage from '../assets/muscles/shoulders.jpg.jpg';
 
 const ExerciseApiPage = () => {
     const navigate = useNavigate();
+    const { user, loading: authLoading } = useAuth();
+
+    // Redirect to login if not authenticated
+    React.useEffect(() => {
+        if (!authLoading && !user) {
+            navigate('/login', { replace: true });
+        }
+    }, [user, authLoading, navigate]);
 
     const { data: exercisesData, loading, error } = useApi('https://wger.de/api/v2/exercise/?language=2&limit=10');
     const { data: categoriesData } = useApi('https://wger.de/api/v2/exercisecategory/');
@@ -54,6 +63,16 @@ const ExerciseApiPage = () => {
     const handleCategoryClick = (englishName) => {
         navigate(`/exercises/${englishName}`);
     };
+
+    // Show loading while checking auth
+    if (authLoading) {
+        return <div className="loading-message">בודק הרשאות... ⏳</div>;
+    }
+
+    // Don't render if not authenticated (will redirect)
+    if (!user) {
+        return null;
+    }
 
     if (loading) {
         return <div className="loading-message">טוען ספריית תרגילים... ⏳</div>;

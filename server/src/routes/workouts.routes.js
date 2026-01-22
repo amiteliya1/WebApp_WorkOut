@@ -6,15 +6,17 @@ import {
   updateWorkout,
   deleteWorkout,
 } from '../controllers/workouts.controller.js';
+import { protect } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 
-router.route('/').get(getAllWorkouts).post(createWorkout);
+// All workout routes are protected
+router.route('/').get(protect, getAllWorkouts).post(protect, createWorkout);
 router
   .route('/:id')
-  .get(getWorkoutById)
-  .put(updateWorkout)
-  .delete(deleteWorkout);
+  .get(protect, getWorkoutById)
+  .put(protect, updateWorkout)
+  .delete(protect, deleteWorkout);
 
 export default router;
 
