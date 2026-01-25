@@ -40,8 +40,8 @@ const WorkoutLogForm = () => {
         e.preventDefault();
         const newErrors = {};
 
-        if (exerciseName.length < 3) {
-            newErrors.exerciseName = 'שם התרגיל חייב להכיל לפחות 3 תווים';
+        if (!exerciseName || exerciseName.trim().length === 0) {
+            newErrors.exerciseName = 'שם התרגיל הוא שדה חובה';
         }
 
         if (!weightLifted || Number(weightLifted) <= 0) {

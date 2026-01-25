@@ -6,13 +6,35 @@ const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!email || email.trim().length === 0) {
+      newErrors.email = 'אימייל הוא שדה חובה';
+    }
+
+    if (!password || password.length === 0) {
+      newErrors.password = 'סיסמה היא שדה חובה';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setErrors({});
+
+    if (!validateForm()) {
+      return;
+    }
+
     setLoading(true);
 
     const result = await login(email, password);
@@ -34,27 +56,39 @@ const LoginPage = () => {
           {error && <div className="form-error" style={{ marginBottom: '16px' }}>{error}</div>}
 
           <div className="form-field">
-            <label htmlFor="email">אימייל</label>
+            <label htmlFor="email">אימייל *</label>
             <input
               type="email"
               id="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (errors.email) {
+                  setErrors(prev => ({ ...prev, email: undefined }));
+                }
+              }}
               placeholder="your@email.com"
               required
             />
+            {errors.email && <span className="form-error">{errors.email}</span>}
           </div>
 
           <div className="form-field">
-            <label htmlFor="password">סיסמה</label>
+            <label htmlFor="password">סיסמה *</label>
             <input
               type="password"
               id="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                if (errors.password) {
+                  setErrors(prev => ({ ...prev, password: undefined }));
+                }
+              }}
               placeholder="הזן סיסמה"
               required
             />
+            {errors.password && <span className="form-error">{errors.password}</span>}
           </div>
 
           <button

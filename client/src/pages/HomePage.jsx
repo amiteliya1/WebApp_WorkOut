@@ -37,6 +37,7 @@ const HomePage = () => {
           error={error}
           onDelete={handleDelete}
           searchTerm={searchTerm}
+          onRetry={refetch}
         />
       </main>
     </div>

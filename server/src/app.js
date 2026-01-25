@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import workoutRoutes from './routes/workouts.routes.js';
 import authRoutes from './routes/auth.routes.js';
+import exercisesRoutes from './routes/exercises.routes.js';
 import { errorHandler, notFound } from './middlewares/errorHandler.js';
 
 const app = express();
@@ -28,6 +29,7 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use('/api/workouts', workoutRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api', exercisesRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

@@ -5,7 +5,7 @@ const workoutSchema = new mongoose.Schema(
     title: {
       type: String,
       required: [true, 'Title is required'],
-      minlength: [2, 'Title must be at least 2 characters'],
+      minlength: [1, 'Title must be at least 1 character'],
       trim: true,
     },
     duration: {

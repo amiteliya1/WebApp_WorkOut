@@ -15,11 +15,28 @@ export const register = async (req, res, next) => {
   try {
     const { email, password, name } = req.body;
 
-    // Validate input
+    // Validate input - required fields
     if (!email || !password) {
       return res.status(400).json({
         success: false,
         error: 'Please provide email and password',
+      });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Please provide a valid email address',
+      });
+    }
+
+    // Validate password length
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        error: 'Password must be at least 6 characters long',
       });
     }
 
@@ -55,6 +72,14 @@ export const register = async (req, res, next) => {
       },
     });
   } catch (error) {
+    // Handle Mongoose validation errors
+    if (error.name === 'ValidationError') {
+      const errors = Object.values(error.errors).map((e) => e.message);
+      return res.status(400).json({
+        success: false,
+        error: errors.join(', '),
+      });
+    }
     next(error);
   }
 };
@@ -66,7 +91,7 @@ export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
-    // Validate input
+    // Validate input - required fields
     if (!email || !password) {
       return res.status(400).json({
         success: false,
@@ -120,6 +145,13 @@ export const login = async (req, res, next) => {
 export const getMe = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found',
+      });
+    }
 
     res.status(200).json({
       success: true,

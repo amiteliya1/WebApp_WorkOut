@@ -21,6 +21,14 @@ export const getAllWorkouts = async (req, res, next) => {
 // @access  Private
 export const getWorkoutById = async (req, res, next) => {
   try {
+    // Validate ObjectId format
+    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid workout ID format',
+      });
+    }
+
     const workout = await Workout.findOne({
       _id: req.params.id,
       user: req.user._id,
@@ -47,17 +55,53 @@ export const getWorkoutById = async (req, res, next) => {
 // @access  Private
 export const createWorkout = async (req, res, next) => {
   try {
+    // Validate required fields
+    const { title, duration } = req.body;
+
+    if (!title || typeof title !== 'string' || title.trim().length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Title is required and must be a non-empty string',
+      });
+    }
+
+    if (!duration || typeof duration !== 'number' || duration < 1) {
+      return res.status(400).json({
+        success: false,
+        error: 'Duration is required and must be a positive number',
+      });
+    }
+
+    // Validate notes length if provided
+    if (req.body.notes && req.body.notes.length > 500) {
+      return res.status(400).json({
+        success: false,
+        error: 'Notes cannot exceed 500 characters',
+      });
+    }
+
     // Always set user to the logged-in user, ignore any user from client
     const workoutData = {
-      ...req.body,
+      title: title.trim(),
+      duration,
+      notes: req.body.notes ? req.body.notes.trim() : undefined,
       user: req.user._id,
     };
+
     const workout = await Workout.create(workoutData);
     res.status(201).json({
       success: true,
       data: workout,
     });
   } catch (error) {
+    // Handle Mongoose validation errors
+    if (error.name === 'ValidationError') {
+      const errors = Object.values(error.errors).map((e) => e.message);
+      return res.status(400).json({
+        success: false,
+        error: errors.join(', '),
+      });
+    }
     next(error);
   }
 };
@@ -67,8 +111,48 @@ export const createWorkout = async (req, res, next) => {
 // @access  Private
 export const updateWorkout = async (req, res, next) => {
   try {
+    // Validate ObjectId format
+    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid workout ID format',
+      });
+    }
+
+    // Validate title if provided
+    if (req.body.title !== undefined) {
+      if (typeof req.body.title !== 'string' || req.body.title.trim().length === 0) {
+        return res.status(400).json({
+          success: false,
+          error: 'Title must be a non-empty string',
+        });
+      }
+      req.body.title = req.body.title.trim();
+    }
+
+    // Validate duration if provided
+    if (req.body.duration !== undefined) {
+      if (typeof req.body.duration !== 'number' || req.body.duration < 1) {
+        return res.status(400).json({
+          success: false,
+          error: 'Duration must be a positive number',
+        });
+      }
+    }
+
+    // Validate notes length if provided
+    if (req.body.notes !== undefined && req.body.notes.length > 500) {
+      return res.status(400).json({
+        success: false,
+        error: 'Notes cannot exceed 500 characters',
+      });
+    }
+
     // Remove user from update data if present (user cannot be changed)
     const { user, ...updateData } = req.body;
+    if (req.body.notes) {
+      updateData.notes = req.body.notes.trim();
+    }
     
     const workout = await Workout.findOneAndUpdate(
       {
@@ -94,6 +178,14 @@ export const updateWorkout = async (req, res, next) => {
       data: workout,
     });
   } catch (error) {
+    // Handle Mongoose validation errors
+    if (error.name === 'ValidationError') {
+      const errors = Object.values(error.errors).map((e) => e.message);
+      return res.status(400).json({
+        success: false,
+        error: errors.join(', '),
+      });
+    }
     next(error);
   }
 };
@@ -103,6 +195,14 @@ export const updateWorkout = async (req, res, next) => {
 // @access  Private
 export const deleteWorkout = async (req, res, next) => {
   try {
+    // Validate ObjectId format
+    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid workout ID format',
+      });
+    }
+
     const workout = await Workout.findOneAndDelete({
       _id: req.params.id,
       user: req.user._id,
