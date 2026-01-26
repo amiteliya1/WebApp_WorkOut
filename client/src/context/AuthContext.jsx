@@ -1,7 +1,14 @@
 import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
+// Get API URL - ensure it ends with /api
+const getApiUrl = () => {
+  const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
+  // Ensure baseUrl ends with /api
+  return baseUrl.endsWith('/api') ? baseUrl : `${baseUrl}/api`;
+};
+
+const API_URL = getApiUrl();
 
 const AuthContext = createContext();
 
