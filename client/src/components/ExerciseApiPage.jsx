@@ -25,7 +25,18 @@ const ExerciseApiPage = () => {
         }
     }, [user, authLoading, navigate]);
 
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
+    // Get API URL - use relative path for same-origin deployment
+    const getApiUrl = () => {
+      // In production (served from same server), use relative path
+      // In development, use environment variable or localhost
+      if (import.meta.env.PROD) {
+        return '/api';
+      }
+      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
+      return baseUrl.endsWith('/api') ? baseUrl : `${baseUrl}/api`;
+    };
+
+    const API_URL = getApiUrl();
     
     const { data: exercisesData, loading, error, refetch } = useApi(`${API_URL}/exercises?language=2&limit=10`);
     const { data: categoriesData } = useApi(`${API_URL}/exercises/categories`);

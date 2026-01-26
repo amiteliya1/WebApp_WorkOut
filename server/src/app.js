@@ -1,11 +1,17 @@
 import express from 'express';
 import cors from 'cors';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 import workoutRoutes from './routes/workouts.routes.js';
 import authRoutes from './routes/auth.routes.js';
 import exercisesRoutes from './routes/exercises.routes.js';
 import { errorHandler, notFound } from './middlewares/errorHandler.js';
 
 const app = express();
+
+// Get current directory for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // CORS Configuration - Support Vercel domains and localhost
 const corsOptions = {
@@ -52,7 +58,7 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
+// API Routes
 app.use('/api/workouts', workoutRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api', exercisesRoutes);
@@ -62,7 +68,22 @@ app.get('/api/health', (req, res) => {
   res.json({ success: true, message: 'Server is running' });
 });
 
-// Error handling
+// Serve static files from client/dist
+app.use(express.static(join(__dirname, '../../client/dist')));
+
+// Catch-all handler: send back React's index.html file for client routes
+// This must be AFTER all API routes and BEFORE 404 handler
+app.get('*', (req, res, next) => {
+  // Only handle non-API routes
+  if (!req.path.startsWith('/api')) {
+    res.sendFile(join(__dirname, '../../client/dist/index.html'));
+  } else {
+    // API routes that don't exist should go to 404 handler
+    next();
+  }
+});
+
+// Error handling - 404 for API routes only
 app.use(notFound);
 app.use(errorHandler);
 

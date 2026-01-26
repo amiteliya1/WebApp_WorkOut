@@ -1,10 +1,14 @@
 import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
-// Get API URL - ensure it ends with /api
+// Get API URL - use relative path for same-origin deployment
 const getApiUrl = () => {
+  // In production (served from same server), use relative path
+  // In development, use environment variable or localhost
+  if (import.meta.env.PROD) {
+    return '/api';
+  }
   const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
-  // Ensure baseUrl ends with /api
   return baseUrl.endsWith('/api') ? baseUrl : `${baseUrl}/api`;
 };
 

@@ -7,7 +7,18 @@ import Navbar from '../components/Navbar';
 import Loading from '../components/Loading';
 import ErrorState from '../components/ErrorState';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+// Get API URL - use relative path for same-origin deployment
+const getApiUrl = () => {
+  // In production (served from same server), use relative path
+  // In development, use environment variable or localhost
+  if (import.meta.env.PROD) {
+    return '/api';
+  }
+  const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
+  return baseUrl.endsWith('/api') ? baseUrl : `${baseUrl}/api`;
+};
+
+const API_URL = getApiUrl();
 
 const EditWorkoutPage = () => {
   const { id } = useParams();
@@ -22,7 +33,7 @@ const EditWorkoutPage = () => {
     const fetchWorkout = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${API_URL}/api/workouts/${id}`);
+        const response = await axios.get(`${API_URL}/workouts/${id}`);
         setWorkout(response.data.data);
       } catch (err) {
         setError(err.response?.data?.error || 'Failed to load workout');
