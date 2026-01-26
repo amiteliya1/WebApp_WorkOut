@@ -18,13 +18,22 @@ const __dirname = dirname(__filename);
 const clientDistPath = join(__dirname, '../../client/dist');
 const clientIndexPath = join(clientDistPath, 'index.html');
 
+// Log paths for debugging
+console.log('📁 Server directory:', __dirname);
+console.log('📁 Client dist path:', clientDistPath);
+console.log('📁 Client index path:', clientIndexPath);
+
 // Check if client/dist exists
 const clientDistExists = existsSync(clientDistPath);
 const clientIndexExists = existsSync(clientIndexPath);
 
-if (!clientDistExists || !clientIndexExists) {
+if (clientDistExists && clientIndexExists) {
+  console.log('✅ Client dist found! Frontend will be served.');
+} else {
   console.warn('⚠️  Warning: client/dist not found. Frontend will not be served.');
   console.warn(`   Expected path: ${clientDistPath}`);
+  console.warn(`   Dist exists: ${clientDistExists}`);
+  console.warn(`   Index exists: ${clientIndexExists}`);
   console.warn('   Make sure to run: npm run build:client');
 }
 
@@ -94,13 +103,25 @@ app.get('*', (req, res, next) => {
   // Only handle non-API routes
   if (!req.path.startsWith('/api')) {
     if (clientIndexExists) {
-      res.sendFile(clientIndexPath);
+      console.log(`📄 Serving index.html for route: ${req.path}`);
+      res.sendFile(clientIndexPath, (err) => {
+        if (err) {
+          console.error('❌ Error sending index.html:', err);
+          res.status(500).json({
+            success: false,
+            error: 'Error serving frontend',
+            path: req.path,
+          });
+        }
+      });
     } else {
       // If dist doesn't exist, return helpful error message
+      console.warn(`⚠️  Frontend not built. Requested path: ${req.path}`);
       res.status(503).json({
         success: false,
         error: 'Frontend not built. Please run: npm run build:client',
         path: req.path,
+        distPath: clientDistPath,
       });
     }
   } else {
