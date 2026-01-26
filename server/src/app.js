@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { existsSync } from 'fs';
 import workoutRoutes from './routes/workouts.routes.js';
 import authRoutes from './routes/auth.routes.js';
 import exercisesRoutes from './routes/exercises.routes.js';
@@ -12,6 +13,20 @@ const app = express();
 // Get current directory for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+// Path to client/dist
+const clientDistPath = join(__dirname, '../../client/dist');
+const clientIndexPath = join(clientDistPath, 'index.html');
+
+// Check if client/dist exists
+const clientDistExists = existsSync(clientDistPath);
+const clientIndexExists = existsSync(clientIndexPath);
+
+if (!clientDistExists || !clientIndexExists) {
+  console.warn('⚠️  Warning: client/dist not found. Frontend will not be served.');
+  console.warn(`   Expected path: ${clientDistPath}`);
+  console.warn('   Make sure to run: npm run build:client');
+}
 
 // CORS Configuration - Support Vercel domains and localhost
 const corsOptions = {
@@ -68,15 +83,26 @@ app.get('/api/health', (req, res) => {
   res.json({ success: true, message: 'Server is running' });
 });
 
-// Serve static files from client/dist
-app.use(express.static(join(__dirname, '../../client/dist')));
+// Serve static files from client/dist (only if it exists)
+if (clientDistExists) {
+  app.use(express.static(clientDistPath));
+}
 
 // Catch-all handler: send back React's index.html file for client routes
 // This must be AFTER all API routes and BEFORE 404 handler
 app.get('*', (req, res, next) => {
   // Only handle non-API routes
   if (!req.path.startsWith('/api')) {
-    res.sendFile(join(__dirname, '../../client/dist/index.html'));
+    if (clientIndexExists) {
+      res.sendFile(clientIndexPath);
+    } else {
+      // If dist doesn't exist, return helpful error message
+      res.status(503).json({
+        success: false,
+        error: 'Frontend not built. Please run: npm run build:client',
+        path: req.path,
+      });
+    }
   } else {
     // API routes that don't exist should go to 404 handler
     next();

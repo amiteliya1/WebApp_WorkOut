@@ -11,7 +11,7 @@ const __dirname = dirname(__filename);
 // Load environment variables with correct path
 dotenv.config({ path: join(__dirname, '../.env') });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 
 // Connect to database
 connectDB();
