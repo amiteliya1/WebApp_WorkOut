@@ -99,8 +99,10 @@ app.use(express.urlencoded({ extended: true }));
 // 2. Serve static files using multiple layers:
 if (distExists && existsSync(assetsPath)) {
   // Layer A: Serve from /assets prefix
-  app.use('/assets', express.static(assetsPath));
-  console.log('✅ Layer A: /assets static serving enabled from:', assetsPath);
+  // IMPORTANT: Use distPath (not assetsPath) because req.path already includes /assets
+  // express.static will resolve: distPath + req.path = distPath + /assets/index-XXX.js
+  app.use('/assets', express.static(distPath));
+  console.log('✅ Layer A: /assets static serving enabled from:', distPath);
   
   // Layer B: Serve from assets folder even if requested from root (The Fix)
   // This handles cases where browser requests /index-XXX.js but file is in /assets/
