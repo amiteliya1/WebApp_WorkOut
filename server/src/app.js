@@ -14,29 +14,28 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Path Definitions: Use path.join(__dirname, '../../client/dist') for the client path
-// and path.join(__dirname, '../../client/dist/assets') for assets.
-const clientDistPath = join(__dirname, '../../client/dist');
+// 1. Define paths correctly:
+const distPath = join(__dirname, '../../client/dist');
 const assetsPath = join(__dirname, '../../client/dist/assets');
-const clientIndexPath = join(clientDistPath, 'index.html');
+const clientIndexPath = join(distPath, 'index.html');
 
 // Log paths for debugging
 console.log('📁 Server directory:', __dirname);
-console.log('📁 Client dist path:', clientDistPath);
+console.log('📁 Dist path:', distPath);
 console.log('📁 Assets path:', assetsPath);
-console.log('📁 Client index path:', clientIndexPath);
+console.log('📁 Index path:', clientIndexPath);
 
 // Check if client/dist exists
-const clientDistExists = existsSync(clientDistPath);
-const clientIndexExists = existsSync(clientIndexPath);
+const distExists = existsSync(distPath);
+const indexExists = existsSync(clientIndexPath);
 
-if (clientDistExists && clientIndexExists) {
+if (distExists && indexExists) {
   console.log('✅ Client dist found! Frontend will be served.');
 } else {
   console.warn('⚠️  Warning: client/dist not found. Frontend will not be served.');
-  console.warn(`   Expected path: ${clientDistPath}`);
-  console.warn(`   Dist exists: ${clientDistExists}`);
-  console.warn(`   Index exists: ${clientIndexExists}`);
+  console.warn(`   Expected path: ${distPath}`);
+  console.warn(`   Dist exists: ${distExists}`);
+  console.warn(`   Index exists: ${indexExists}`);
   console.warn('   Make sure to run: npm run build:client');
 }
 
@@ -96,43 +95,35 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Step 2: Serve static files - CRITICAL: Place BEFORE any routes
-// Use app.use('/assets', express.static(assetsPath)) specifically for the assets folder
-if (clientDistExists && existsSync(assetsPath)) {
-  // Logging: Keep the debug logs for [STATIC REQUEST] to monitor incoming asset calls
-  app.use('/assets', (req, res, next) => {
-    const filePath = join(assetsPath, req.path.replace('/assets/', ''));
-    const exists = existsSync(filePath);
-    console.log(`📦 [STATIC REQUEST] ${req.method} ${req.path} -> ${filePath} (exists: ${exists})`);
-    next();
-  });
-  
-  // Use app.use('/assets', express.static(assetsPath)) specifically for the assets folder
+// Step 2: Serve static files using multiple layers - CRITICAL: Place BEFORE any routes
+// 2. Serve static files using multiple layers:
+if (distExists && existsSync(assetsPath)) {
+  // Layer A: Serve from /assets prefix
   app.use('/assets', express.static(assetsPath));
-  console.log('✅ /assets static serving enabled from:', assetsPath);
-} else {
-  console.warn('⚠️  Assets directory not found:', assetsPath);
-}
-
-// Step 3: Use app.use(express.static(clientDistPath)) for the rest of the dist folder
-if (clientDistExists) {
-  app.use(express.static(clientDistPath, {
+  console.log('✅ Layer A: /assets static serving enabled from:', assetsPath);
+  
+  // Layer B: Serve from assets folder even if requested from root (The Fix)
+  // This handles cases where browser requests /index-XXX.js but file is in /assets/
+  app.use(express.static(assetsPath));
+  console.log('✅ Layer B: Root requests -> assets folder enabled');
+  
+  // Layer C: Serve from the main dist folder
+  app.use(express.static(distPath, {
     maxAge: '1y',
     etag: true,
     lastModified: true,
   }));
-  console.log('✅ General static files serving enabled from:', clientDistPath);
+  console.log('✅ Layer C: General static files serving enabled from:', distPath);
 } else {
-  console.error('❌ Client dist not found! Static files will not be served.');
+  console.error('❌ Client dist or assets not found! Static files will not be served.');
 }
 
-// Step 4: Logging middleware - skip /assets
+// Step 3: Logging for confirmation
+// 3. Logging for confirmation:
 app.use((req, res, next) => {
-  // Do NOT log or modify responses for /assets
-  if (req.path.startsWith('/assets')) {
-    return next();
+  if (req.url.endsWith('.css') || req.url.endsWith('.js')) {
+    console.log(`📦 [ASSET CHECK] Request: ${req.url}`);
   }
-  console.log(`📥 [${new Date().toISOString()}] ${req.method} ${req.path}`);
   next();
 });
 
@@ -146,32 +137,32 @@ app.get('/api/health', (req, res) => {
   res.json({ success: true, message: 'Server is running' });
 });
 
-// Step 6: Catch-all handler for SPA routes - serve index.html
-// Ensure app.get('*', ...) is the very LAST route in the file
-// The goal is to prevent the catch-all route from intercepting requests for .js and .css files
-app.get('*', (req, res, next) => {
+// Step 5: Catch-all handler for SPA routes - serve index.html
+// 4. Ensure the Catch-all route is at the VERY END:
+// Goal: Prevent the catch-all route from returning index.html when the browser asks for a .css or .js file from the root
+app.get('*', (req, res) => {
   // Skip API routes
   if (req.path.startsWith('/api')) {
-    return next();
+    return res.status(404).json({ success: false, error: 'Not Found' });
   }
   
   // Does NOT handle /assets/*
   if (req.path.startsWith('/assets')) {
-    return next(); // Let 404 handler deal with it
+    return res.status(404).json({ success: false, error: 'Asset not found' });
   }
   
   // Does NOT handle requests with a dot in the path (like .js, .css, .png, etc.)
+  // This prevents the catch-all from returning index.html for .css/.js files
   if (req.path.includes('.')) {
-    return next(); // Let 404 handler deal with it
+    return res.status(404).json({ success: false, error: 'File not found' });
   }
   
   // Only serves index.html for real SPA routes
-  if (clientIndexExists) {
+  if (indexExists) {
     console.log(`📄 Serving index.html for SPA route: ${req.path}`);
     res.sendFile(clientIndexPath, (err) => {
       if (err) {
         console.error('❌ Error sending index.html:', err);
-        // Only send error if response hasn't been sent yet
         if (!res.headersSent) {
           res.status(500).json({
             success: false,
@@ -183,13 +174,11 @@ app.get('*', (req, res, next) => {
       }
     });
   } else {
-    // If dist doesn't exist, return helpful error message
-    console.warn(`⚠️  Frontend not built. Requested path: ${req.path}`);
     res.status(503).json({
       success: false,
       error: 'Frontend not built. Please run: npm run build:client',
       path: req.path,
-      distPath: clientDistPath,
+      distPath: distPath,
     });
   }
 });
