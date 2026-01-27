@@ -14,13 +14,15 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Path to client/dist
+// 1) Define paths
 const clientDistPath = join(__dirname, '../../client/dist');
+const assetsPath = join(clientDistPath, 'assets');
 const clientIndexPath = join(clientDistPath, 'index.html');
 
 // Log paths for debugging
 console.log('📁 Server directory:', __dirname);
 console.log('📁 Client dist path:', clientDistPath);
+console.log('📁 Assets path:', assetsPath);
 console.log('📁 Client index path:', clientIndexPath);
 
 // Check if client/dist exists
@@ -78,13 +80,14 @@ const corsOptions = {
 };
 
 // ============================================================================
-// MIDDLEWARE ORDER IS CRITICAL:
+// MIDDLEWARE ORDER IS CRITICAL - DO NOT CHANGE:
 // 1. CORS and body parsers (must be first for all requests)
-// 2. express.static (MUST be before any other middleware to serve assets)
-// 3. Logging middleware (skip /assets to avoid interference)
-// 4. API routes
-// 5. Catch-all SPA route (skip /assets and file extensions)
-// 6. Error handlers (last)
+// 2. /assets static (MUST be first, with fallthrough:false to prevent interference)
+// 3. General static (for other static files like index.html, with fallthrough:true)
+// 4. Logging middleware (with /assets guard)
+// 5. API routes
+// 6. Catch-all SPA route (with /assets and file extension guards)
+// 7. Error handlers (last, with proper 404 handling)
 // ============================================================================
 
 // Step 1: CORS and body parsers (applied to all requests)
@@ -92,51 +95,59 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Step 2: Serve static files FIRST - this handles /assets/*.js, /assets/*.css, etc.
-// Order matters: express.static must be registered BEFORE any other middleware
-// that might interfere with static file requests. If a file exists, express.static
-// will serve it and stop the request chain. If not, it calls next().
-if (clientDistExists) {
-  // List some files in dist for debugging
-  try {
-    const assetsPath = join(clientDistPath, 'assets');
-    if (existsSync(assetsPath)) {
-      const files = readdirSync(assetsPath);
-      console.log(`📦 Found ${files.length} files in assets directory`);
-      if (files.length > 0) {
-        console.log(`📦 Sample files: ${files.slice(0, 3).join(', ')}`);
-      }
-    } else {
-      console.warn('⚠️  Assets directory not found:', assetsPath);
-    }
-  } catch (err) {
-    console.warn('⚠️  Could not list assets directory:', err.message);
-  }
+// Step 2: Serve /assets/* FIRST with fallthrough:false
+// This ensures /assets/* requests NEVER reach any other middleware
+// If file not found, express.static will call next() with error, which we handle
+if (clientDistExists && existsSync(assetsPath)) {
+  app.use('/assets', (req, res, next) => {
+    // Debug log for /assets requests
+    const filePath = join(assetsPath, req.path.replace('/assets/', ''));
+    const fileExists = existsSync(filePath);
+    console.log(`📦 [ASSETS] ${req.method} ${req.path} -> ${filePath} (exists: ${fileExists})`);
+    next();
+  });
   
-  app.use(express.static(clientDistPath, {
+  // Serve /assets/* with fallthrough:false - this prevents the request from continuing
+  // if the file is not found (it will call next() with an error)
+  app.use('/assets', express.static(assetsPath, {
+    fallthrough: false, // CRITICAL: Don't let request continue if file not found
     maxAge: '1y',
     etag: true,
     lastModified: true,
   }));
-  console.log('✅ Static files serving enabled from:', clientDistPath);
+  
+  console.log('✅ /assets static serving enabled from:', assetsPath);
+} else {
+  console.warn('⚠️  Assets directory not found:', assetsPath);
+}
+
+// Step 3: Serve other static files (index.html, etc.) with fallthrough:true
+// This allows requests to continue to other routes if file not found
+if (clientDistExists) {
+  app.use(express.static(clientDistPath, {
+    fallthrough: true, // Allow request to continue if file not found
+    maxAge: '1y',
+    etag: true,
+    lastModified: true,
+  }));
+  console.log('✅ General static files serving enabled from:', clientDistPath);
 } else {
   console.error('❌ Client dist not found! Static files will not be served.');
 }
 
-// Step 3: Logging middleware - explicitly skip /assets to avoid interference
-// This runs AFTER express.static, so if a static file was found, it won't reach here
-// If express.static couldn't find a file, it calls next() and we can log it
+// Step 4: Logging middleware - GUARD: immediately skip /assets
+// This should NEVER be reached for /assets/* if express.static works correctly
 app.use((req, res, next) => {
-  // Log static asset requests that weren't found (express.static called next())
-  if (req.path.startsWith('/assets/') || req.path.match(/\.(js|css|svg|png|jpg|jpeg|gif|ico|woff|woff2|ttf|eot)$/)) {
-    console.log(`⚠️  Static file not found by express.static: ${req.method} ${req.path}`);
-    return next(); // Let it fall through to 404 handler
+  // 3) Guard: immediately next() for /assets - should never reach here
+  if (req.path.startsWith('/assets')) {
+    console.error(`🚨 [ERROR] Non-static middleware touched /assets: ${req.method} ${req.path} - This should NEVER happen!`);
+    return next(); // This should never happen, but guard anyway
   }
   console.log(`📥 [${new Date().toISOString()}] ${req.method} ${req.path}`);
   next();
 });
 
-// Step 4: API Routes
+// Step 5: API Routes
 app.use('/api/workouts', workoutRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api', exercisesRoutes);
@@ -146,25 +157,26 @@ app.get('/api/health', (req, res) => {
   res.json({ success: true, message: 'Server is running' });
 });
 
-// Step 5: Catch-all handler for SPA routes - serve index.html
-// This must be AFTER express.static and API routes, but BEFORE error handlers
-// Order matters: express.static handles /assets/* first, so this only runs for
-// routes that don't match static files or API routes.
+// Step 6: Catch-all handler for SPA routes - serve index.html
+// 4) Ensure this NEVER matches assets or files with extensions
 app.get('*', (req, res, next) => {
   // Skip API routes (shouldn't reach here, but safety check)
   if (req.path.startsWith('/api')) {
     return next();
   }
   
-  // Skip static assets - express.static should have handled these already
-  // If we reach here for /assets/*, it means the file doesn't exist (404)
-  if (req.path.startsWith('/assets/')) {
-    return next(); // Let 404 handler deal with missing static files
+  // 4) Skip /assets - should never reach here, but guard anyway
+  if (req.path.startsWith('/assets')) {
+    console.error(`🚨 [ERROR] Catch-all route touched /assets: ${req.path} - This should NEVER happen!`);
+    return res.status(404).end(); // Return 404, not 500
   }
   
-  // Skip file extensions - these should be handled by express.static
-  if (req.path.match(/\.(js|css|svg|png|jpg|jpeg|gif|ico|woff|woff2|ttf|eot)$/)) {
-    return next(); // Let 404 handler deal with missing files
+  // 4) Skip files with extensions - return 404, DO NOT serve index.html
+  if (req.path.includes('.')) {
+    // Check if it's a known file extension
+    if (req.path.match(/\.(js|css|svg|png|jpg|jpeg|gif|ico|woff|woff2|ttf|eot|json|xml|txt)$/)) {
+      return res.status(404).end(); // Return 404, not 500, DO NOT serve index.html
+    }
   }
   
   // For all other routes (SPA routes like /, /login, /register, etc.), serve index.html
@@ -173,12 +185,15 @@ app.get('*', (req, res, next) => {
     res.sendFile(clientIndexPath, (err) => {
       if (err) {
         console.error('❌ Error sending index.html:', err);
-        res.status(500).json({
-          success: false,
-          error: 'Error serving frontend',
-          path: req.path,
-          details: err.message,
-        });
+        // Only send error if response hasn't been sent yet
+        if (!res.headersSent) {
+          res.status(500).json({
+            success: false,
+            error: 'Error serving frontend',
+            path: req.path,
+            details: err.message,
+          });
+        }
       }
     });
   } else {
@@ -193,7 +208,21 @@ app.get('*', (req, res, next) => {
   }
 });
 
-// Step 6: Error handling - 404 for API routes and missing static files
+// Step 7: Error handling - 404 for API routes and missing static files
+// 5) Ensure error handler does NOT convert static 404 into 500
+// Custom error handler for static files BEFORE the general error handler
+app.use((err, req, res, next) => {
+  // If this is a static file request and file not found, return 404
+  if (req.path.startsWith('/assets') || req.path.match(/\.(js|css|svg|png|jpg|jpeg|gif|ico|woff|woff2|ttf|eot)$/)) {
+    if (err.status === 404 || err.statusCode === 404 || err.code === 'ENOENT') {
+      console.log(`📦 Static file not found: ${req.path} - returning 404`);
+      return res.status(404).end(); // Return 404, not 500
+    }
+  }
+  // Pass to general error handler
+  next(err);
+});
+
 app.use(notFound);
 app.use(errorHandler);
 
