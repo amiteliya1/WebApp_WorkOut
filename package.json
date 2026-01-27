@@ -9,6 +9,7 @@
     "build:client": "cd client && npm install --production=false && npm run build",
     "build:server": "cd server && npm run build",
     "build": "cd client && npm install --production=false && npm run build && cd ../server && npm install",
+    "build:all": "npm run build:client && cd server && npm install"
     "install:all": "npm install && cd client && npm install && cd ../server && npm install",
     "start": "cd server && npm start",
     "start:server": "cd server && npm start"

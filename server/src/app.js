@@ -82,6 +82,12 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Log ALL incoming requests (for debugging)
+app.use((req, res, next) => {
+  console.log(`📥 [${new Date().toISOString()}] ${req.method} ${req.path}`);
+  next();
+});
+
 // API Routes
 app.use('/api/workouts', workoutRoutes);
 app.use('/api/auth', authRoutes);
@@ -93,6 +99,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // Serve static files from client/dist (only if it exists)
+// This MUST be before the catch-all route
 if (clientDistExists) {
   // Serve static files with proper MIME types
   app.use(express.static(clientDistPath, {
@@ -101,6 +108,12 @@ if (clientDistExists) {
     lastModified: true,
   }));
   console.log('✅ Static files serving enabled from:', clientDistPath);
+  
+  // Add middleware to log ALL requests (for debugging)
+  app.use((req, res, next) => {
+    console.log(`📥 Request: ${req.method} ${req.path}`);
+    next();
+  });
 } else {
   console.error('❌ Client dist not found! Static files will not be served.');
 }
@@ -113,18 +126,8 @@ app.get('*', (req, res, next) => {
     return next();
   }
   
-  // Skip static assets - they should be handled by express.static above
-  // If we reach here for a static file, it means it wasn't found
-  if (req.path.startsWith('/assets/') || req.path.match(/\.(js|css|svg|png|jpg|jpeg|gif|ico|woff|woff2|ttf|eot)$/)) {
-    console.warn(`⚠️  Static file not found: ${req.path}`);
-    return res.status(404).json({
-      success: false,
-      error: 'Static file not found',
-      path: req.path,
-    });
-  }
-  
   // For all other routes (SPA routes), serve index.html
+  // express.static will handle static assets automatically before reaching here
   if (clientIndexExists) {
     console.log(`📄 Serving index.html for route: ${req.path}`);
     res.sendFile(clientIndexPath, (err) => {
