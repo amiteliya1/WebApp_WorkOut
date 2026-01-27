@@ -95,6 +95,12 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Log ALL incoming requests to see what's happening
+app.use((req, res, next) => {
+  console.log(`🌐 [INCOMING] ${req.method} ${req.path} (from ${req.get('referer') || 'direct'})`);
+  next();
+});
+
 // Step 2: Serve static files (including /assets/*)
 // The general express.static will handle /assets/* automatically because
 // req.path = /assets/index-XXX.js, and express.static will look for
@@ -110,6 +116,17 @@ if (clientDistExists) {
       console.log(`📦 [STATIC REQUEST] ${req.method} ${req.path}`);
       console.log(`📦 [STATIC PATH] Resolved to: ${filePath}`);
       console.log(`📦 [STATIC EXISTS] ${exists}`);
+      
+      // If file exists but express.static doesn't serve it, serve it manually
+      if (exists && req.method === 'GET') {
+        console.log(`📦 [MANUAL SERVE] Serving file manually: ${filePath}`);
+        return res.sendFile(filePath, (err) => {
+          if (err) {
+            console.error(`❌ [MANUAL SERVE ERROR] ${err.message}`);
+            return next();
+          }
+        });
+      }
     }
     next();
   });
