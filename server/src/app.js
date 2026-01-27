@@ -95,25 +95,27 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Step 2: Serve /assets/* - NO fallthrough:false, NO try/catch, NO logging, NO custom middleware
-// 1) Serve assets like this (NO fallthrough:false)
-// IMPORTANT: Use clientDistPath (not assetsPath) because req.path already includes /assets
-// express.static will resolve: clientDistPath + req.path = clientDistPath + /assets/index-XXX.js
-if (clientDistExists && existsSync(assetsPath)) {
-  app.use('/assets', express.static(clientDistPath));
-  console.log('✅ /assets static serving enabled from:', clientDistPath);
-} else {
-  console.warn('⚠️  Assets directory not found:', assetsPath);
-}
-
-// Step 3: Serve other static files (index.html, etc.)
+// Step 2: Serve static files (including /assets/*)
+// The general express.static will handle /assets/* automatically because
+// req.path = /assets/index-XXX.js, and express.static will look for
+// clientDistPath + req.path = clientDistPath + /assets/index-XXX.js
 if (clientDistExists) {
+  // Add logging middleware BEFORE express.static to see what requests come in
+  app.use((req, res, next) => {
+    if (req.path.startsWith('/assets/')) {
+      const filePath = join(clientDistPath, req.path);
+      const exists = existsSync(filePath);
+      console.log(`📦 [STATIC] ${req.method} ${req.path} -> ${filePath} (exists: ${exists})`);
+    }
+    next();
+  });
+  
   app.use(express.static(clientDistPath, {
     maxAge: '1y',
     etag: true,
     lastModified: true,
   }));
-  console.log('✅ General static files serving enabled from:', clientDistPath);
+  console.log('✅ Static files serving enabled from:', clientDistPath);
 } else {
   console.error('❌ Client dist not found! Static files will not be served.');
 }
