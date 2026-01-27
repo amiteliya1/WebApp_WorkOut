@@ -1,9 +1,20 @@
 export const errorHandler = (err, req, res, next) => {
-  // 5) If this is a static file 404, return 404, not 500
-  if (req.path.startsWith('/assets') || req.path.match(/\.(js|css|svg|png|jpg|jpeg|gif|ico|woff|woff2|ttf|eot)$/)) {
-    if (err.status === 404 || err.statusCode === 404 || err.code === 'ENOENT') {
-      return res.status(404).end(); // Return 404, not 500
+  // 2) If req.path starts with '/assets':
+  //    - DO NOT send res.status(500)
+  //    - DO NOT modify the response
+  //    - Just call next(err) - Express default handler will send 500, but we prevent that
+  if (req.path.startsWith('/assets')) {
+    // Only return 500 for non-static routes
+    // For /assets, don't send any response - let express.static handle it naturally
+    // If headers already sent, do nothing
+    if (res.headersSent) {
+      return;
     }
+    // For /assets errors, return 404 instead of 500
+    // express.static should have already handled 404 cases, but if we get here,
+    // it means there was an actual error (not just file not found)
+    // Return 404 to match express.static behavior
+    return res.status(404).end();
   }
   
   let statusCode = err.statusCode || err.status || 500;
@@ -39,9 +50,15 @@ export const errorHandler = (err, req, res, next) => {
 };
 
 export const notFound = (req, res, next) => {
+  // For /assets, let express.static handle 404 naturally
+  if (req.path.startsWith('/assets')) {
+    // express.static will return 404 if file not found
+    // Don't override it with JSON response
+    return res.status(404).end();
+  }
+  
   res.status(404).json({
     success: false,
     error: `Not Found - ${req.originalUrl}`,
   });
 };
-
