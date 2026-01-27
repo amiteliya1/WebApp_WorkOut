@@ -94,39 +94,67 @@ app.get('/api/health', (req, res) => {
 
 // Serve static files from client/dist (only if it exists)
 if (clientDistExists) {
-  app.use(express.static(clientDistPath));
+  // Serve static files with proper MIME types
+  app.use(express.static(clientDistPath, {
+    maxAge: '1y',
+    etag: true,
+    lastModified: true,
+  }));
+  console.log('✅ Static files serving enabled from:', clientDistPath);
+  
+  // Log when static files are requested
+  app.use((req, res, next) => {
+    if (req.path.startsWith('/assets/') || req.path.endsWith('.js') || req.path.endsWith('.css')) {
+      console.log(`📦 Static file requested: ${req.path}`);
+    }
+    next();
+  });
+} else {
+  console.error('❌ Client dist not found! Static files will not be served.');
 }
 
 // Catch-all handler: send back React's index.html file for client routes
-// This must be AFTER all API routes and BEFORE 404 handler
+// This must be AFTER all API routes and static files, BEFORE 404 handler
 app.get('*', (req, res, next) => {
-  // Only handle non-API routes
-  if (!req.path.startsWith('/api')) {
-    if (clientIndexExists) {
-      console.log(`📄 Serving index.html for route: ${req.path}`);
-      res.sendFile(clientIndexPath, (err) => {
-        if (err) {
-          console.error('❌ Error sending index.html:', err);
-          res.status(500).json({
-            success: false,
-            error: 'Error serving frontend',
-            path: req.path,
-          });
-        }
-      });
-    } else {
-      // If dist doesn't exist, return helpful error message
-      console.warn(`⚠️  Frontend not built. Requested path: ${req.path}`);
-      res.status(503).json({
-        success: false,
-        error: 'Frontend not built. Please run: npm run build:client',
-        path: req.path,
-        distPath: clientDistPath,
-      });
-    }
+  // Skip API routes
+  if (req.path.startsWith('/api')) {
+    return next();
+  }
+  
+  // Skip static assets - they should be handled by express.static above
+  // If we reach here for a static file, it means it wasn't found
+  if (req.path.startsWith('/assets/') || req.path.match(/\.(js|css|svg|png|jpg|jpeg|gif|ico|woff|woff2|ttf|eot)$/)) {
+    console.warn(`⚠️  Static file not found: ${req.path}`);
+    return res.status(404).json({
+      success: false,
+      error: 'Static file not found',
+      path: req.path,
+    });
+  }
+  
+  // For all other routes (SPA routes), serve index.html
+  if (clientIndexExists) {
+    console.log(`📄 Serving index.html for route: ${req.path}`);
+    res.sendFile(clientIndexPath, (err) => {
+      if (err) {
+        console.error('❌ Error sending index.html:', err);
+        res.status(500).json({
+          success: false,
+          error: 'Error serving frontend',
+          path: req.path,
+          details: err.message,
+        });
+      }
+    });
   } else {
-    // API routes that don't exist should go to 404 handler
-    next();
+    // If dist doesn't exist, return helpful error message
+    console.warn(`⚠️  Frontend not built. Requested path: ${req.path}`);
+    res.status(503).json({
+      success: false,
+      error: 'Frontend not built. Please run: npm run build:client',
+      path: req.path,
+      distPath: clientDistPath,
+    });
   }
 });
 
