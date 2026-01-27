@@ -101,14 +101,6 @@ if (clientDistExists) {
     lastModified: true,
   }));
   console.log('✅ Static files serving enabled from:', clientDistPath);
-  
-  // Log when static files are requested
-  app.use((req, res, next) => {
-    if (req.path.startsWith('/assets/') || req.path.endsWith('.js') || req.path.endsWith('.css')) {
-      console.log(`📦 Static file requested: ${req.path}`);
-    }
-    next();
-  });
 } else {
   console.error('❌ Client dist not found! Static files will not be served.');
 }
