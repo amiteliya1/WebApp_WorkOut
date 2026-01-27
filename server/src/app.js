@@ -97,9 +97,11 @@ app.use(express.urlencoded({ extended: true }));
 
 // Step 2: Serve /assets/* - NO fallthrough:false, NO try/catch, NO logging, NO custom middleware
 // 1) Serve assets like this (NO fallthrough:false)
+// IMPORTANT: Use clientDistPath (not assetsPath) because req.path already includes /assets
+// express.static will resolve: clientDistPath + req.path = clientDistPath + /assets/index-XXX.js
 if (clientDistExists && existsSync(assetsPath)) {
-  app.use('/assets', express.static(assetsPath));
-  console.log('✅ /assets static serving enabled from:', assetsPath);
+  app.use('/assets', express.static(clientDistPath));
+  console.log('✅ /assets static serving enabled from:', clientDistPath);
 } else {
   console.warn('⚠️  Assets directory not found:', assetsPath);
 }
