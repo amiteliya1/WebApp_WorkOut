@@ -101,11 +101,15 @@ app.use(express.urlencoded({ extended: true }));
 // clientDistPath + req.path = clientDistPath + /assets/index-XXX.js
 if (clientDistExists) {
   // Add logging middleware BEFORE express.static to see what requests come in
+  // This MUST be before express.static to catch all requests
   app.use((req, res, next) => {
+    // Log ALL requests to see what's happening
     if (req.path.startsWith('/assets/')) {
       const filePath = join(clientDistPath, req.path);
       const exists = existsSync(filePath);
-      console.log(`📦 [STATIC] ${req.method} ${req.path} -> ${filePath} (exists: ${exists})`);
+      console.log(`📦 [STATIC REQUEST] ${req.method} ${req.path}`);
+      console.log(`📦 [STATIC PATH] Resolved to: ${filePath}`);
+      console.log(`📦 [STATIC EXISTS] ${exists}`);
     }
     next();
   });
