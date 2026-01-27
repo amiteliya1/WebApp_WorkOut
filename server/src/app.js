@@ -77,18 +77,48 @@ const corsOptions = {
   optionsSuccessStatus: 200, // Some legacy browsers (IE11) choke on 204
 };
 
-// Middleware - CORS must be before routes
+// ============================================================================
+// MIDDLEWARE ORDER IS CRITICAL:
+// 1. CORS and body parsers (must be first for all requests)
+// 2. express.static (MUST be before any other middleware to serve assets)
+// 3. Logging middleware (skip /assets to avoid interference)
+// 4. API routes
+// 5. Catch-all SPA route (skip /assets and file extensions)
+// 6. Error handlers (last)
+// ============================================================================
+
+// Step 1: CORS and body parsers (applied to all requests)
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Log ALL incoming requests (for debugging)
+// Step 2: Serve static files FIRST - this handles /assets/*.js, /assets/*.css, etc.
+// Order matters: express.static must be registered BEFORE any other middleware
+// that might interfere with static file requests. If a file exists, express.static
+// will serve it and stop the request chain. If not, it calls next().
+if (clientDistExists) {
+  app.use(express.static(clientDistPath, {
+    maxAge: '1y',
+    etag: true,
+    lastModified: true,
+  }));
+  console.log('✅ Static files serving enabled from:', clientDistPath);
+} else {
+  console.error('❌ Client dist not found! Static files will not be served.');
+}
+
+// Step 3: Logging middleware - explicitly skip /assets to avoid interference
+// This runs AFTER express.static, so if a static file was found, it won't reach here
 app.use((req, res, next) => {
+  // Skip logging for static assets - they should already be handled by express.static
+  if (req.path.startsWith('/assets/')) {
+    return next();
+  }
   console.log(`📥 [${new Date().toISOString()}] ${req.method} ${req.path}`);
   next();
 });
 
-// API Routes
+// Step 4: API Routes
 app.use('/api/workouts', workoutRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api', exercisesRoutes);
@@ -98,38 +128,30 @@ app.get('/api/health', (req, res) => {
   res.json({ success: true, message: 'Server is running' });
 });
 
-// Serve static files from client/dist (only if it exists)
-// This MUST be before the catch-all route
-if (clientDistExists) {
-  // Serve static files with proper MIME types
-  app.use(express.static(clientDistPath, {
-    maxAge: '1y',
-    etag: true,
-    lastModified: true,
-  }));
-  console.log('✅ Static files serving enabled from:', clientDistPath);
-  
-  // Add middleware to log ALL requests (for debugging)
-  app.use((req, res, next) => {
-    console.log(`📥 Request: ${req.method} ${req.path}`);
-    next();
-  });
-} else {
-  console.error('❌ Client dist not found! Static files will not be served.');
-}
-
-// Catch-all handler: send back React's index.html file for client routes
-// This must be AFTER all API routes and static files, BEFORE 404 handler
+// Step 5: Catch-all handler for SPA routes - serve index.html
+// This must be AFTER express.static and API routes, but BEFORE error handlers
+// Order matters: express.static handles /assets/* first, so this only runs for
+// routes that don't match static files or API routes.
 app.get('*', (req, res, next) => {
-  // Skip API routes
+  // Skip API routes (shouldn't reach here, but safety check)
   if (req.path.startsWith('/api')) {
     return next();
   }
   
-  // For all other routes (SPA routes), serve index.html
-  // express.static will handle static assets automatically before reaching here
+  // Skip static assets - express.static should have handled these already
+  // If we reach here for /assets/*, it means the file doesn't exist (404)
+  if (req.path.startsWith('/assets/')) {
+    return next(); // Let 404 handler deal with missing static files
+  }
+  
+  // Skip file extensions - these should be handled by express.static
+  if (req.path.match(/\.(js|css|svg|png|jpg|jpeg|gif|ico|woff|woff2|ttf|eot)$/)) {
+    return next(); // Let 404 handler deal with missing files
+  }
+  
+  // For all other routes (SPA routes like /, /login, /register, etc.), serve index.html
   if (clientIndexExists) {
-    console.log(`📄 Serving index.html for route: ${req.path}`);
+    console.log(`📄 Serving index.html for SPA route: ${req.path}`);
     res.sendFile(clientIndexPath, (err) => {
       if (err) {
         console.error('❌ Error sending index.html:', err);
@@ -153,7 +175,7 @@ app.get('*', (req, res, next) => {
   }
 });
 
-// Error handling - 404 for API routes only
+// Step 6: Error handling - 404 for API routes and missing static files
 app.use(notFound);
 app.use(errorHandler);
 
