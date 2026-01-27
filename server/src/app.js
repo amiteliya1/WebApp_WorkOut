@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { existsSync } from 'fs';
+import { existsSync, readdirSync } from 'fs';
 import workoutRoutes from './routes/workouts.routes.js';
 import authRoutes from './routes/auth.routes.js';
 import exercisesRoutes from './routes/exercises.routes.js';
@@ -97,6 +97,22 @@ app.use(express.urlencoded({ extended: true }));
 // that might interfere with static file requests. If a file exists, express.static
 // will serve it and stop the request chain. If not, it calls next().
 if (clientDistExists) {
+  // List some files in dist for debugging
+  try {
+    const assetsPath = join(clientDistPath, 'assets');
+    if (existsSync(assetsPath)) {
+      const files = readdirSync(assetsPath);
+      console.log(`📦 Found ${files.length} files in assets directory`);
+      if (files.length > 0) {
+        console.log(`📦 Sample files: ${files.slice(0, 3).join(', ')}`);
+      }
+    } else {
+      console.warn('⚠️  Assets directory not found:', assetsPath);
+    }
+  } catch (err) {
+    console.warn('⚠️  Could not list assets directory:', err.message);
+  }
+  
   app.use(express.static(clientDistPath, {
     maxAge: '1y',
     etag: true,
@@ -109,10 +125,12 @@ if (clientDistExists) {
 
 // Step 3: Logging middleware - explicitly skip /assets to avoid interference
 // This runs AFTER express.static, so if a static file was found, it won't reach here
+// If express.static couldn't find a file, it calls next() and we can log it
 app.use((req, res, next) => {
-  // Skip logging for static assets - they should already be handled by express.static
-  if (req.path.startsWith('/assets/')) {
-    return next();
+  // Log static asset requests that weren't found (express.static called next())
+  if (req.path.startsWith('/assets/') || req.path.match(/\.(js|css|svg|png|jpg|jpeg|gif|ico|woff|woff2|ttf|eot)$/)) {
+    console.log(`⚠️  Static file not found by express.static: ${req.method} ${req.path}`);
+    return next(); // Let it fall through to 404 handler
   }
   console.log(`📥 [${new Date().toISOString()}] ${req.method} ${req.path}`);
   next();
