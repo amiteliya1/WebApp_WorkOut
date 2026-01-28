@@ -3,8 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { removeFavorite } from '../store/slices/favoritesSlice';
 import { getAllWorkouts, deleteWorkout } from '../services/workouts.api';
-import { useAuth } from '../hooks/useAuth';
-import { FaHeart, FaTrash, FaEdit, FaTimes, FaExclamationTriangle } from 'react-icons/fa';
+import { FaHeart, FaTrash, FaEdit, FaTimes } from 'react-icons/fa';
 
 const DEFAULT_WEEKLY_WORKOUT = [
     { id: 1, day: 'Sunday', focus: 'Chest and Shoulders', completed: false },
@@ -20,7 +19,6 @@ const HomePage = () => {
     const favorites = useSelector((state) => state.favorites.items);
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const { deleteAccount } = useAuth();
     const [workouts, setWorkouts] = useState(DEFAULT_WEEKLY_WORKOUT);
     const [selectedDay, setSelectedDay] = useState(null);
     const [dayWorkouts, setDayWorkouts] = useState([]);
@@ -227,54 +225,6 @@ const HomePage = () => {
         if (workout) {
             handleEditDay(workout);
             setShowEditDayModal(false);
-        }
-    };
-
-    const handleDeleteAccount = async () => {
-        const confirmation = window.confirm(
-            '⚠️ WARNING: This will permanently delete your account and ALL your workouts!\n\n' +
-            'This action CANNOT be undone.\n\n' +
-            'Are you absolutely sure you want to delete your account?'
-        );
-
-        if (!confirmation) {
-            console.log('Account deletion cancelled by user');
-            return;
-        }
-
-        // Second confirmation
-        const finalConfirmation = window.confirm(
-            'FINAL WARNING!\n\n' +
-            'Click OK to permanently delete your account and all data.\n' +
-            'Click Cancel to keep your account.'
-        );
-
-        if (!finalConfirmation) {
-            console.log('Account deletion cancelled by user (final confirmation)');
-            return;
-        }
-
-        try {
-            setLoading(true);
-            console.log('Initiating account deletion...');
-
-            const result = await deleteAccount();
-
-            if (result.success) {
-                alert(
-                    `Account deleted successfully!\n\n` +
-                    `Deleted ${result.deletedWorkouts} workout(s).\n\n` +
-                    `You will now be redirected to the login page.`
-                );
-                navigate('/login');
-            } else {
-                alert(`Failed to delete account: ${result.error}`);
-            }
-        } catch (error) {
-            console.error('Error during account deletion:', error);
-            alert('An unexpected error occurred. Please try again.');
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -518,72 +468,6 @@ const HomePage = () => {
                     </div>
                 </div>
             )}
-
-            {/* Delete Account Section */}
-            <div style={{
-                marginTop: '60px',
-                borderTop: '2px solid rgba(239, 68, 68, 0.3)',
-                paddingTop: '32px',
-                marginBottom: '40px'
-            }}>
-                <div className="card" style={{
-                    maxWidth: '600px',
-                    margin: '0 auto',
-                    backgroundColor: 'rgba(239, 68, 68, 0.05)',
-                    border: '1px solid rgba(239, 68, 68, 0.2)'
-                }}>
-                    <div style={{ textAlign: 'center' }}>
-                        <FaExclamationTriangle style={{
-                            fontSize: '2rem',
-                            color: '#ef4444',
-                            marginBottom: '16px'
-                        }} />
-                        <h3 style={{
-                            color: '#ef4444',
-                            marginBottom: '12px',
-                            fontSize: '1.25rem'
-                        }}>
-                            Danger Zone
-                        </h3>
-                        <p style={{
-                            marginBottom: '20px',
-                            color: 'var(--muted)',
-                            fontSize: '0.9rem'
-                        }}>
-                            Permanently delete your account and all associated workout data.
-                            <br />
-                            <strong>This action cannot be undone.</strong>
-                        </p>
-                        <button
-                            onClick={handleDeleteAccount}
-                            disabled={loading}
-                            style={{
-                                backgroundColor: '#ef4444',
-                                color: '#fff',
-                                border: 'none',
-                                padding: '12px 24px',
-                                borderRadius: 'var(--radius)',
-                                fontSize: '1rem',
-                                fontWeight: '600',
-                                cursor: loading ? 'not-allowed' : 'pointer',
-                                transition: 'all 250ms ease',
-                                opacity: loading ? 0.6 : 1,
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '8px'
-                            }}
-                            onMouseEnter={(e) => {
-                                if (!loading) e.target.style.backgroundColor = '#dc2626';
-                            }}
-                            onMouseLeave={(e) => {
-                                if (!loading) e.target.style.backgroundColor = '#ef4444';
-                            }}
-                        >
-                            <FaTrash /> {loading ? 'Deleting...' : 'Delete My Account'}
-                        </button>
-                    </div>
-                </div>
-            </div>
         </div>
     );
 };

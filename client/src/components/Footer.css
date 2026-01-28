@@ -176,6 +176,35 @@ body.light-theme .footer-copyright {
   font-size: 0.85rem;
 }
 
+/* Delete Account Button */
+.delete-account-link {
+  background: none;
+  border: none;
+  color: rgba(239, 68, 68, 0.8);
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: all 250ms ease;
+  display: inline-block;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+}
+
+body.light-theme .delete-account-link {
+  color: rgba(239, 68, 68, 0.8);
+}
+
+.delete-account-link:hover {
+  color: #ef4444;
+  transform: translateX(4px);
+}
+
+.delete-account-link:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
 /* Responsive Design */
 @media (max-width: 968px) {
   .footer-container {

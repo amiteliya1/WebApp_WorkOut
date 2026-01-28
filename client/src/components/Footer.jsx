@@ -1,8 +1,53 @@
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 import { FaInstagram, FaTwitter, FaFacebook, FaGithub } from 'react-icons/fa';
 import './Footer.css';
 
 const Footer = () => {
+    const { user, deleteAccount } = useAuth();
+    const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
+
+    const handleDeleteAccount = async () => {
+        const confirmation = window.confirm(
+            '⚠️ WARNING: This will permanently delete your account and ALL your workouts!\n\n' +
+            'This action CANNOT be undone.\n\n' +
+            'Are you absolutely sure?'
+        );
+
+        if (!confirmation) {
+            return;
+        }
+
+        // Second confirmation
+        const finalConfirmation = window.confirm(
+            'FINAL WARNING! Click OK to permanently delete your account.'
+        );
+
+        if (!finalConfirmation) {
+            return;
+        }
+
+        try {
+            setLoading(true);
+            const result = await deleteAccount();
+
+            if (result.success) {
+                alert(
+                    `Account deleted successfully!\n\nDeleted ${result.deletedWorkouts} workout(s).`
+                );
+                navigate('/login');
+            } else {
+                alert(`Failed to delete account: ${result.error}`);
+            }
+        } catch (error) {
+            alert('An unexpected error occurred. Please try again.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <footer className="site-footer">
             <div className="footer-container">
@@ -64,6 +109,15 @@ const Footer = () => {
                     <a href="#privacy">Privacy Policy</a>
                     <a href="#terms">Terms of Service</a>
                     <a href="#cookies">Cookie Policy</a>
+                    {user && (
+                        <button
+                            onClick={handleDeleteAccount}
+                            disabled={loading}
+                            className="delete-account-link"
+                        >
+                            {loading ? 'Deleting...' : 'Delete Account'}
+                        </button>
+                    )}
                 </div>
             </div>
         </footer>
