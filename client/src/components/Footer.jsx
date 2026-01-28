@@ -11,21 +11,10 @@ const Footer = () => {
 
     const handleDeleteAccount = async () => {
         const confirmation = window.confirm(
-            '⚠️ WARNING: This will permanently delete your account and ALL your workouts!\n\n' +
-            'This action CANNOT be undone.\n\n' +
-            'Are you absolutely sure?'
+            'Delete your account and all workouts?\n\nThis cannot be undone.'
         );
 
         if (!confirmation) {
-            return;
-        }
-
-        // Second confirmation
-        const finalConfirmation = window.confirm(
-            'FINAL WARNING! Click OK to permanently delete your account.'
-        );
-
-        if (!finalConfirmation) {
             return;
         }
 
@@ -34,15 +23,13 @@ const Footer = () => {
             const result = await deleteAccount();
 
             if (result.success) {
-                alert(
-                    `Account deleted successfully!\n\nDeleted ${result.deletedWorkouts} workout(s).`
-                );
+                alert(`Account deleted. Goodbye!`);
                 navigate('/login');
             } else {
-                alert(`Failed to delete account: ${result.error}`);
+                alert(`Error: ${result.error}`);
             }
         } catch (error) {
-            alert('An unexpected error occurred. Please try again.');
+            alert('Something went wrong. Please try again.');
         } finally {
             setLoading(false);
         }
