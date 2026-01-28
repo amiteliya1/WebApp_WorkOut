@@ -28,20 +28,11 @@ const VideoPlayerPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Get YouTube API key from environment
-    const YOUTUBE_API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY;
-
     // Fetch videos when subcategory changes
     useEffect(() => {
         const loadVideos = async () => {
             if (!muscle) {
                 setError('Muscle name is required');
-                setLoading(false);
-                return;
-            }
-
-            if (!YOUTUBE_API_KEY) {
-                setError('Missing YouTube API key (VITE_YOUTUBE_API_KEY)');
                 setLoading(false);
                 return;
             }
@@ -58,7 +49,7 @@ const VideoPlayerPage = () => {
             // Build combined query: English label + English query
             const combinedQuery = `${selectedSubcategory.label} ${selectedSubcategory.query}`;
 
-            const result = await fetchYoutubeVideos(combinedQuery, YOUTUBE_API_KEY, 20);
+            const result = await fetchYoutubeVideos(combinedQuery, 20);
 
             if (result.error) {
                 setError(result.error);
@@ -74,7 +65,7 @@ const VideoPlayerPage = () => {
         };
 
         loadVideos();
-    }, [muscle, selectedSubcategory, YOUTUBE_API_KEY]);
+    }, [muscle, selectedSubcategory]);
 
     // Update selected subcategory when muscle changes
     useEffect(() => {
@@ -158,12 +149,12 @@ const VideoPlayerPage = () => {
                             setLoading(true);
                             // Trigger refetch by updating state
                             const loadVideos = async () => {
-                                if (!muscle || !YOUTUBE_API_KEY || !selectedSubcategory) {
+                                if (!muscle || !selectedSubcategory) {
                                     setLoading(false);
                                     return;
                                 }
                                 const combinedQuery = `${selectedSubcategory.label} ${selectedSubcategory.query}`;
-                                const result = await fetchYoutubeVideos(combinedQuery, YOUTUBE_API_KEY, 20);
+                                const result = await fetchYoutubeVideos(combinedQuery, 20);
                                 if (result.error) {
                                     setError(result.error);
                                     setVideos([]);
