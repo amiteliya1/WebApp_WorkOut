@@ -36,14 +36,14 @@ const ExerciseApiPage = () => {
     const { data: exercisesData, loading, error, refetch } = useApi(`${API_URL}/exercises?language=2&limit=10`);
     const { data: categoriesData } = useApi(`${API_URL}/exercises/categories`);
 
-    // מיפוי עברית ↔ אנגלית עם תמונות (using centralized mapping)
+    // Muscle groups with images (using centralized mapping)
     const muscleGroups = [
-        { hebrew: 'בטן', english: MUSCLE_MAPPING['בטן'], image: absImage },
-        { hebrew: 'רגליים', english: MUSCLE_MAPPING['רגליים'], image: legsImage },
-        { hebrew: 'חזה', english: MUSCLE_MAPPING['חזה'], image: chestImage },
-        { hebrew: 'גב', english: MUSCLE_MAPPING['גב'], image: backImage },
-        { hebrew: 'ידיים', english: MUSCLE_MAPPING['ידיים'], image: armsImage },
-        { hebrew: 'כתפיים', english: MUSCLE_MAPPING['כתפיים'], image: shouldersImage }
+        { name: 'Abs', searchTerm: MUSCLE_MAPPING['Abs'], image: absImage },
+        { name: 'Legs', searchTerm: MUSCLE_MAPPING['Legs'], image: legsImage },
+        { name: 'Chest', searchTerm: MUSCLE_MAPPING['Chest'], image: chestImage },
+        { name: 'Back', searchTerm: MUSCLE_MAPPING['Back'], image: backImage },
+        { name: 'Arms', searchTerm: MUSCLE_MAPPING['Arms'], image: armsImage },
+        { name: 'Shoulders', searchTerm: MUSCLE_MAPPING['Shoulders'], image: shouldersImage }
     ];
 
     const uniqueCategories = React.useMemo(() => {
@@ -71,14 +71,14 @@ const ExerciseApiPage = () => {
         return Array.from(categoriesSet);
     }, [exercisesData, categoriesData]);
 
-    const handleCategoryClick = (hebrewMuscleName) => {
-        // Navigate with Hebrew muscle name (e.g., "גב")
-        navigate(`/exercises/${encodeURIComponent(hebrewMuscleName)}`);
+    const handleCategoryClick = (muscleName) => {
+        // Navigate with muscle name (e.g., "Back")
+        navigate(`/exercises/${encodeURIComponent(muscleName)}`);
     };
 
     // Show loading while checking auth
     if (authLoading) {
-        return <Loading message="בודק הרשאות... ⏳" />;
+        return <Loading message="Checking permissions..." />;
     }
 
     // Don't render if not authenticated (will redirect)
@@ -87,7 +87,7 @@ const ExerciseApiPage = () => {
     }
 
     if (loading) {
-        return <Loading message="טוען ספריית תרגילים... ⏳" />;
+        return <Loading message="Loading exercise library..." />;
     }
 
     if (error) {
@@ -100,32 +100,32 @@ const ExerciseApiPage = () => {
 
     return (
         <div className="card exercise-library-card">
-            <h2>קטגוריות תרגילים</h2>
+            <h2>Exercise Categories</h2>
             <div className="muscle-grid">
                 {muscleGroups.map((muscle) => (
                     <div
-                        key={muscle.english}
+                        key={muscle.name}
                         className="muscle-card"
-                        onClick={() => handleCategoryClick(muscle.hebrew)}
+                        onClick={() => handleCategoryClick(muscle.name)}
                         role="button"
                         tabIndex={0}
                         onKeyDown={(e) => {
                             if (e.key === 'Enter' || e.key === ' ') {
                                 e.preventDefault();
-                                handleCategoryClick(muscle.hebrew);
+                                handleCategoryClick(muscle.name);
                             }
                         }}
                     >
                         <div className="muscle-card-image">
-                            <img 
+                            <img
                                 src={muscle.image}
-                                alt={muscle.hebrew}
+                                alt={muscle.name}
                                 className="muscle-image"
                             />
                             <div className="muscle-card-overlay"></div>
                         </div>
                         <div className="muscle-card-content">
-                            <h3 className="muscle-card-title">{muscle.hebrew}</h3>
+                            <h3 className="muscle-card-title">{muscle.name}</h3>
                         </div>
                     </div>
                 ))}

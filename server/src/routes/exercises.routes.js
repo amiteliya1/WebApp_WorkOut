@@ -34,7 +34,7 @@ router.get('/exercises', protect, async (req, res, next) => {
     console.error('Wger API Error:', error.message);
     res.status(error.response?.status || 500).json({
       success: false,
-      error: error.response?.data?.detail || 'שגיאה בטעינת תרגילים מהשרת החיצוני',
+      error: error.response?.data?.detail || 'Error loading exercises from external server',
     });
   }
 });
@@ -56,7 +56,7 @@ router.get('/exercises/categories', protect, async (req, res, next) => {
     console.error('Wger Categories API Error:', error.message);
     res.status(error.response?.status || 500).json({
       success: false,
-      error: error.response?.data?.detail || 'שגיאה בטעינת קטגוריות מהשרת החיצוני',
+      error: error.response?.data?.detail || 'Error loading categories from external server',
     });
   }
 });
@@ -73,7 +73,7 @@ router.get('/videos', protect, async (req, res, next) => {
     if (!muscle) {
       return res.status(400).json({
         success: false,
-        error: 'נדרש שם שריר (muscle)',
+        error: 'Muscle name is required (muscle)',
       });
     }
 
@@ -83,7 +83,7 @@ router.get('/videos', protect, async (req, res, next) => {
     if (!youtubeApiKey) {
       return res.status(500).json({
         success: false,
-        error: 'מפתח API של YouTube לא מוגדר בשרת',
+        error: 'YouTube API key is not configured on the server',
       });
     }
 
@@ -108,25 +108,25 @@ router.get('/videos', protect, async (req, res, next) => {
     });
   } catch (error) {
     console.error('YouTube API Error:', error.message);
-    
+
     // Handle different error types
     if (error.response?.status === 403) {
       return res.status(403).json({
         success: false,
-        error: 'מפתח API של YouTube לא תקין או חסר הרשאות',
+        error: 'YouTube API key is invalid or missing permissions',
       });
     }
-    
+
     if (error.response?.status === 400) {
       return res.status(400).json({
         success: false,
-        error: 'בקשה לא תקינה - בדוק את הפרמטרים',
+        error: 'Invalid request - check the parameters',
       });
     }
 
     res.status(error.response?.status || 500).json({
       success: false,
-      error: error.response?.data?.error?.message || 'שגיאה בטעינת סרטונים מ-YouTube',
+      error: error.response?.data?.error?.message || 'Error loading videos from YouTube',
     });
   }
 });

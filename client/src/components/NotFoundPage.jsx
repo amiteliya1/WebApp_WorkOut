@@ -5,10 +5,10 @@ const NotFoundPage = () => {
   return (
     <div className="not-found-container" style={{ textAlign: 'center', padding: '50px' }}>
       <h1>404</h1>
-      <h2>אופס! הדף לא נמצא</h2>
-      <p>נראה שהגעת למקום הלא נכון.</p>
+      <h2>Oops! Page not found</h2>
+      <p>It looks like you went to the wrong place.</p>
       <Link to="/" className="home-link" style={{ color: '#646cff', textDecoration: 'underline' }}>
-        חזור לדף הבית
+        Back to Home
       </Link>
     </div>
   );

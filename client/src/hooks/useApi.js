@@ -57,24 +57,24 @@ export const useApi = (url, options = {}) => {
             });
             setData(response.data);
         } catch (err) {
-            // Improved error handling with Hebrew messages
-            let errorMessage = 'שגיאה בטעינת הנתונים';
+            // Improved error handling with English messages
+            let errorMessage = 'Error loading data';
             if (err.response) {
                 const status = err.response.status;
                 if (status === 401 || status === 403) {
-                    errorMessage = err.response.data?.error || 'נדרשת התחברות. אנא התחבר מחדש.';
+                    errorMessage = err.response.data?.error || 'Authentication required. Please log in again.';
                 } else if (status === 404) {
-                    errorMessage = 'הנתונים המבוקשים לא נמצאו';
+                    errorMessage = 'Requested data not found';
                 } else if (status >= 500) {
-                    errorMessage = err.response.data?.error || 'שגיאת שרת. נסה שוב מאוחר יותר.';
+                    errorMessage = err.response.data?.error || 'Server error. Please try again later.';
                 } else {
-                    errorMessage = err.response.data?.error || err.response.data?.message || `שגיאת שרת (${status})`;
+                    errorMessage = err.response.data?.error || err.response.data?.message || `Server error (${status})`;
                 }
             } else if (err.request) {
                 // Network error - server is down or unreachable
-                errorMessage = 'לא ניתן להתחבר לשרת. ודא שהשרת פועל ונסה שוב.';
+                errorMessage = 'Unable to connect to server. Please ensure the server is running and try again.';
             } else {
-                errorMessage = err.message || 'שגיאה בטעינת הנתונים';
+                errorMessage = err.message || 'Error loading data';
             }
             setError(errorMessage);
             console.error('API Error:', err);

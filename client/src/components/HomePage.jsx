@@ -6,13 +6,13 @@ import WorkoutDayCard from './WorkoutDayCard';
 import { FaHeart, FaTrash, FaEdit, FaTimes } from 'react-icons/fa';
 
 const DEFAULT_WEEKLY_WORKOUT = [
-    { id: 1, day: 'ראשון', focus: 'חזה וכתפיים', completed: false },
-    { id: 2, day: 'שני', focus: 'גב ויד קדמית', completed: false },
-    { id: 3, day: 'שלישי', focus: 'רגליים ובטן', completed: false },
-    { id: 4, day: 'רביעי', focus: 'מנוחה / אירובי קל', completed: false },
-    { id: 5, day: 'חמישי', focus: 'גוף עליון (Upper)', completed: false },
-    { id: 6, day: 'שישי', focus: 'גוף תחתון (Lower)', completed: false },
-    { id: 7, day: 'שבת', focus: 'מנוחה', completed: false },
+    { id: 1, day: 'Sunday', focus: 'Chest and Shoulders', completed: false },
+    { id: 2, day: 'Monday', focus: 'Back and Biceps', completed: false },
+    { id: 3, day: 'Tuesday', focus: 'Legs and Abs', completed: false },
+    { id: 4, day: 'Wednesday', focus: 'Rest / Light Cardio', completed: false },
+    { id: 5, day: 'Thursday', focus: 'Upper Body', completed: false },
+    { id: 6, day: 'Friday', focus: 'Lower Body', completed: false },
+    { id: 7, day: 'Saturday', focus: 'Rest', completed: false },
 ];
 
 const HomePage = () => {
@@ -22,12 +22,12 @@ const HomePage = () => {
     const [workouts, setWorkouts] = useState(DEFAULT_WEEKLY_WORKOUT);
     const [selectedDay, setSelectedDay] = useState(null);
     const [dayWorkouts, setDayWorkouts] = useState([]);
-    const [editingDay, setEditingDay] = useState(null); // יום שנמצא בעריכה
-    const [editFocus, setEditFocus] = useState(''); // ערך הפוקוס בעריכה
-    const [showEditDayModal, setShowEditDayModal] = useState(false); // מודל לבחירת יום לעריכה
+    const [editingDay, setEditingDay] = useState(null); // Day being edited
+    const [editFocus, setEditFocus] = useState(''); // Focus value being edited
+    const [showEditDayModal, setShowEditDayModal] = useState(false); // Modal for selecting day to edit
 
     const handleDayClick = (dayName) => {
-        // טעינת אימונים של עמוד הבית (לפי יום)
+        // Load home page workouts (by day)
         const storedWeeklyWorkouts = JSON.parse(localStorage.getItem('weeklyWorkouts') || '[]');
         const dayExercises = storedWeeklyWorkouts.filter(exercise => exercise.day === dayName);
         
@@ -41,33 +41,33 @@ const HomePage = () => {
     };
 
     const handleOverlayClick = (e) => {
-        // סגירה בלחיצה על ה-overlay (לא על הכרטיסה עצמה)
+        // Close on overlay click (not on the card itself)
         if (e.target === e.currentTarget) {
             handleCloseModal();
         }
     };
 
     const handleEdit = (workout) => {
-        // מעבר לטופס עם נתוני האימון
+        // Navigate to form with workout data
         navigate('/form', { state: { workoutToEdit: workout } });
     };
 
     const handleDelete = (workoutId) => {
-        if (window.confirm('האם אתה בטוח שברצונך למחוק את האימון הזה?')) {
-            // מחיקה מאימוני עמוד הבית (לפי יום)
+        if (window.confirm('Are you sure you want to delete this workout?')) {
+            // Delete from home page workouts (by day)
             const storedWeeklyWorkouts = JSON.parse(localStorage.getItem('weeklyWorkouts') || '[]');
             const updatedWeeklyWorkouts = storedWeeklyWorkouts.filter(workout => workout.id !== workoutId);
             localStorage.setItem('weeklyWorkouts', JSON.stringify(updatedWeeklyWorkouts));
-            
-            // עדכון הרשימה
+
+            // Update the list
             const dayExercises = updatedWeeklyWorkouts.filter(exercise => exercise.day === selectedDay);
             setDayWorkouts(dayExercises);
         }
     };
 
     const handleDeleteDay = (dayName) => {
-        if (window.confirm(`האם אתה בטוח שברצונך למחוק את כל האימונים של יום ${dayName}?`)) {
-            // מחיקה מאימוני עמוד הבית (לפי יום)
+        if (window.confirm(`Are you sure you want to delete all workouts for ${dayName}?`)) {
+            // Delete from home page workouts (by day)
             const storedWeeklyWorkouts = JSON.parse(localStorage.getItem('weeklyWorkouts') || '[]');
             const updatedWeeklyWorkouts = storedWeeklyWorkouts.filter(workout => workout.day !== dayName);
             localStorage.setItem('weeklyWorkouts', JSON.stringify(updatedWeeklyWorkouts));
@@ -76,7 +76,7 @@ const HomePage = () => {
         }
     };
 
-    // טעינת התוכנית השבועית מ-localStorage
+    // Load weekly plan from localStorage
     useEffect(() => {
         const storedWeeklyPlan = localStorage.getItem('weeklyPlan');
         if (storedWeeklyPlan) {
@@ -89,32 +89,32 @@ const HomePage = () => {
         }
     }, []);
 
-    // עדכון הרשימה כשהקומפוננטה נטענת מחדש
+    // Update list when component reloads
     useEffect(() => {
         if (selectedDay) {
-            // טעינת אימוני עמוד הבית (לפי יום)
+            // Load home page workouts (by day)
             const storedWeeklyWorkouts = JSON.parse(localStorage.getItem('weeklyWorkouts') || '[]');
             const dayExercises = storedWeeklyWorkouts.filter(exercise => exercise.day === selectedDay);
             setDayWorkouts(dayExercises);
         }
     }, [selectedDay]);
 
-    // שמירת התוכנית השבועית ב-localStorage
+    // Save weekly plan to localStorage
     const saveWeeklyPlan = (updatedWorkouts) => {
         localStorage.setItem('weeklyPlan', JSON.stringify(updatedWorkouts));
         setWorkouts(updatedWorkouts);
     };
 
-    // פתיחת עריכה של יום
+    // Open day editing
     const handleEditDay = (workout) => {
         setEditingDay(workout.id);
         setEditFocus(workout.focus);
     };
 
-    // שמירת עריכה של יום
+    // Save day edit
     const handleSaveDayEdit = (dayId) => {
         if (!editFocus.trim()) {
-            alert('אנא הזן פוקוס אימון');
+            alert('Please enter workout focus');
             return;
         }
 
@@ -128,23 +128,23 @@ const HomePage = () => {
         setEditFocus('');
     };
 
-    // ביטול עריכה
+    // Cancel editing
     const handleCancelDayEdit = () => {
         setEditingDay(null);
         setEditFocus('');
     };
 
-    // פתיחת מודל בחירת יום לעריכה
+    // Open day selection modal for editing
     const handleOpenEditDayModal = () => {
         setShowEditDayModal(true);
     };
 
-    // סגירת מודל בחירת יום
+    // Close day selection modal
     const handleCloseEditDayModal = () => {
         setShowEditDayModal(false);
     };
 
-    // בחירת יום לעריכה מהמודל
+    // Select day to edit from modal
     const handleSelectDayToEdit = (dayName) => {
         const workout = workouts.find(w => w.day === dayName);
         if (workout) {
@@ -157,12 +157,12 @@ const HomePage = () => {
         <div>
             <div className="card">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                    <h2 style={{ margin: 0 }}>תוכנית אימונים שבועית</h2>
+                    <h2 style={{ margin: 0 }}>Weekly Workout Program</h2>
                     <button
                         type="button"
                         onClick={handleOpenEditDayModal}
                         className="edit-day-btn"
-                        title="ערוך יום"
+                        title="Edit Day"
                         style={{ width: '40px', height: '40px' }}
                     >
                         <FaEdit />
@@ -184,7 +184,7 @@ const HomePage = () => {
                                                 value={editFocus}
                                                 onChange={(e) => setEditFocus(e.target.value)}
                                                 className="edit-focus-input"
-                                                placeholder="הזן פוקוס אימון"
+                                                placeholder="Enter workout focus"
                                                 autoFocus
                                                 onKeyDown={(e) => {
                                                     if (e.key === 'Enter') {
@@ -199,7 +199,7 @@ const HomePage = () => {
                                                     type="button"
                                                     onClick={() => handleSaveDayEdit(workout.id)}
                                                     className="save-focus-btn"
-                                                    title="שמור"
+                                                    title="Save"
                                                 >
                                                     ✓
                                                 </button>
@@ -207,7 +207,7 @@ const HomePage = () => {
                                                     type="button"
                                                     onClick={handleCancelDayEdit}
                                                     className="cancel-focus-btn"
-                                                    title="ביטול"
+                                                    title="Cancel"
                                                 >
                                                     ✕
                                                 </button>
@@ -224,16 +224,16 @@ const HomePage = () => {
                 </ul>
             </div>
 
-            {/* Modal - בחירת יום לעריכה */}
+            {/* Modal - Select day to edit */}
             {showEditDayModal && (
                 <div className="modal-overlay" onClick={handleCloseEditDayModal}>
                     <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '400px', padding: '32px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                            <h3 style={{ margin: 0, color: 'var(--accent)' }}>איזה יום תרצה לערוך?</h3>
+                            <h3 style={{ margin: 0, color: 'var(--accent)' }}>Which day would you like to edit?</h3>
                             <button
                                 onClick={handleCloseEditDayModal}
                                 className="close-modal-btn"
-                                title="סגור"
+                                title="Close"
                             >
                                 <FaTimes />
                             </button>
@@ -256,24 +256,24 @@ const HomePage = () => {
                 </div>
             )}
 
-            {/* Modal - הצגת האימונים של היום שנבחר */}
+            {/* Modal - Display workouts for selected day */}
             {selectedDay && (
                 <div className="modal-overlay" onClick={handleOverlayClick}>
                     <div className="modal-content day-workouts-modal" onClick={(e) => e.stopPropagation()}>
                         <div className="day-workouts-header">
-                            <h3>אימונים ליום {selectedDay}</h3>
+                            <h3>Workouts for {selectedDay}</h3>
                             <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                                 <button
                                     onClick={() => handleDeleteDay(selectedDay)}
                                     className="delete-day-btn"
-                                    title={`מחק את כל האימונים של ${selectedDay}`}
+                                    title={`Delete all workouts for ${selectedDay}`}
                                 >
-                                    <FaTrash /> מחק יום
+                                    <FaTrash /> Delete Day
                                 </button>
                                 <button
                                     onClick={handleCloseModal}
                                     className="close-modal-btn"
-                                    title="סגור"
+                                    title="Close"
                                 >
                                     <FaTimes />
                                 </button>
@@ -287,16 +287,16 @@ const HomePage = () => {
                                     <div className="workout-info">
                                         <strong>{workout.name}</strong>
                                         <span className="workout-details">
-                                            {workout.weight} ק"ג × {workout.sets} סטים × {workout.reps} חזרות
+                                            {workout.weight} kg × {workout.sets} sets × {workout.reps} reps
                                         </span>
-                                        <span className="workout-feeling">הרגשה: {workout.feeling}</span>
+                                        <span className="workout-feeling">Feeling: {workout.feeling}</span>
                                     </div>
                                     <div className="workout-actions">
                                         <button
                                             type="button"
                                             onClick={() => handleEdit(workout)}
                                             className="edit-btn"
-                                            title="ערוך אימון"
+                                            title="Edit Workout"
                                         >
                                             <FaEdit />
                                         </button>
@@ -304,7 +304,7 @@ const HomePage = () => {
                                             type="button"
                                             onClick={() => handleDelete(workout.id)}
                                             className="delete-btn"
-                                            title="מחק אימון"
+                                            title="Delete Workout"
                                         >
                                             <FaTrash />
                                         </button>
@@ -314,13 +314,13 @@ const HomePage = () => {
                         </ul>
                     ) : (
                         <div className="no-workouts-message">
-                            <p>אין אימונים רשומים ליום {selectedDay}.</p>
+                            <p>No workouts recorded for {selectedDay}.</p>
                             <button
                                 onClick={() => navigate('/form', { state: { addToDay: selectedDay } })}
                                 className="btn-primary"
                                 style={{ marginTop: '16px' }}
                             >
-                                הוסף אימון חדש ליום {selectedDay}
+                                Add new workout for {selectedDay}
                             </button>
                         </div>
                     )}
@@ -330,7 +330,7 @@ const HomePage = () => {
 
             {favorites.length > 0 && (
                 <div style={{ marginTop: '40px', borderTop: '1px solid #333', paddingTop: '20px' }}>
-                    <h3 style={{ color: '#e91e63', textAlign: 'center' }}><FaHeart style={{ marginRight: '10px' }} /> התרגילים המועדפים שלי</h3>
+                    <h3 style={{ color: '#e91e63', textAlign: 'center' }}><FaHeart style={{ marginRight: '10px' }} /> My Favorite Exercises</h3>
                     <div className="card" style={{ maxWidth: '600px', margin: '0 auto' }}>
                         <ul style={{ listStyleType: 'none', padding: 0 }}>
                             {favorites.map((video) => (
@@ -353,7 +353,7 @@ const HomePage = () => {
                                             color: '#e74c3c',
                                             marginLeft: '10px'
                                         }}
-                                        title="הסר מהמועדפים"
+                                        title="Remove from Favorites"
                                     >
                                         <FaTrash />
                                     </button>

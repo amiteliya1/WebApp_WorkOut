@@ -15,7 +15,7 @@ youtubeAxios.interceptors.request.use((config) => {
 
 /**
  * Fetch YouTube videos with filtering for shorts (<= 60 seconds)
- * @param {string} query - Search query (Hebrew + English combined)
+ * @param {string} query - Search query (English combined)
  * @param {string} apiKey - YouTube API key
  * @param {number} maxResults - Maximum number of results to fetch (default: 20, will filter to <= 60s)
  * @returns {Promise<{videos: Array, error: string|null}>}
@@ -24,14 +24,14 @@ export const fetchYoutubeVideos = async (query, apiKey, maxResults = 20) => {
     if (!apiKey) {
         return {
             videos: [],
-            error: 'חסר מפתח YouTube API (VITE_YOUTUBE_API_KEY)',
+            error: 'Missing YouTube API key (VITE_YOUTUBE_API_KEY)',
         };
     }
 
     if (!query) {
         return {
             videos: [],
-            error: 'נדרש שאילתת חיפוש',
+            error: 'Search query is required',
         };
     }
 
@@ -103,32 +103,32 @@ export const fetchYoutubeVideos = async (query, apiKey, maxResults = 20) => {
         };
     } catch (err) {
         console.error('YouTube API Error:', err);
-        
-        let errorMessage = 'שגיאה בטעינת סרטונים מ-YouTube';
-        
+
+        let errorMessage = 'Error loading videos from YouTube';
+
         if (err.response) {
             const status = err.response.status;
             const errorData = err.response.data?.error;
-            
+
             if (status === 403) {
                 if (errorData?.errors?.[0]?.reason === 'quotaExceeded') {
-                    errorMessage = 'מכסת ה-API של YouTube אזלה. נסה שוב מאוחר יותר.';
+                    errorMessage = 'YouTube API quota exceeded. Please try again later.';
                 } else if (errorData?.errors?.[0]?.reason === 'forbidden') {
-                    errorMessage = 'מפתח API של YouTube לא תקין או חסר הרשאות';
+                    errorMessage = 'YouTube API key is invalid or missing permissions';
                 } else {
-                    errorMessage = 'שגיאת הרשאות ב-YouTube API (403)';
+                    errorMessage = 'YouTube API authorization error (403)';
                 }
             } else if (status === 400) {
-                errorMessage = 'בקשה לא תקינה - בדוק את הפרמטרים';
+                errorMessage = 'Invalid request - check the parameters';
             } else if (status === 401) {
-                errorMessage = 'מפתח API של YouTube לא תקין';
+                errorMessage = 'YouTube API key is invalid';
             } else if (status === 404) {
-                errorMessage = 'שירות YouTube API לא נמצא';
+                errorMessage = 'YouTube API service not found';
             } else {
-                errorMessage = errorData?.message || `שגיאת שרת YouTube (${status})`;
+                errorMessage = errorData?.message || `YouTube server error (${status})`;
             }
         } else if (err.request) {
-            errorMessage = 'לא ניתן להתחבר ל-YouTube API. בדוק את החיבור לאינטרנט.';
+            errorMessage = 'Unable to connect to YouTube API. Please check your internet connection.';
         }
 
         return {

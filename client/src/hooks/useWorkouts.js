@@ -20,23 +20,23 @@ export const useWorkouts = () => {
       const response = await axios.get(`${API_URL}/workouts`);
       setData(response.data.data || response.data);
     } catch (err) {
-      // Improved error handling with Hebrew messages
-      let errorMsg = 'שגיאה בטעינת האימונים';
+      // Improved error handling with English messages
+      let errorMsg = 'Error loading workouts';
       if (err.response) {
         const status = err.response.status;
         if (status === 401 || status === 403) {
-          errorMsg = 'נדרשת התחברות. אנא התחבר מחדש.';
+          errorMsg = 'Authentication required. Please log in again.';
         } else if (status === 404) {
-          errorMsg = 'האימונים לא נמצאו';
+          errorMsg = 'Workouts not found';
         } else if (status >= 500) {
-          errorMsg = err.response.data?.error || 'שגיאת שרת. נסה שוב מאוחר יותר.';
+          errorMsg = err.response.data?.error || 'Server error. Please try again later.';
         } else {
-          errorMsg = err.response.data?.error || err.response.data?.message || `שגיאת שרת (${status})`;
+          errorMsg = err.response.data?.error || err.response.data?.message || `Server error (${status})`;
         }
       } else if (err.request) {
-        errorMsg = 'לא ניתן להתחבר לשרת. ודא שהשרת פועל ונסה שוב.';
+        errorMsg = 'Unable to connect to server. Please ensure the server is running and try again.';
       } else {
-        errorMsg = err.message || 'שגיאה בטעינת האימונים';
+        errorMsg = err.message || 'Error loading workouts';
       }
       setError(errorMsg);
     } finally {
@@ -56,7 +56,7 @@ export const useWorkouts = () => {
       setData((prev) => [response.data.data, ...prev]);
       return { success: true, data: response.data.data };
     } catch (err) {
-      const errorMsg = err.response?.data?.error || err.response?.data?.message || err.message || 'שגיאה ביצירת אימון';
+      const errorMsg = err.response?.data?.error || err.response?.data?.message || err.message || 'Error creating workout';
       setError(errorMsg);
       return { success: false, error: errorMsg };
     }
@@ -72,7 +72,7 @@ export const useWorkouts = () => {
       );
       return { success: true, data: response.data.data };
     } catch (err) {
-      const errorMsg = err.response?.data?.error || err.response?.data?.message || err.message || 'שגיאה בעדכון אימון';
+      const errorMsg = err.response?.data?.error || err.response?.data?.message || err.message || 'Error updating workout';
       setError(errorMsg);
       return { success: false, error: errorMsg };
     }
@@ -86,7 +86,7 @@ export const useWorkouts = () => {
       setData((prev) => prev.filter((item) => item._id !== id));
       return { success: true };
     } catch (err) {
-      const errorMsg = err.response?.data?.error || err.response?.data?.message || err.message || 'שגיאה במחיקת אימון';
+      const errorMsg = err.response?.data?.error || err.response?.data?.message || err.message || 'Error deleting workout';
       setError(errorMsg);
       return { success: false, error: errorMsg };
     }

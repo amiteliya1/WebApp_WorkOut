@@ -30,19 +30,19 @@ const WorkoutForm = ({ onSubmit, initialData = null, loading = false }) => {
     const newErrors = {};
 
     if (!formData.title || formData.title.trim().length < 2) {
-      newErrors.title = 'כותרת חייבת להכיל לפחות 2 תווים';
+      newErrors.title = 'Title must contain at least 2 characters';
     }
 
     if (!formData.duration || Number(formData.duration) < 1) {
-      newErrors.duration = 'משך האימון חייב להיות לפחות דקה אחת';
+      newErrors.duration = 'Workout duration must be at least 1 minute';
     }
 
     if (!formData.date) {
-      newErrors.date = 'תאריך הוא שדה חובה';
+      newErrors.date = 'Date is required';
     }
 
     if (formData.notes && formData.notes.length > 500) {
-      newErrors.notes = 'הערות לא יכולות לעלות על 500 תווים';
+      newErrors.notes = 'Notes cannot exceed 500 characters';
     }
 
     setErrors(newErrors);
@@ -75,12 +75,12 @@ const WorkoutForm = ({ onSubmit, initialData = null, loading = false }) => {
   return (
     <div className="workout-form-container">
       <div className="form-header">
-        <h2>{id ? 'ערוך אימון' : 'אימון חדש'}</h2>
+        <h2>{id ? 'Edit Workout' : 'New Workout'}</h2>
         <button
           type="button"
           onClick={() => navigate('/')}
           className="btn-icon"
-          title="סגור"
+          title="Close"
         >
           <FaTimes />
         </button>
@@ -88,21 +88,21 @@ const WorkoutForm = ({ onSubmit, initialData = null, loading = false }) => {
 
       <form onSubmit={handleSubmit} className="workout-form">
         <div className="form-field">
-          <label htmlFor="title">כותרת האימון *</label>
+          <label htmlFor="title">Workout Title *</label>
           <input
             type="text"
             id="title"
             name="title"
             value={formData.title}
             onChange={handleChange}
-            placeholder="לדוגמה: אימון חזה וכתפיים"
+            placeholder="Example: Chest and Shoulders Workout"
             className={errors.title ? 'error' : ''}
           />
           {errors.title && <span className="form-error">{errors.title}</span>}
         </div>
 
         <div className="form-field">
-          <label htmlFor="duration">משך האימון (דקות) *</label>
+          <label htmlFor="duration">Workout Duration (minutes) *</label>
           <input
             type="number"
             id="duration"
@@ -119,7 +119,7 @@ const WorkoutForm = ({ onSubmit, initialData = null, loading = false }) => {
         </div>
 
         <div className="form-field">
-          <label htmlFor="date">תאריך *</label>
+          <label htmlFor="date">Date *</label>
           <input
             type="date"
             id="date"
@@ -132,7 +132,7 @@ const WorkoutForm = ({ onSubmit, initialData = null, loading = false }) => {
         </div>
 
         <div className="form-field">
-          <label htmlFor="notes">הערות (אופציונלי)</label>
+          <label htmlFor="notes">Notes (Optional)</label>
           <textarea
             id="notes"
             name="notes"
@@ -140,7 +140,7 @@ const WorkoutForm = ({ onSubmit, initialData = null, loading = false }) => {
             onChange={handleChange}
             rows="4"
             maxLength="500"
-            placeholder="הוסף הערות על האימון..."
+            placeholder="Add notes about the workout..."
             className={errors.notes ? 'error' : ''}
           />
           <div className="char-count">
@@ -155,10 +155,10 @@ const WorkoutForm = ({ onSubmit, initialData = null, loading = false }) => {
             onClick={() => navigate('/')}
             className="btn-secondary"
           >
-            ביטול
+            Cancel
           </button>
           <button type="submit" className="btn-primary" disabled={loading}>
-            {loading ? 'שומר...' : id ? 'עדכן' : 'שמור'}
+            {loading ? 'Saving...' : id ? 'Update' : 'Save'}
           </button>
         </div>
       </form>

@@ -59,18 +59,18 @@ export const AuthProvider = ({ children }) => {
       return { success: true };
     } catch (error) {
       // Improved error handling
-      let errorMessage = 'התחברות נכשלה';
+      let errorMessage = 'Login failed';
       if (error.response) {
         // Server responded with error status
         const status = error.response.status;
         const serverError = error.response.data?.error || error.response.data?.message;
-        errorMessage = serverError || `שגיאת שרת (${status})`;
+        errorMessage = serverError || `Server error (${status})`;
       } else if (error.request) {
         // Request was made but no response received
-        errorMessage = 'לא ניתן להתחבר לשרת. ודא שהשרת פועל.';
+        errorMessage = 'Unable to connect to server. Please ensure the server is running.';
       } else {
         // Error in request setup
-        errorMessage = error.message || 'שגיאה בהתחברות';
+        errorMessage = error.message || 'Login error';
       }
       return {
         success: false,
@@ -92,18 +92,18 @@ export const AuthProvider = ({ children }) => {
       return { success: true };
     } catch (error) {
       // Improved error handling
-      let errorMessage = 'הרשמה נכשלה';
+      let errorMessage = 'Registration failed';
       if (error.response) {
         // Server responded with error status
         const status = error.response.status;
         const serverError = error.response.data?.error || error.response.data?.message;
-        errorMessage = serverError || `שגיאת שרת (${status})`;
+        errorMessage = serverError || `Server error (${status})`;
       } else if (error.request) {
         // Request was made but no response received
-        errorMessage = 'לא ניתן להתחבר לשרת. ודא שהשרת פועל.';
+        errorMessage = 'Unable to connect to server. Please ensure the server is running.';
       } else {
         // Error in request setup
-        errorMessage = error.message || 'שגיאה בהרשמה';
+        errorMessage = error.message || 'Registration error';
       }
       return {
         success: false,

@@ -8,19 +8,19 @@ const WorkoutLogForm = () => {
     const [weightLifted, setWeightLifted] = useState('');
     const [setsCount, setSetsCount] = useState('');
     const [repsCount, setRepsCount] = useState('');
-    const [feeling, setFeeling] = useState('רגיל');
-    const [selectedDay, setSelectedDay] = useState('ראשון');
+    const [feeling, setFeeling] = useState('Normal');
+    const [selectedDay, setSelectedDay] = useState('Sunday');
     const [errors, setErrors] = useState({});
     const [editingId, setEditingId] = useState(null);
-    const [isEditingFromHome, setIsEditingFromHome] = useState(false); // האם עורכים מהעמוד הבית
+    const [isEditingFromHome, setIsEditingFromHome] = useState(false); // Whether editing from home page
 
-    // טעינת נתונים אם הגענו מהעמוד הבית
+    // Load data if coming from home page
     useEffect(() => {
-        // אם הגענו מהעמוד הבית עם אימון לעריכה
+        // If coming from home page with workout to edit
         if (location.state?.workoutToEdit) {
             const workout = location.state.workoutToEdit;
             setEditingId(workout.id);
-            setIsEditingFromHome(true); // סימון שזה מהעמוד הבית
+            setIsEditingFromHome(true); // Mark as from home page
             setExerciseName(workout.name);
             setWeightLifted(workout.weight);
             setSetsCount(workout.sets);
@@ -28,7 +28,7 @@ const WorkoutLogForm = () => {
             setFeeling(workout.feeling);
             setSelectedDay(workout.day);
         } else if (location.state?.addToDay) {
-            // אם הגענו מהעמוד הבית להוספת אימון חדש ליום מסוים
+            // If coming from home page to add new workout for specific day
             setIsEditingFromHome(true);
             setSelectedDay(location.state.addToDay);
         } else {
@@ -41,19 +41,19 @@ const WorkoutLogForm = () => {
         const newErrors = {};
 
         if (!exerciseName || exerciseName.trim().length === 0) {
-            newErrors.exerciseName = 'שם התרגיל הוא שדה חובה';
+            newErrors.exerciseName = 'Exercise name is required';
         }
 
         if (!weightLifted || Number(weightLifted) <= 0) {
-            newErrors.weightLifted = 'משקל הרמה חייב להיות מספר חיובי';
+            newErrors.weightLifted = 'Weight must be a positive number';
         }
 
         if (!setsCount || Number(setsCount) <= 0) {
-            newErrors.setsCount = 'מספר הסטים חייב להיות מספר חיובי';
+            newErrors.setsCount = 'Number of sets must be a positive number';
         }
 
         if (!repsCount || Number(repsCount) <= 0) {
-            newErrors.repsCount = 'מספר החזרות חייב להיות מספר חיובי';
+            newErrors.repsCount = 'Number of reps must be a positive number';
         }
 
         if (Object.keys(newErrors).length > 0) {
@@ -63,11 +63,11 @@ const WorkoutLogForm = () => {
 
         setErrors({});
 
-        // כל האימונים נשמרים רק ב-weeklyWorkouts (עמוד הבית)
+        // All workouts are saved only in weeklyWorkouts (home page)
         const existingWeeklyWorkouts = JSON.parse(localStorage.getItem('weeklyWorkouts') || '[]');
-        
+
         if (editingId && isEditingFromHome) {
-            // עדכון אימון קיים מהעמוד הבית
+            // Update existing workout from home page
             const updatedWeeklyWorkouts = existingWeeklyWorkouts.map(workout =>
                 workout.id === editingId
                     ? {
@@ -82,9 +82,9 @@ const WorkoutLogForm = () => {
                     : workout
             );
             localStorage.setItem('weeklyWorkouts', JSON.stringify(updatedWeeklyWorkouts));
-            alert('האימון עודכן בהצלחה!');
+            alert('Workout updated successfully!');
         } else {
-            // הוספת אימון חדש - נשמר רק בעמוד הבית
+            // Add new workout - saved only on home page
             const newWorkout = {
                 id: Date.now(),
                 day: selectedDay,
@@ -96,20 +96,20 @@ const WorkoutLogForm = () => {
             };
             const updatedWeeklyWorkouts = [...existingWeeklyWorkouts, newWorkout];
             localStorage.setItem('weeklyWorkouts', JSON.stringify(updatedWeeklyWorkouts));
-            alert('האימון נשמר בהצלחה!');
+            alert('Workout saved successfully!');
         }
 
-        // איפוס הטופס
+        // Reset form
         setExerciseName('');
         setWeightLifted('');
         setSetsCount('');
         setRepsCount('');
-        setFeeling('רגיל');
-        setSelectedDay('ראשון');
+        setFeeling('Normal');
+        setSelectedDay('Sunday');
         setEditingId(null);
         setIsEditingFromHome(false);
-        
-        // מעבר חזרה לעמוד הבית
+
+        // Return to home page
         window.location.href = '/';
     };
 
@@ -120,47 +120,47 @@ const WorkoutLogForm = () => {
         setWeightLifted('');
         setSetsCount('');
         setRepsCount('');
-        setFeeling('רגיל');
-        setSelectedDay('ראשון');
-        
-        // חזרה לעמוד הבית
+        setFeeling('Normal');
+        setSelectedDay('Sunday');
+
+        // Return to home page
         window.location.href = '/';
     };
 
     return (
         <div>
             <div className="card workout-form-card">
-                <h2>{editingId ? 'ערוך אימון' : 'יומן אימון'}</h2>
+                <h2>{editingId ? 'Edit Workout' : 'Workout Log'}</h2>
                 {editingId && (
                     <button
                         type="button"
                         onClick={handleCancelEdit}
                         className="cancel-edit-btn"
                     >
-                        <FaTimes /> ביטול עריכה
+                        <FaTimes /> Cancel Editing
                     </button>
                 )}
                 <form onSubmit={handleSubmit} className="workout-form">
 
                 <div className="form-field">
-                    <label htmlFor="day">יום בשבוע</label>
+                    <label htmlFor="day">Day of Week</label>
                     <select
                         id="day"
                         value={selectedDay}
                         onChange={(e) => setSelectedDay(e.target.value)}
                     >
-                        <option value="ראשון">ראשון</option>
-                        <option value="שני">שני</option>
-                        <option value="שלישי">שלישי</option>
-                        <option value="רביעי">רביעי</option>
-                        <option value="חמישי">חמישי</option>
-                        <option value="שישי">שישי</option>
-                        <option value="שבת">שבת</option>
+                        <option value="Sunday">Sunday</option>
+                        <option value="Monday">Monday</option>
+                        <option value="Tuesday">Tuesday</option>
+                        <option value="Wednesday">Wednesday</option>
+                        <option value="Thursday">Thursday</option>
+                        <option value="Friday">Friday</option>
+                        <option value="Saturday">Saturday</option>
                     </select>
                 </div>
 
                 <div className="form-field">
-                    <label htmlFor="exerciseName">שם התרגיל</label>
+                    <label htmlFor="exerciseName">Exercise Name</label>
                     <input
                         type="text"
                         id="exerciseName"
@@ -172,13 +172,13 @@ const WorkoutLogForm = () => {
                                 setErrors(prev => ({ ...prev, exerciseName: undefined }));
                             }
                         }}
-                        placeholder="לדוגמה: לחיצת חזה"
+                        placeholder="Example: Bench Press"
                     />
                     {errors.exerciseName && <span className="form-error">{errors.exerciseName}</span>}
                 </div>
 
                 <div className="form-field">
-                    <label htmlFor="weightLifted">משקל הרמה (ק"ג)</label>
+                    <label htmlFor="weightLifted">Weight Lifted (kg)</label>
                     <input
                         type="number"
                         id="weightLifted"
@@ -198,7 +198,7 @@ const WorkoutLogForm = () => {
                 </div>
 
                 <div className="form-field">
-                    <label htmlFor="setsCount">מספר סטים</label>
+                    <label htmlFor="setsCount">Number of Sets</label>
                     <input
                         type="number"
                         id="setsCount"
@@ -218,7 +218,7 @@ const WorkoutLogForm = () => {
                 </div>
 
                 <div className="form-field">
-                    <label htmlFor="repsCount">מספר חזרות</label>
+                    <label htmlFor="repsCount">Number of Reps</label>
                     <input
                         type="number"
                         id="repsCount"
@@ -238,20 +238,20 @@ const WorkoutLogForm = () => {
                 </div>
 
                 <div className="form-field">
-                    <label htmlFor="feeling">הרגשה כללית</label>
+                    <label htmlFor="feeling">Overall Feeling</label>
                     <select
                         id="feeling"
                         value={feeling}
                         onChange={(e) => setFeeling(e.target.value)}
                     >
-                        <option value="מצוין">מצוין</option>
-                        <option value="רגיל">רגיל</option>
-                        <option value="קשה">קשה</option>
+                        <option value="Excellent">Excellent</option>
+                        <option value="Normal">Normal</option>
+                        <option value="Difficult">Difficult</option>
                     </select>
                 </div>
 
                 <button type="submit" className="btn-primary form-submit-btn">
-                    {editingId ? 'עדכן אימון' : 'שמור אימון'}
+                    {editingId ? 'Update Workout' : 'Save Workout'}
                 </button>
             </form>
             </div>

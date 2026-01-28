@@ -6,10 +6,10 @@ const EmptyState = () => {
   return (
     <div className="empty-state">
       <FaDumbbell className="empty-icon" />
-      <h3>אין אימונים עדיין</h3>
-      <p>התחל ליצור אימונים חדשים</p>
+      <h3>No workouts yet</h3>
+      <p>Start creating new workouts</p>
       <Link to="/new" className="btn-primary">
-        צור אימון חדש
+        Create New Workout
       </Link>
     </div>
   );

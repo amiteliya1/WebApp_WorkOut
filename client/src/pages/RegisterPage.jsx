@@ -21,15 +21,15 @@ const RegisterPage = () => {
     const newErrors = {};
 
     if (!email || email.trim().length === 0) {
-      newErrors.email = 'אימייל הוא שדה חובה';
+      newErrors.email = 'Email is required';
     } else if (!validateEmail(email)) {
-      newErrors.email = 'אנא הזן כתובת אימייל תקינה';
+      newErrors.email = 'Please enter a valid email address';
     }
 
     if (!password || password.length === 0) {
-      newErrors.password = 'סיסמה היא שדה חובה';
+      newErrors.password = 'Password is required';
     } else if (password.length < 6) {
-      newErrors.password = 'סיסמה חייבת להכיל לפחות 6 תווים';
+      newErrors.password = 'Password must be at least 6 characters';
     }
 
     setErrors(newErrors);
@@ -52,7 +52,7 @@ const RegisterPage = () => {
     if (result.success) {
       navigate('/');
     } else {
-      setError(result.error || 'הרשמה נכשלה');
+      setError(result.error || 'Registration failed');
     }
 
     setLoading(false);
@@ -61,12 +61,12 @@ const RegisterPage = () => {
   return (
     <div className="main-content">
       <div className="card workout-form-card">
-        <h2>הרשמה</h2>
+        <h2>Sign Up</h2>
         <form onSubmit={handleSubmit} className="workout-form">
           {error && <div className="form-error" style={{ marginBottom: '16px' }}>{error}</div>}
 
           <div className="form-field">
-            <label htmlFor="name">שם (אופציונלי)</label>
+            <label htmlFor="name">Name (Optional)</label>
             <input
               type="text"
               id="name"
@@ -77,13 +77,13 @@ const RegisterPage = () => {
                   setErrors(prev => ({ ...prev, name: undefined }));
                 }
               }}
-              placeholder="הזן שם"
+              placeholder="Enter name"
             />
             {errors.name && <span className="form-error">{errors.name}</span>}
           </div>
 
           <div className="form-field">
-            <label htmlFor="email">אימייל *</label>
+            <label htmlFor="email">Email *</label>
             <input
               type="email"
               id="email"
@@ -101,7 +101,7 @@ const RegisterPage = () => {
           </div>
 
           <div className="form-field">
-            <label htmlFor="password">סיסמה *</label>
+            <label htmlFor="password">Password *</label>
             <input
               type="password"
               id="password"
@@ -112,7 +112,7 @@ const RegisterPage = () => {
                   setErrors(prev => ({ ...prev, password: undefined }));
                 }
               }}
-              placeholder="מינימום 6 תווים"
+              placeholder="Minimum 6 characters"
               required
               minLength={6}
             />
@@ -124,12 +124,12 @@ const RegisterPage = () => {
             className="btn-primary form-submit-btn"
             disabled={loading}
           >
-            {loading ? 'נרשם...' : 'הירשם'}
+            {loading ? 'Registering...' : 'Sign Up'}
           </button>
 
           <div style={{ marginTop: '20px', textAlign: 'center' }}>
             <p style={{ color: 'var(--muted)', marginBottom: '10px' }}>
-              כבר יש לך חשבון?
+              Already have an account?
             </p>
             <Link
               to="/login"
@@ -139,7 +139,7 @@ const RegisterPage = () => {
                 fontWeight: 500,
               }}
             >
-              התחבר כאן
+              Login here
             </Link>
           </div>
         </form>
