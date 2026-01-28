@@ -1,13 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
-// Get API URL - use relative path for same-origin deployment
+// Get API URL - always use VITE_API_URL (or localhost fallback)
 const getApiUrl = () => {
-  // In production (served from same server), use relative path
-  // In development, use environment variable or localhost
-  if (import.meta.env.PROD) {
-    return '/api';
-  }
   const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
   return baseUrl.endsWith('/api') ? baseUrl : `${baseUrl}/api`;
 };

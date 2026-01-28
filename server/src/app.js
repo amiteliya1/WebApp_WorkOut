@@ -42,7 +42,7 @@ if (distExists && indexExists && assetsExists) {
   console.warn('   Make sure to run: npm run build:client');
 }
 
-// CORS Configuration - Support Vercel domains and localhost
+// CORS Configuration - Support static frontend (Render) + Vercel + localhost
 const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
@@ -52,6 +52,9 @@ const corsOptions = {
 
     // List of allowed origins
     const allowedOrigins = [
+      // New static frontend on Render
+      'https://webapp-workout.onrender.com',
+      // Legacy Vercel client
       'https://web-app-work-out-client.vercel.app',
       'http://localhost:5173',
       'http://localhost:5174',
