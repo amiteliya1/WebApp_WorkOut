@@ -10,13 +10,21 @@ const NewWorkoutPage = () => {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (formData) => {
+    console.log('🚀 NewWorkoutPage handleSubmit called');
+    console.log('📋 Received formData:', formData);
+    console.log('🔍 createWorkout function exists?', typeof createWorkout === 'function');
+    
     setLoading(true);
+    console.log('⏳ Calling createWorkout...');
     const result = await createWorkout(formData);
+    console.log('📦 createWorkout result:', result);
     setLoading(false);
 
     if (result.success) {
+      console.log('✅ Success! Navigating to home...');
       navigate('/');
     } else {
+      console.log('❌ Error:', result.error);
       alert(`שגיאה: ${result.error}`);
     }
   };

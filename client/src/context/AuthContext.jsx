@@ -33,13 +33,28 @@ export const AuthProvider = ({ children }) => {
       if (token) {
         try {
           const response = await axios.get(`${API_URL}/auth/me`);
-          setUser(response.data.data);
+          const currentUser = response.data.data;
+          setUser(currentUser);
+          
+          // Clear old localStorage data when user logs in (prevent mixing workouts between users)
+          const lastUserId = localStorage.getItem('lastUserId');
+          if (lastUserId && lastUserId !== currentUser.id) {
+            // Different user logged in - clear old localStorage workout data
+            localStorage.removeItem('weeklyWorkouts');
+            localStorage.removeItem('weeklyPlan');
+            console.log('🧹 Cleared localStorage for new user');
+          }
+          localStorage.setItem('lastUserId', currentUser.id);
         } catch (error) {
           // Token is invalid, clear it
           setToken(null);
           setUser(null);
           localStorage.removeItem('token');
+          localStorage.removeItem('lastUserId');
         }
+      } else {
+        // No token - clear user tracking
+        localStorage.removeItem('lastUserId');
       }
       setLoading(false);
     };
@@ -116,6 +131,10 @@ export const AuthProvider = ({ children }) => {
     setToken(null);
     setUser(null);
     localStorage.removeItem('token');
+    localStorage.removeItem('lastUserId');
+    // Clear old localStorage workout data on logout
+    localStorage.removeItem('weeklyWorkouts');
+    localStorage.removeItem('weeklyPlan');
     delete axios.defaults.headers.common['Authorization'];
   };
 

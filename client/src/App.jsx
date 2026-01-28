@@ -3,14 +3,17 @@ import { Routes, Route, NavLink, useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { useTheme } from './hooks/useTheme'
 import { useAuth } from './hooks/useAuth'
-import HomePage from './components/HomePage'
-import WorkoutLogForm from './components/WorkoutLogForm'
+import HomePage from './pages/HomePage'
+// Make sure we're using the MongoDB version, not the localStorage one
 import ExerciseApiPage from './components/ExerciseApiPage'
 import VideoPlayerPage from './components/VideoPlayerPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import NotFoundPage from './components/NotFoundPage'
+import NewWorkoutPage from './pages/NewWorkoutPage'
+import EditWorkoutPage from './pages/EditWorkoutPage'
+import WorkoutDetailPage from './pages/WorkoutDetailPage'
 import { FaHeart, FaSun, FaMoon, FaBars, FaTimes, FaSignInAlt, FaSignOutAlt } from 'react-icons/fa'
 import './App.css'
 
@@ -54,7 +57,7 @@ function App() {
                 </NavLink>
                 <span className="nav-separator">|</span>
                 <NavLink 
-                  to="/form" 
+                  to="/new" 
                   className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
                   onClick={closeMobileMenu}
                 >
@@ -170,7 +173,7 @@ function App() {
                   בית
                 </NavLink>
                 <NavLink 
-                  to="/form" 
+                  to="/new" 
                   className={({ isActive }) => `mobile-nav-link ${isActive ? 'active' : ''}`}
                   onClick={closeMobileMenu}
                 >
@@ -223,10 +226,26 @@ function App() {
             }
           />
           <Route
-            path="/form"
+            path="/new"
             element={
               <ProtectedRoute>
-                <WorkoutLogForm />
+                <NewWorkoutPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/workouts/:id"
+            element={
+              <ProtectedRoute>
+                <WorkoutDetailPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/edit/:id"
+            element={
+              <ProtectedRoute>
+                <EditWorkoutPage />
               </ProtectedRoute>
             }
           />

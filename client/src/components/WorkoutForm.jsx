@@ -51,8 +51,19 @@ const WorkoutForm = ({ onSubmit, initialData = null, loading = false }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (validate()) {
+    console.log('🚀 Submit button clicked - WorkoutForm handleSubmit');
+    console.log('📋 Form data:', formData);
+    console.log('🔍 onSubmit function exists?', typeof onSubmit === 'function');
+    
+    const isValid = validate();
+    console.log('✅ Validation result:', isValid);
+    console.log('❌ Validation errors:', errors);
+    
+    if (isValid) {
+      console.log('✅ Validation passed, calling onSubmit...');
       onSubmit(formData);
+    } else {
+      console.log('❌ Validation failed, NOT calling onSubmit');
     }
   };
 

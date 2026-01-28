@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { FaTimes } from 'react-icons/fa';
+import axios from 'axios';
+
+// Helper to get API base URL (same pattern as useWorkouts)
+const getApiUrl = () => {
+    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
+    return baseUrl.endsWith('/api') ? baseUrl : `${baseUrl}/api`;
+};
 
 const WorkoutLogForm = () => {
     const location = useLocation();
@@ -36,7 +43,7 @@ const WorkoutLogForm = () => {
         }
     }, [location.state]);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const newErrors = {};
 
@@ -63,12 +70,12 @@ const WorkoutLogForm = () => {
 
         setErrors({});
 
-        // כל האימונים נשמרים רק ב-weeklyWorkouts (עמוד הבית)
+        // כל האימונים נשמרים ב-localStorage לעמוד הבית
         const existingWeeklyWorkouts = JSON.parse(localStorage.getItem('weeklyWorkouts') || '[]');
         
         if (editingId && isEditingFromHome) {
             // עדכון אימון קיים מהעמוד הבית
-            const updatedWeeklyWorkouts = existingWeeklyWorkouts.map(workout =>
+            const updatedWeeklyWorkouts = existingWeeklyWorkouts.map((workout) =>
                 workout.id === editingId
                     ? {
                         id: editingId,
@@ -84,7 +91,7 @@ const WorkoutLogForm = () => {
             localStorage.setItem('weeklyWorkouts', JSON.stringify(updatedWeeklyWorkouts));
             alert('האימון עודכן בהצלחה!');
         } else {
-            // הוספת אימון חדש - נשמר רק בעמוד הבית
+            // הוספת אימון חדש - נשמר ב-localStorage לעמוד הבית
             const newWorkout = {
                 id: Date.now(),
                 day: selectedDay,
@@ -97,6 +104,23 @@ const WorkoutLogForm = () => {
             const updatedWeeklyWorkouts = [...existingWeeklyWorkouts, newWorkout];
             localStorage.setItem('weeklyWorkouts', JSON.stringify(updatedWeeklyWorkouts));
             alert('האימון נשמר בהצלחה!');
+        }
+
+        // בנוסף: שמירה לאימון כללי בשרת (MongoDB) עבור המשתמש המחובר
+        try {
+            const API_URL = getApiUrl();
+            const title = `${selectedDay} - ${exerciseName}`;
+            const duration = 1; // דרישת המודל: מספר חיובי (לפחות 1)
+            const notes = `תרגיל: ${exerciseName}, משקל: ${weightLifted} ק\"ג, סטים: ${setsCount}, חזרות: ${repsCount}, הרגשה: ${feeling}`;
+
+            await axios.post(`${API_URL}/workouts`, {
+                title,
+                duration,
+                notes,
+            });
+        } catch (err) {
+            console.error('Error saving workout to server:', err);
+            // לא חוסם את הזרימה, רק מודיע בקונסול / אופציונלי alert רך
         }
 
         // איפוס הטופס
