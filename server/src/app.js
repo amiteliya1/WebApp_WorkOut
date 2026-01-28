@@ -14,8 +14,26 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// 1) Use path.resolve to build absolute paths from server/src -> client/dist
-const distPath = path.resolve(__dirname, '..', '..', 'client', 'dist');
+// Resolve client/dist robustly (Render can run with different working directories)
+function resolveClientDistPath() {
+  const candidates = [
+    // repoRoot/client/dist (from server/src)
+    path.resolve(__dirname, '..', '..', 'client', 'dist'),
+    // repoRoot/client/dist (from server as cwd)
+    path.resolve(process.cwd(), '..', 'client', 'dist'),
+    // in case service root is repo root already
+    path.resolve(process.cwd(), 'client', 'dist'),
+  ];
+
+  for (const p of candidates) {
+    if (existsSync(p)) return p;
+  }
+
+  // fallback to first candidate for logging
+  return candidates[0];
+}
+
+const distPath = resolveClientDistPath();
 const assetsPath = path.resolve(distPath, 'assets');
 const clientIndexPath = path.join(distPath, 'index.html');
 
@@ -24,9 +42,11 @@ console.log('📁 Server __dirname:', __dirname);
 console.log('📁 Resolved Dist Path:', distPath);
 console.log('📁 Resolved Assets Path:', assetsPath);
 console.log('📁 Resolved Index Path:', clientIndexPath);
+console.log('📁 process.cwd():', process.cwd());
 
 const distExists = existsSync(distPath);
 const indexExists = existsSync(clientIndexPath);
+const assetsExists = existsSync(assetsPath);
 
 if (distExists && indexExists) {
   console.log('✅ Client dist found! Frontend will be served.');
@@ -35,6 +55,7 @@ if (distExists && indexExists) {
   console.warn(`   Expected path: ${distPath}`);
   console.warn(`   Dist exists: ${distExists}`);
   console.warn(`   Index exists: ${indexExists}`);
+  console.warn(`   Assets exists: ${assetsExists}`);
   console.warn('   Make sure to run: npm run build:client');
 }
 
@@ -122,6 +143,17 @@ app.get('/api/health', (req, res) => {
 
 // 4) Catch-all route at the VERY END: serve index.html from dist
 app.get('*', (req, res) => {
+  // Never hijack API routes
+  if (req.path.startsWith('/api')) {
+    return res.status(404).json({ success: false, error: 'Not Found' });
+  }
+
+  // Never hijack direct asset/file requests (let static middleware handle them)
+  // This prevents serving index.html for /assets/* or /something.js, /something.css, etc.
+  if (req.path.startsWith('/assets') || req.path.includes('.')) {
+    return res.status(404).json({ success: false, error: 'File not found' });
+  }
+
   // If dist/index.html doesn't exist, return helpful error
   if (!indexExists) {
     return res.status(503).json({
