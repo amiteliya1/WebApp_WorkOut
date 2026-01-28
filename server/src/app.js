@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import path, { dirname } from 'path';
 import { existsSync } from 'fs';
 import workoutRoutes from './routes/workouts.routes.js';
 import authRoutes from './routes/auth.routes.js';
@@ -14,18 +14,17 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// 1. Define paths correctly:
-const distPath = join(__dirname, '../../client/dist');
-const assetsPath = join(__dirname, '../../client/dist/assets');
-const clientIndexPath = join(distPath, 'index.html');
+// 1) Use path.resolve to build absolute paths from server/src -> client/dist
+const distPath = path.resolve(__dirname, '..', '..', 'client', 'dist');
+const assetsPath = path.resolve(distPath, 'assets');
+const clientIndexPath = path.join(distPath, 'index.html');
 
-// Log paths for debugging
-console.log('📁 Server directory:', __dirname);
-console.log('📁 Dist path:', distPath);
-console.log('📁 Assets path:', assetsPath);
-console.log('📁 Index path:', clientIndexPath);
+// 2) Logs to verify paths
+console.log('📁 Server __dirname:', __dirname);
+console.log('📁 Resolved Dist Path:', distPath);
+console.log('📁 Resolved Assets Path:', assetsPath);
+console.log('📁 Resolved Index Path:', clientIndexPath);
 
-// Check if client/dist exists
 const distExists = existsSync(distPath);
 const indexExists = existsSync(clientIndexPath);
 
@@ -95,33 +94,15 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Step 2: Serve static files using multiple layers - CRITICAL: Place BEFORE any routes
-// 2. Serve static files using multiple layers:
-if (distExists && existsSync(assetsPath)) {
-  // Layer A: Serve from /assets prefix
-  // IMPORTANT: Use distPath (not assetsPath) because req.path already includes /assets
-  // express.static will resolve: distPath + req.path = distPath + /assets/index-XXX.js
-  app.use('/assets', express.static(distPath));
-  console.log('✅ Layer A: /assets static serving enabled from:', distPath);
-  
-  // Layer B: Serve from assets folder even if requested from root (The Fix)
-  // This handles cases where browser requests /index-XXX.js but file is in /assets/
-  app.use(express.static(assetsPath));
-  console.log('✅ Layer B: Root requests -> assets folder enabled');
-  
-  // Layer C: Serve from the main dist folder
-  app.use(express.static(distPath, {
-    maxAge: '1y',
-    etag: true,
-    lastModified: true,
-  }));
-  console.log('✅ Layer C: General static files serving enabled from:', distPath);
-} else {
-  console.error('❌ Client dist or assets not found! Static files will not be served.');
-}
+// 3) Serve static files using these three layers (MUST be before routes)
+// Layer 1: Serve from /assets prefix
+app.use('/assets', express.static(assetsPath));
+// Layer 2: Serve from assets folder even if requested from root (The Fix)
+app.use(express.static(assetsPath));
+// Layer 3: Serve from the main dist folder
+app.use(express.static(distPath));
 
-// Step 3: Logging for confirmation
-// 3. Logging for confirmation:
+// Logging for confirmation
 app.use((req, res, next) => {
   if (req.url.endsWith('.css') || req.url.endsWith('.js')) {
     console.log(`📦 [ASSET CHECK] Request: ${req.url}`);
@@ -139,50 +120,19 @@ app.get('/api/health', (req, res) => {
   res.json({ success: true, message: 'Server is running' });
 });
 
-// Step 5: Catch-all handler for SPA routes - serve index.html
-// 4. Ensure the Catch-all route is at the VERY END:
-// Goal: Prevent the catch-all route from returning index.html when the browser asks for a .css or .js file from the root
+// 4) Catch-all route at the VERY END: serve index.html from dist
 app.get('*', (req, res) => {
-  // Skip API routes
-  if (req.path.startsWith('/api')) {
-    return res.status(404).json({ success: false, error: 'Not Found' });
-  }
-  
-  // Does NOT handle /assets/*
-  if (req.path.startsWith('/assets')) {
-    return res.status(404).json({ success: false, error: 'Asset not found' });
-  }
-  
-  // Does NOT handle requests with a dot in the path (like .js, .css, .png, etc.)
-  // This prevents the catch-all from returning index.html for .css/.js files
-  if (req.path.includes('.')) {
-    return res.status(404).json({ success: false, error: 'File not found' });
-  }
-  
-  // Only serves index.html for real SPA routes
-  if (indexExists) {
-    console.log(`📄 Serving index.html for SPA route: ${req.path}`);
-    res.sendFile(clientIndexPath, (err) => {
-      if (err) {
-        console.error('❌ Error sending index.html:', err);
-        if (!res.headersSent) {
-          res.status(500).json({
-            success: false,
-            error: 'Error serving frontend',
-            path: req.path,
-            details: err.message,
-          });
-        }
-      }
-    });
-  } else {
-    res.status(503).json({
+  // If dist/index.html doesn't exist, return helpful error
+  if (!indexExists) {
+    return res.status(503).json({
       success: false,
       error: 'Frontend not built. Please run: npm run build:client',
       path: req.path,
-      distPath: distPath,
+      distPath,
     });
   }
+
+  return res.sendFile(path.join(distPath, 'index.html'));
 });
 
 // Step 7: Error handlers - MUST be LAST
