@@ -7,6 +7,13 @@ body {
   background-attachment: fixed;
 }
 
+/* App Container - Flexbox Layout for Footer Positioning */
+#root > div {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
 /* Layout Structure - Removed constraints to allow navbar full width */
 
 /* ============================================
@@ -273,6 +280,7 @@ body.light-theme .logout-btn:hover {
   position: relative;
   z-index: 1;
   box-sizing: border-box;
+  flex: 1;
 }
 
 /* Responsive - Main Content */

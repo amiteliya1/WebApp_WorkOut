@@ -11,6 +11,7 @@ import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import NotFoundPage from './components/NotFoundPage'
+import Footer from './components/Footer'
 import { FaHeart, FaSun, FaMoon, FaBars, FaTimes, FaSignInAlt, FaSignOutAlt } from 'react-icons/fa'
 import './App.css'
 
@@ -249,6 +250,8 @@ function App() {
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
+
+      <Footer />
     </div>
   )
 }
