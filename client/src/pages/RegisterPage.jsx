@@ -38,20 +38,26 @@ const RegisterPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('RegisterPage: Form submitted');
+
     setError('');
     setErrors({});
 
     if (!validateForm()) {
+      console.log('RegisterPage: Form validation failed');
       return;
     }
 
+    console.log('RegisterPage: Form validation passed, attempting registration');
     setLoading(true);
 
     const result = await register(name, email, password);
 
     if (result.success) {
+      console.log('RegisterPage: Registration successful, redirecting to home');
       navigate('/');
     } else {
+      console.log('RegisterPage: Registration failed:', result.error);
       setError(result.error || 'Registration failed');
     }
 

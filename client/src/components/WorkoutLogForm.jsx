@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { FaTimes } from 'react-icons/fa';
 
 const WorkoutLogForm = () => {
     const location = useLocation();
+    const navigate = useNavigate();
     const [exerciseName, setExerciseName] = useState('');
     const [weightLifted, setWeightLifted] = useState('');
     const [setsCount, setSetsCount] = useState('');
@@ -38,6 +39,16 @@ const WorkoutLogForm = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        console.log('Workout form submitted', {
+            exerciseName,
+            weightLifted,
+            setsCount,
+            repsCount,
+            feeling,
+            selectedDay,
+            isEditing: !!editingId
+        });
+
         const newErrors = {};
 
         if (!exerciseName || exerciseName.trim().length === 0) {
@@ -57,63 +68,77 @@ const WorkoutLogForm = () => {
         }
 
         if (Object.keys(newErrors).length > 0) {
+            console.log('Form validation failed:', newErrors);
             setErrors(newErrors);
             return;
         }
 
+        console.log('Form validation passed');
         setErrors({});
 
-        // All workouts are saved only in weeklyWorkouts (home page)
-        const existingWeeklyWorkouts = JSON.parse(localStorage.getItem('weeklyWorkouts') || '[]');
+        try {
+            // All workouts are saved only in weeklyWorkouts (home page)
+            const existingWeeklyWorkouts = JSON.parse(localStorage.getItem('weeklyWorkouts') || '[]');
 
-        if (editingId && isEditingFromHome) {
-            // Update existing workout from home page
-            const updatedWeeklyWorkouts = existingWeeklyWorkouts.map(workout =>
-                workout.id === editingId
-                    ? {
-                        id: editingId,
-                        day: selectedDay,
-                        name: exerciseName,
-                        weight: weightLifted,
-                        sets: setsCount,
-                        reps: repsCount,
-                        feeling: feeling
-                    }
-                    : workout
-            );
-            localStorage.setItem('weeklyWorkouts', JSON.stringify(updatedWeeklyWorkouts));
-            alert('Workout updated successfully!');
-        } else {
-            // Add new workout - saved only on home page
-            const newWorkout = {
-                id: Date.now(),
-                day: selectedDay,
-                name: exerciseName,
-                weight: weightLifted,
-                sets: setsCount,
-                reps: repsCount,
-                feeling: feeling
-            };
-            const updatedWeeklyWorkouts = [...existingWeeklyWorkouts, newWorkout];
-            localStorage.setItem('weeklyWorkouts', JSON.stringify(updatedWeeklyWorkouts));
-            alert('Workout saved successfully!');
+            if (editingId && isEditingFromHome) {
+                // Update existing workout from home page
+                console.log(`Updating workout ID: ${editingId}`);
+                const updatedWeeklyWorkouts = existingWeeklyWorkouts.map(workout =>
+                    workout.id === editingId
+                        ? {
+                            id: editingId,
+                            day: selectedDay,
+                            name: exerciseName,
+                            weight: weightLifted,
+                            sets: setsCount,
+                            reps: repsCount,
+                            feeling: feeling
+                        }
+                        : workout
+                );
+                localStorage.setItem('weeklyWorkouts', JSON.stringify(updatedWeeklyWorkouts));
+                console.log('Workout updated successfully');
+                alert('Workout updated successfully!');
+            } else {
+                // Add new workout - saved only on home page
+                console.log('Creating new workout');
+                const newWorkout = {
+                    id: Date.now(),
+                    day: selectedDay,
+                    name: exerciseName,
+                    weight: weightLifted,
+                    sets: setsCount,
+                    reps: repsCount,
+                    feeling: feeling
+                };
+                const updatedWeeklyWorkouts = [...existingWeeklyWorkouts, newWorkout];
+                localStorage.setItem('weeklyWorkouts', JSON.stringify(updatedWeeklyWorkouts));
+                console.log('Workout saved successfully');
+                alert('Workout saved successfully!');
+            }
+
+            // Reset form
+            setExerciseName('');
+            setWeightLifted('');
+            setSetsCount('');
+            setRepsCount('');
+            setFeeling('Normal');
+            setSelectedDay('Sunday');
+            setEditingId(null);
+            setIsEditingFromHome(false);
+
+            // Return to home page using navigate
+            console.log('Navigating back to home page');
+            navigate('/');
+        } catch (error) {
+            console.error('Error saving workout to localStorage:', error);
+            alert('Failed to save workout. Please try again.');
         }
-
-        // Reset form
-        setExerciseName('');
-        setWeightLifted('');
-        setSetsCount('');
-        setRepsCount('');
-        setFeeling('Normal');
-        setSelectedDay('Sunday');
-        setEditingId(null);
-        setIsEditingFromHome(false);
-
-        // Return to home page
-        window.location.href = '/';
     };
 
     const handleCancelEdit = () => {
+        console.log('User cancelled workout edit');
+
         setEditingId(null);
         setIsEditingFromHome(false);
         setExerciseName('');
@@ -123,8 +148,9 @@ const WorkoutLogForm = () => {
         setFeeling('Normal');
         setSelectedDay('Sunday');
 
-        // Return to home page
-        window.location.href = '/';
+        // Return to home page using navigate
+        console.log('Navigating back to home page');
+        navigate('/');
     };
 
     return (

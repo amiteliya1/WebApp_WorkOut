@@ -28,20 +28,26 @@ const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('LoginPage: Form submitted');
+
     setError('');
     setErrors({});
 
     if (!validateForm()) {
+      console.log('LoginPage: Form validation failed');
       return;
     }
 
+    console.log('LoginPage: Form validation passed, attempting login');
     setLoading(true);
 
     const result = await login(email, password);
 
     if (result.success) {
+      console.log('LoginPage: Login successful, redirecting to home');
       navigate('/');
     } else {
+      console.log('LoginPage: Login failed:', result.error);
       setError(result.error || 'Login failed');
     }
 

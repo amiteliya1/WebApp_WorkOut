@@ -14,9 +14,11 @@ const generateToken = (id) => {
 export const register = async (req, res, next) => {
   try {
     const { email, password, name } = req.body;
+    console.log(`Registration attempt for email: ${email}`);
 
     // Validate input - required fields
     if (!email || !password) {
+      console.log('Registration validation failed: missing email or password');
       return res.status(400).json({
         success: false,
         error: 'Please provide email and password',
@@ -26,6 +28,7 @@ export const register = async (req, res, next) => {
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
+      console.log('Registration validation failed: invalid email format');
       return res.status(400).json({
         success: false,
         error: 'Please provide a valid email address',
@@ -34,6 +37,7 @@ export const register = async (req, res, next) => {
 
     // Validate password length
     if (password.length < 6) {
+      console.log('Registration validation failed: password too short');
       return res.status(400).json({
         success: false,
         error: 'Password must be at least 6 characters long',
@@ -43,6 +47,7 @@ export const register = async (req, res, next) => {
     // Check if user already exists
     const userExists = await User.findOne({ email });
     if (userExists) {
+      console.log(`Registration failed: email ${email} already exists`);
       return res.status(400).json({
         success: false,
         error: 'User already exists with this email',
@@ -55,6 +60,8 @@ export const register = async (req, res, next) => {
       password,
       name: name || undefined,
     });
+
+    console.log(`User registered successfully: ${user.email} (ID: ${user._id})`);
 
     // Generate token
     const token = generateToken(user._id);
@@ -90,9 +97,11 @@ export const register = async (req, res, next) => {
 export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
+    console.log(`Login attempt for email: ${email}`);
 
     // Validate input - required fields
     if (!email || !password) {
+      console.log('Login validation failed: missing email or password');
       return res.status(400).json({
         success: false,
         error: 'Please provide email and password',
@@ -103,6 +112,7 @@ export const login = async (req, res, next) => {
     const user = await User.findOne({ email }).select('+password');
 
     if (!user) {
+      console.log(`Login failed: user not found for email ${email}`);
       return res.status(401).json({
         success: false,
         error: 'Invalid credentials',
@@ -113,6 +123,7 @@ export const login = async (req, res, next) => {
     const isMatch = await user.matchPassword(password);
 
     if (!isMatch) {
+      console.log(`Login failed: incorrect password for email ${email}`);
       return res.status(401).json({
         success: false,
         error: 'Invalid credentials',
@@ -121,6 +132,8 @@ export const login = async (req, res, next) => {
 
     // Generate token
     const token = generateToken(user._id);
+
+    console.log(`Login successful for user: ${user.email} (ID: ${user._id})`);
 
     res.status(200).json({
       success: true,
@@ -144,14 +157,19 @@ export const login = async (req, res, next) => {
 // @access  Private
 export const getMe = async (req, res, next) => {
   try {
+    console.log(`Fetching user profile for user ID: ${req.user.id}`);
+
     const user = await User.findById(req.user.id);
 
     if (!user) {
+      console.log(`User profile fetch failed: user ID ${req.user.id} not found`);
       return res.status(404).json({
         success: false,
         error: 'User not found',
       });
     }
+
+    console.log(`User profile fetched successfully for: ${user.email}`);
 
     res.status(200).json({
       success: true,
@@ -163,6 +181,7 @@ export const getMe = async (req, res, next) => {
       },
     });
   } catch (error) {
+    console.error('Error fetching user profile:', error.message);
     next(error);
   }
 };

@@ -27,12 +27,22 @@ const HomePage = () => {
     const [showEditDayModal, setShowEditDayModal] = useState(false); // Modal for selecting day to edit
 
     const handleDayClick = (dayName) => {
-        // Load home page workouts (by day)
-        const storedWeeklyWorkouts = JSON.parse(localStorage.getItem('weeklyWorkouts') || '[]');
-        const dayExercises = storedWeeklyWorkouts.filter(exercise => exercise.day === dayName);
-        
-        setSelectedDay(dayName);
-        setDayWorkouts(dayExercises);
+        console.log(`User clicked on day: ${dayName}`);
+
+        try {
+            // Load home page workouts (by day)
+            const storedWeeklyWorkouts = JSON.parse(localStorage.getItem('weeklyWorkouts') || '[]');
+            const dayExercises = storedWeeklyWorkouts.filter(exercise => exercise.day === dayName);
+
+            console.log(`Found ${dayExercises.length} workouts for ${dayName}`);
+
+            setSelectedDay(dayName);
+            setDayWorkouts(dayExercises);
+        } catch (error) {
+            console.error('Error loading day workouts from localStorage:', error);
+            setSelectedDay(dayName);
+            setDayWorkouts([]);
+        }
     };
 
     const handleCloseModal = () => {
@@ -53,67 +63,118 @@ const HomePage = () => {
     };
 
     const handleDelete = (workoutId) => {
-        if (window.confirm('Are you sure you want to delete this workout?')) {
-            // Delete from home page workouts (by day)
-            const storedWeeklyWorkouts = JSON.parse(localStorage.getItem('weeklyWorkouts') || '[]');
-            const updatedWeeklyWorkouts = storedWeeklyWorkouts.filter(workout => workout.id !== workoutId);
-            localStorage.setItem('weeklyWorkouts', JSON.stringify(updatedWeeklyWorkouts));
+        console.log(`User requested to delete workout ID: ${workoutId}`);
 
-            // Update the list
-            const dayExercises = updatedWeeklyWorkouts.filter(exercise => exercise.day === selectedDay);
-            setDayWorkouts(dayExercises);
+        if (window.confirm('Are you sure you want to delete this workout?')) {
+            try {
+                // Delete from home page workouts (by day)
+                const storedWeeklyWorkouts = JSON.parse(localStorage.getItem('weeklyWorkouts') || '[]');
+                const updatedWeeklyWorkouts = storedWeeklyWorkouts.filter(workout => workout.id !== workoutId);
+                localStorage.setItem('weeklyWorkouts', JSON.stringify(updatedWeeklyWorkouts));
+
+                console.log(`Workout ${workoutId} deleted successfully`);
+
+                // Update the list
+                const dayExercises = updatedWeeklyWorkouts.filter(exercise => exercise.day === selectedDay);
+                setDayWorkouts(dayExercises);
+            } catch (error) {
+                console.error('Error deleting workout from localStorage:', error);
+                alert('Failed to delete workout. Please try again.');
+            }
+        } else {
+            console.log('Delete cancelled by user');
         }
     };
 
     const handleDeleteDay = (dayName) => {
+        console.log(`User requested to delete all workouts for day: ${dayName}`);
+
         if (window.confirm(`Are you sure you want to delete all workouts for ${dayName}?`)) {
-            // Delete from home page workouts (by day)
-            const storedWeeklyWorkouts = JSON.parse(localStorage.getItem('weeklyWorkouts') || '[]');
-            const updatedWeeklyWorkouts = storedWeeklyWorkouts.filter(workout => workout.day !== dayName);
-            localStorage.setItem('weeklyWorkouts', JSON.stringify(updatedWeeklyWorkouts));
-            setDayWorkouts([]);
-            setSelectedDay(null);
+            try {
+                // Delete from home page workouts (by day)
+                const storedWeeklyWorkouts = JSON.parse(localStorage.getItem('weeklyWorkouts') || '[]');
+                const workoutsToDelete = storedWeeklyWorkouts.filter(workout => workout.day === dayName).length;
+                const updatedWeeklyWorkouts = storedWeeklyWorkouts.filter(workout => workout.day !== dayName);
+                localStorage.setItem('weeklyWorkouts', JSON.stringify(updatedWeeklyWorkouts));
+
+                console.log(`Deleted ${workoutsToDelete} workouts for ${dayName}`);
+
+                setDayWorkouts([]);
+                setSelectedDay(null);
+            } catch (error) {
+                console.error(`Error deleting workouts for ${dayName}:`, error);
+                alert('Failed to delete workouts. Please try again.');
+            }
+        } else {
+            console.log('Delete day cancelled by user');
         }
     };
 
     // Load weekly plan from localStorage
     useEffect(() => {
+        console.log('Loading weekly plan from localStorage');
+
         const storedWeeklyPlan = localStorage.getItem('weeklyPlan');
         if (storedWeeklyPlan) {
             try {
                 const parsed = JSON.parse(storedWeeklyPlan);
                 setWorkouts(parsed);
+                console.log('Weekly plan loaded successfully:', parsed.length, 'days');
             } catch (error) {
-                console.error('Error loading weekly plan:', error);
+                console.error('Error loading weekly plan from localStorage:', error);
+                console.log('Using default weekly workout plan');
+                setWorkouts(DEFAULT_WEEKLY_WORKOUT);
             }
+        } else {
+            console.log('No weekly plan found, using default');
         }
     }, []);
 
     // Update list when component reloads
     useEffect(() => {
         if (selectedDay) {
-            // Load home page workouts (by day)
-            const storedWeeklyWorkouts = JSON.parse(localStorage.getItem('weeklyWorkouts') || '[]');
-            const dayExercises = storedWeeklyWorkouts.filter(exercise => exercise.day === selectedDay);
-            setDayWorkouts(dayExercises);
+            console.log(`Reloading workouts for selected day: ${selectedDay}`);
+
+            try {
+                // Load home page workouts (by day)
+                const storedWeeklyWorkouts = JSON.parse(localStorage.getItem('weeklyWorkouts') || '[]');
+                const dayExercises = storedWeeklyWorkouts.filter(exercise => exercise.day === selectedDay);
+                setDayWorkouts(dayExercises);
+                console.log(`Reloaded ${dayExercises.length} workouts for ${selectedDay}`);
+            } catch (error) {
+                console.error('Error reloading day workouts from localStorage:', error);
+                setDayWorkouts([]);
+            }
         }
     }, [selectedDay]);
 
     // Save weekly plan to localStorage
     const saveWeeklyPlan = (updatedWorkouts) => {
-        localStorage.setItem('weeklyPlan', JSON.stringify(updatedWorkouts));
-        setWorkouts(updatedWorkouts);
+        console.log('Saving weekly plan to localStorage');
+
+        try {
+            localStorage.setItem('weeklyPlan', JSON.stringify(updatedWorkouts));
+            setWorkouts(updatedWorkouts);
+            console.log('Weekly plan saved successfully');
+        } catch (error) {
+            console.error('Error saving weekly plan to localStorage:', error);
+            alert('Failed to save weekly plan. Please try again.');
+        }
     };
 
     // Open day editing
     const handleEditDay = (workout) => {
+        console.log(`User started editing day: ${workout.day}`);
         setEditingDay(workout.id);
         setEditFocus(workout.focus);
     };
 
     // Save day edit
     const handleSaveDayEdit = (dayId) => {
+        console.log(`User saving edit for day ID: ${dayId}, new focus: "${editFocus}"`);
+
         if (!editFocus.trim()) {
+            console.log('Save cancelled: empty focus');
             alert('Please enter workout focus');
             return;
         }

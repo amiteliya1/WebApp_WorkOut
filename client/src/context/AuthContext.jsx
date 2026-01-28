@@ -31,15 +31,20 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const loadUser = async () => {
       if (token) {
+        console.log('Loading user from token...');
         try {
           const response = await axios.get(`${API_URL}/auth/me`);
           setUser(response.data.data);
+          console.log('User loaded successfully:', response.data.data.email);
         } catch (error) {
           // Token is invalid, clear it
+          console.error('Failed to load user - token invalid:', error.response?.status || error.message);
           setToken(null);
           setUser(null);
           localStorage.removeItem('token');
         }
+      } else {
+        console.log('No token found, user not authenticated');
       }
       setLoading(false);
     };
@@ -48,6 +53,8 @@ export const AuthProvider = ({ children }) => {
   }, [token]);
 
   const login = async (email, password) => {
+    console.log(`Login attempt for email: ${email}`);
+
     try {
       const response = await axios.post(`${API_URL}/auth/login`, {
         email,
@@ -56,6 +63,9 @@ export const AuthProvider = ({ children }) => {
       const { token: newToken, user: userData } = response.data.data;
       setToken(newToken);
       setUser(userData);
+
+      console.log(`Login successful for user: ${userData.email}`);
+
       return { success: true };
     } catch (error) {
       // Improved error handling
@@ -65,12 +75,15 @@ export const AuthProvider = ({ children }) => {
         const status = error.response.status;
         const serverError = error.response.data?.error || error.response.data?.message;
         errorMessage = serverError || `Server error (${status})`;
+        console.error(`Login failed - Server error (${status}):`, serverError);
       } else if (error.request) {
         // Request was made but no response received
         errorMessage = 'Unable to connect to server. Please ensure the server is running.';
+        console.error('Login failed - Unable to connect to server');
       } else {
         // Error in request setup
         errorMessage = error.message || 'Login error';
+        console.error('Login failed - Request setup error:', error.message);
       }
       return {
         success: false,
@@ -80,6 +93,8 @@ export const AuthProvider = ({ children }) => {
   };
 
   const register = async (name, email, password) => {
+    console.log(`Registration attempt for email: ${email}`);
+
     try {
       const response = await axios.post(`${API_URL}/auth/register`, {
         name,
@@ -89,6 +104,9 @@ export const AuthProvider = ({ children }) => {
       const { token: newToken, user: userData } = response.data.data;
       setToken(newToken);
       setUser(userData);
+
+      console.log(`Registration successful for user: ${userData.email}`);
+
       return { success: true };
     } catch (error) {
       // Improved error handling
@@ -98,12 +116,15 @@ export const AuthProvider = ({ children }) => {
         const status = error.response.status;
         const serverError = error.response.data?.error || error.response.data?.message;
         errorMessage = serverError || `Server error (${status})`;
+        console.error(`Registration failed - Server error (${status}):`, serverError);
       } else if (error.request) {
         // Request was made but no response received
         errorMessage = 'Unable to connect to server. Please ensure the server is running.';
+        console.error('Registration failed - Unable to connect to server');
       } else {
         // Error in request setup
         errorMessage = error.message || 'Registration error';
+        console.error('Registration failed - Request setup error:', error.message);
       }
       return {
         success: false,
@@ -113,10 +134,14 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
+    console.log('User logging out');
+
     setToken(null);
     setUser(null);
     localStorage.removeItem('token');
     delete axios.defaults.headers.common['Authorization'];
+
+    console.log('Logout successful');
   };
 
   return (
