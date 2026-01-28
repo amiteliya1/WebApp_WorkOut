@@ -186,3 +186,44 @@ export const getMe = async (req, res, next) => {
   }
 };
 
+// @desc    Delete user account
+// @route   DELETE /api/auth/me
+// @access  Private
+export const deleteAccount = async (req, res, next) => {
+  try {
+    console.log(`Delete account request for user ID: ${req.user.id}`);
+
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      console.log(`Delete failed: user ID ${req.user.id} not found`);
+      return res.status(404).json({
+        success: false,
+        error: 'User not found',
+      });
+    }
+
+    // Import Workout model to delete user's workouts
+    const Workout = (await import('../models/Workout.js')).default;
+
+    // Delete all workouts belonging to this user
+    const deletedWorkouts = await Workout.deleteMany({ user: req.user.id });
+    console.log(`Deleted ${deletedWorkouts.deletedCount} workouts for user ${user.email}`);
+
+    // Delete the user
+    await User.findByIdAndDelete(req.user.id);
+    console.log(`User account deleted successfully: ${user.email}`);
+
+    res.status(200).json({
+      success: true,
+      message: 'Account and all associated data deleted successfully',
+      data: {
+        deletedWorkouts: deletedWorkouts.deletedCount,
+      },
+    });
+  } catch (error) {
+    console.error('Error deleting user account:', error.message);
+    next(error);
+  }
+};
+

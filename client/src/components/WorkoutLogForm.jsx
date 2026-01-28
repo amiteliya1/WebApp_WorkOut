@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FaTimes } from 'react-icons/fa';
+import { createWorkout, updateWorkout } from '../services/workouts.api';
 
 const WorkoutLogForm = () => {
     const location = useLocation();
@@ -13,31 +14,33 @@ const WorkoutLogForm = () => {
     const [selectedDay, setSelectedDay] = useState('Sunday');
     const [errors, setErrors] = useState({});
     const [editingId, setEditingId] = useState(null);
-    const [isEditingFromHome, setIsEditingFromHome] = useState(false); // Whether editing from home page
+    const [isEditingFromHome, setIsEditingFromHome] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-    // Load data if coming from home page
     useEffect(() => {
-        // If coming from home page with workout to edit
+        // Check if editing
         if (location.state?.workoutToEdit) {
             const workout = location.state.workoutToEdit;
-            setEditingId(workout.id);
-            setIsEditingFromHome(true); // Mark as from home page
+            console.log('Editing workout:', workout);
             setExerciseName(workout.name);
-            setWeightLifted(workout.weight);
-            setSetsCount(workout.sets);
-            setRepsCount(workout.reps);
+            setWeightLifted(workout.weight.toString());
+            setSetsCount(workout.sets.toString());
+            setRepsCount(workout.reps.toString());
             setFeeling(workout.feeling);
             setSelectedDay(workout.day);
-        } else if (location.state?.addToDay) {
-            // If coming from home page to add new workout for specific day
+            setEditingId(workout.id || workout._id); // Support both id and _id
             setIsEditingFromHome(true);
-            setSelectedDay(location.state.addToDay);
-        } else {
-            setIsEditingFromHome(false);
         }
-    }, [location.state]);
 
-    const handleSubmit = (e) => {
+        // Check if adding to a specific day
+        if (location.state?.addToDay) {
+            console.log('Adding workout for day:', location.state.addToDay);
+            setSelectedDay(location.state.addToDay);
+        }
+    }, [location]);
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
         console.log('Workout form submitted', {
             exerciseName,
@@ -55,8 +58,8 @@ const WorkoutLogForm = () => {
             newErrors.exerciseName = 'Exercise name is required';
         }
 
-        if (!weightLifted || Number(weightLifted) <= 0) {
-            newErrors.weightLifted = 'Weight must be a positive number';
+        if (!weightLifted || Number(weightLifted) < 0) {
+            newErrors.weightLifted = 'Weight must be a non-negative number';
         }
 
         if (!setsCount || Number(setsCount) <= 0) {
@@ -76,43 +79,29 @@ const WorkoutLogForm = () => {
         console.log('Form validation passed');
         setErrors({});
 
+        const workoutData = {
+            day: selectedDay,
+            name: exerciseName.trim(),
+            weight: Number(weightLifted),
+            sets: Number(setsCount),
+            reps: Number(repsCount),
+            feeling: feeling
+        };
+
         try {
-            // All workouts are saved only in weeklyWorkouts (home page)
-            const existingWeeklyWorkouts = JSON.parse(localStorage.getItem('weeklyWorkouts') || '[]');
+            setLoading(true);
+            setError(null);
 
             if (editingId && isEditingFromHome) {
-                // Update existing workout from home page
-                console.log(`Updating workout ID: ${editingId}`);
-                const updatedWeeklyWorkouts = existingWeeklyWorkouts.map(workout =>
-                    workout.id === editingId
-                        ? {
-                            id: editingId,
-                            day: selectedDay,
-                            name: exerciseName,
-                            weight: weightLifted,
-                            sets: setsCount,
-                            reps: repsCount,
-                            feeling: feeling
-                        }
-                        : workout
-                );
-                localStorage.setItem('weeklyWorkouts', JSON.stringify(updatedWeeklyWorkouts));
+                // Update existing workout
+                console.log(`Updating workout ID: ${editingId}`, workoutData);
+                await updateWorkout(editingId, workoutData);
                 console.log('Workout updated successfully');
                 alert('Workout updated successfully!');
             } else {
-                // Add new workout - saved only on home page
-                console.log('Creating new workout');
-                const newWorkout = {
-                    id: Date.now(),
-                    day: selectedDay,
-                    name: exerciseName,
-                    weight: weightLifted,
-                    sets: setsCount,
-                    reps: repsCount,
-                    feeling: feeling
-                };
-                const updatedWeeklyWorkouts = [...existingWeeklyWorkouts, newWorkout];
-                localStorage.setItem('weeklyWorkouts', JSON.stringify(updatedWeeklyWorkouts));
+                // Add new workout
+                console.log('Creating new workout', workoutData);
+                await createWorkout(workoutData);
                 console.log('Workout saved successfully');
                 alert('Workout saved successfully!');
             }
@@ -131,8 +120,12 @@ const WorkoutLogForm = () => {
             console.log('Navigating back to home page');
             navigate('/');
         } catch (error) {
-            console.error('Error saving workout to localStorage:', error);
-            alert('Failed to save workout. Please try again.');
+            console.error('Error saving workout:', error);
+            const errorMessage = error.response?.data?.error || 'Failed to save workout. Please try again.';
+            setError(errorMessage);
+            alert(errorMessage);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -154,26 +147,45 @@ const WorkoutLogForm = () => {
     };
 
     return (
-        <div>
-            <div className="card workout-form-card">
-                <h2>{editingId ? 'Edit Workout' : 'Workout Log'}</h2>
-                {editingId && (
-                    <button
-                        type="button"
-                        onClick={handleCancelEdit}
-                        className="cancel-edit-btn"
-                    >
-                        <FaTimes /> Cancel Editing
-                    </button>
-                )}
-                <form onSubmit={handleSubmit} className="workout-form">
+        <div className="card" style={{ maxWidth: '600px', margin: '0 auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                <h2 style={{ margin: 0 }}>
+                    {editingId ? 'Edit Workout' : 'Log Your Workout'}
+                </h2>
+                <button
+                    type="button"
+                    onClick={() => navigate('/')}
+                    className="close-modal-btn"
+                    title="Back to Home"
+                >
+                    <FaTimes />
+                </button>
+            </div>
 
-                <div className="form-field">
-                    <label htmlFor="day">Day of Week</label>
+            {error && (
+                <div className="error-message" style={{
+                    padding: '16px',
+                    marginBottom: '20px',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    borderRadius: 'var(--radius)',
+                    color: '#ef4444'
+                }}>
+                    {error}
+                </div>
+            )}
+
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div>
+                    <label htmlFor="day-select" style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>
+                        Day of the week:
+                    </label>
                     <select
-                        id="day"
+                        id="day-select"
                         value={selectedDay}
                         onChange={(e) => setSelectedDay(e.target.value)}
+                        className="form-input"
+                        disabled={loading}
                     >
                         <option value="Sunday">Sunday</option>
                         <option value="Monday">Monday</option>
@@ -185,102 +197,131 @@ const WorkoutLogForm = () => {
                     </select>
                 </div>
 
-                <div className="form-field">
-                    <label htmlFor="exerciseName">Exercise Name</label>
+                <div>
+                    <label htmlFor="exercise-name" style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>
+                        Exercise Name:
+                    </label>
                     <input
+                        id="exercise-name"
                         type="text"
-                        id="exerciseName"
                         value={exerciseName}
-                        onChange={(e) => {
-                            setExerciseName(e.target.value);
-                            // Clear error when user types
-                            if (errors.exerciseName) {
-                                setErrors(prev => ({ ...prev, exerciseName: undefined }));
-                            }
-                        }}
-                        placeholder="Example: Bench Press"
+                        onChange={(e) => setExerciseName(e.target.value)}
+                        className="form-input"
+                        placeholder="e.g., Bench Press, Squats..."
+                        disabled={loading}
                     />
-                    {errors.exerciseName && <span className="form-error">{errors.exerciseName}</span>}
+                    {errors.exerciseName && (
+                        <span style={{ color: '#ef4444', fontSize: '0.875rem', marginTop: '4px', display: 'block' }}>
+                            {errors.exerciseName}
+                        </span>
+                    )}
                 </div>
 
-                <div className="form-field">
-                    <label htmlFor="weightLifted">Weight Lifted (kg)</label>
+                <div>
+                    <label htmlFor="weight" style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>
+                        Weight Lifted (kg):
+                    </label>
                     <input
+                        id="weight"
                         type="number"
-                        id="weightLifted"
                         value={weightLifted}
-                        onChange={(e) => {
-                            setWeightLifted(e.target.value);
-                            // Clear error when user types
-                            if (errors.weightLifted) {
-                                setErrors(prev => ({ ...prev, weightLifted: undefined }));
-                            }
-                        }}
+                        onChange={(e) => setWeightLifted(e.target.value)}
+                        className="form-input"
+                        placeholder="e.g., 60"
                         min="0"
-                        step="0.1"
-                        placeholder="0"
+                        step="0.5"
+                        disabled={loading}
                     />
-                    {errors.weightLifted && <span className="form-error">{errors.weightLifted}</span>}
+                    {errors.weightLifted && (
+                        <span style={{ color: '#ef4444', fontSize: '0.875rem', marginTop: '4px', display: 'block' }}>
+                            {errors.weightLifted}
+                        </span>
+                    )}
                 </div>
 
-                <div className="form-field">
-                    <label htmlFor="setsCount">Number of Sets</label>
+                <div>
+                    <label htmlFor="sets" style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>
+                        Number of Sets:
+                    </label>
                     <input
+                        id="sets"
                         type="number"
-                        id="setsCount"
                         value={setsCount}
-                        onChange={(e) => {
-                            setSetsCount(e.target.value);
-                            // Clear error when user types
-                            if (errors.setsCount) {
-                                setErrors(prev => ({ ...prev, setsCount: undefined }));
-                            }
-                        }}
-                        min="0"
-                        step="1"
-                        placeholder="0"
+                        onChange={(e) => setSetsCount(e.target.value)}
+                        className="form-input"
+                        placeholder="e.g., 3"
+                        min="1"
+                        disabled={loading}
                     />
-                    {errors.setsCount && <span className="form-error">{errors.setsCount}</span>}
+                    {errors.setsCount && (
+                        <span style={{ color: '#ef4444', fontSize: '0.875rem', marginTop: '4px', display: 'block' }}>
+                            {errors.setsCount}
+                        </span>
+                    )}
                 </div>
 
-                <div className="form-field">
-                    <label htmlFor="repsCount">Number of Reps</label>
+                <div>
+                    <label htmlFor="reps" style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>
+                        Number of Reps:
+                    </label>
                     <input
+                        id="reps"
                         type="number"
-                        id="repsCount"
                         value={repsCount}
-                        onChange={(e) => {
-                            setRepsCount(e.target.value);
-                            // Clear error when user types
-                            if (errors.repsCount) {
-                                setErrors(prev => ({ ...prev, repsCount: undefined }));
-                            }
-                        }}
-                        min="0"
-                        step="1"
-                        placeholder="0"
+                        onChange={(e) => setRepsCount(e.target.value)}
+                        className="form-input"
+                        placeholder="e.g., 10"
+                        min="1"
+                        disabled={loading}
                     />
-                    {errors.repsCount && <span className="form-error">{errors.repsCount}</span>}
+                    {errors.repsCount && (
+                        <span style={{ color: '#ef4444', fontSize: '0.875rem', marginTop: '4px', display: 'block' }}>
+                            {errors.repsCount}
+                        </span>
+                    )}
                 </div>
 
-                <div className="form-field">
-                    <label htmlFor="feeling">Overall Feeling</label>
+                <div>
+                    <label htmlFor="feeling" style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>
+                        How do you feel?
+                    </label>
                     <select
                         id="feeling"
                         value={feeling}
                         onChange={(e) => setFeeling(e.target.value)}
+                        className="form-input"
+                        disabled={loading}
                     >
-                        <option value="Excellent">Excellent</option>
+                        <option value="Bad">Bad</option>
                         <option value="Normal">Normal</option>
-                        <option value="Difficult">Difficult</option>
+                        <option value="Good">Good</option>
+                        <option value="Great">Great</option>
                     </select>
                 </div>
 
-                <button type="submit" className="btn-primary form-submit-btn">
-                    {editingId ? 'Update Workout' : 'Save Workout'}
-                </button>
+                <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
+                    <button
+                        type="submit"
+                        className="btn-primary"
+                        style={{ flex: 1 }}
+                        disabled={loading}
+                    >
+                        {loading ? 'Saving...' : (editingId ? 'Update Workout' : 'Save Workout')}
+                    </button>
+
+                    {editingId && (
+                        <button
+                            type="button"
+                            onClick={handleCancelEdit}
+                            className="btn-secondary"
+                            style={{ flex: 1 }}
+                            disabled={loading}
+                        >
+                            Cancel
+                        </button>
+                    )}
+                </div>
             </form>
-            </div>
         </div>
     );
 };

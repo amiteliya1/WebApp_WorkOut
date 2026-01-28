@@ -133,6 +133,47 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const deleteAccount = async () => {
+    console.log('User requesting account deletion');
+
+    try {
+      const response = await axios.delete(`${API_URL}/auth/me`);
+
+      console.log('Account deleted successfully:', response.data);
+
+      // Clear auth state after deletion
+      setToken(null);
+      setUser(null);
+      localStorage.removeItem('token');
+      delete axios.defaults.headers.common['Authorization'];
+
+      return {
+        success: true,
+        message: response.data.message,
+        deletedWorkouts: response.data.data?.deletedWorkouts || 0
+      };
+    } catch (error) {
+      let errorMessage = 'Failed to delete account';
+
+      if (error.response) {
+        const serverError = error.response.data?.error || error.response.data?.message;
+        errorMessage = serverError || `Server error (${error.response.status})`;
+        console.error(`Account deletion failed - Server error (${error.response.status}):`, serverError);
+      } else if (error.request) {
+        errorMessage = 'Unable to connect to server. Please ensure the server is running.';
+        console.error('Account deletion failed - Unable to connect to server');
+      } else {
+        errorMessage = error.message || 'Account deletion error';
+        console.error('Account deletion failed - Request setup error:', error.message);
+      }
+
+      return {
+        success: false,
+        error: errorMessage,
+      };
+    }
+  };
+
   const logout = () => {
     console.log('User logging out');
 
@@ -153,6 +194,7 @@ export const AuthProvider = ({ children }) => {
         login,
         register,
         logout,
+        deleteAccount,
       }}
     >
       {children}
