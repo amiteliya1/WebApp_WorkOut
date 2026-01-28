@@ -14,26 +14,10 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Resolve client/dist robustly (Render can run with different working directories)
-function resolveClientDistPath() {
-  const candidates = [
-    // repoRoot/client/dist (from server/src)
-    path.resolve(__dirname, '..', '..', 'client', 'dist'),
-    // repoRoot/client/dist (from server as cwd)
-    path.resolve(process.cwd(), '..', 'client', 'dist'),
-    // in case service root is repo root already
-    path.resolve(process.cwd(), 'client', 'dist'),
-  ];
-
-  for (const p of candidates) {
-    if (existsSync(p)) return p;
-  }
-
-  // fallback to first candidate for logging
-  return candidates[0];
-}
-
-const distPath = resolveClientDistPath();
+// 1) Bulletproof absolute paths from process.cwd() -> client/dist
+// Render logs show process.cwd() is usually '/opt/render/project/src/server'
+// So client dist is expected at '/opt/render/project/src/client/dist'
+const distPath = path.resolve(process.cwd(), '..', 'client', 'dist');
 const assetsPath = path.resolve(distPath, 'assets');
 const clientIndexPath = path.join(distPath, 'index.html');
 
@@ -48,14 +32,13 @@ const distExists = existsSync(distPath);
 const indexExists = existsSync(clientIndexPath);
 const assetsExists = existsSync(assetsPath);
 
-if (distExists && indexExists) {
+if (distExists && indexExists && assetsExists) {
   console.log('✅ Client dist found! Frontend will be served.');
 } else {
-  console.warn('⚠️  Warning: client/dist not found. Frontend will not be served.');
-  console.warn(`   Expected path: ${distPath}`);
-  console.warn(`   Dist exists: ${distExists}`);
-  console.warn(`   Index exists: ${indexExists}`);
-  console.warn(`   Assets exists: ${assetsExists}`);
+  console.warn('⚠️  Warning: client/dist or assets not found. Frontend may not be served correctly.');
+  console.warn(`   distPath: ${distPath} (exists: ${distExists})`);
+  console.warn(`   clientIndexPath: ${clientIndexPath} (exists: ${indexExists})`);
+  console.warn(`   assetsPath: ${assetsPath} (exists: ${assetsExists})`);
   console.warn('   Make sure to run: npm run build:client');
 }
 
@@ -115,18 +98,20 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// 3) Serve static files using these three layers (MUST be before routes)
-// Layer 1: Serve from /assets prefix
-app.use('/assets', express.static(assetsPath));
-// Layer 2: Serve from assets folder even if requested from root (The Fix)
-app.use(express.static(assetsPath));
-// Layer 3: Serve from the main dist folder
+// 2) Fallback middleware for assets and dist (order matters)
+// Serve any file that Vite may have emitted into dist root
 app.use(express.static(distPath));
+// Serve from /assets prefix
+app.use('/assets', express.static(assetsPath));
+// Also serve assets even if requested from root (e.g. "/index-XYZ.js")
+app.use(express.static(assetsPath));
 
-// Logging for confirmation
+// 3) Ensure proper Content-Type for JS/CSS (Render/Express + monorepo edge cases)
 app.use((req, res, next) => {
-  if (req.url.endsWith('.css') || req.url.endsWith('.js')) {
-    console.log(`📦 [ASSET CHECK] Request: ${req.url}`);
+  if (req.url.endsWith('.js')) {
+    res.type('application/javascript');
+  } else if (req.url.endsWith('.css')) {
+    res.type('text/css');
   }
   next();
 });
@@ -141,27 +126,15 @@ app.get('/api/health', (req, res) => {
   res.json({ success: true, message: 'Server is running' });
 });
 
-// 4) Catch-all route at the VERY END: serve index.html from dist
+// 4) Catch-all route at the VERY END: serve index.html only for non-file SPA routes
 app.get('*', (req, res) => {
-  // Never hijack API routes
-  if (req.path.startsWith('/api')) {
-    return res.status(404).json({ success: false, error: 'Not Found' });
+  // Do not override file requests (anything with a dot)
+  if (req.path.includes('.')) {
+    return res.status(404).send('File not found');
   }
 
-  // Never hijack direct asset/file requests (let static middleware handle them)
-  // This prevents serving index.html for /assets/* or /something.js, /something.css, etc.
-  if (req.path.startsWith('/assets') || req.path.includes('.')) {
-    return res.status(404).json({ success: false, error: 'File not found' });
-  }
-
-  // If dist/index.html doesn't exist, return helpful error
   if (!indexExists) {
-    return res.status(503).json({
-      success: false,
-      error: 'Frontend not built. Please run: npm run build:client',
-      path: req.path,
-      distPath,
-    });
+    return res.status(503).send('Frontend not built. Please run: npm run build:client');
   }
 
   return res.sendFile(path.join(distPath, 'index.html'));
