@@ -52,16 +52,10 @@ export const useWorkouts = () => {
     try {
       setError(null);
       const API_URL = getApiUrl();
-      console.log('📤 Creating workout:', workoutData);
-      console.log('📤 API URL:', API_URL);
-      console.log('📤 Authorization header:', axios.defaults.headers.common['Authorization'] ? 'Present' : 'Missing');
       const response = await axios.post(`${API_URL}/workouts`, workoutData);
-      console.log('✅ Workout created successfully:', response.data);
       setData((prev) => [response.data.data, ...prev]);
       return { success: true, data: response.data.data };
     } catch (err) {
-      console.error('❌ Error creating workout:', err);
-      console.error('❌ Error response:', err.response?.data);
       const errorMsg = err.response?.data?.error || err.response?.data?.message || err.message || 'שגיאה ביצירת אימון';
       setError(errorMsg);
       return { success: false, error: errorMsg };
