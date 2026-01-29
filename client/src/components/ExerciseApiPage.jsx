@@ -7,12 +7,12 @@ import ErrorState from './ErrorState';
 import Loading from './Loading';
 
 // Import muscle images
-import absImage from '../assets/muscles/abs.jpg.jpg';
-import chestImage from '../assets/muscles/chest.jpg.jpg';
-import legsImage from '../assets/muscles/legs.jpg.jpg';
-import backImage from '../assets/muscles/back.jpg.jpg';
-import armsImage from '../assets/muscles/arms.jpg.jpg';
-import shouldersImage from '../assets/muscles/shoulders.jpg.jpg';
+import absImage from '../assets/muscles/abs.jpg';
+import chestImage from '../assets/muscles/chest.jpg';
+import legsImage from '../assets/muscles/legs.jpg';
+import backImage from '../assets/muscles/back.jpg';
+import armsImage from '../assets/muscles/arms.jpg';
+import shouldersImage from '../assets/muscles/shoulders.jpg';
 
 const ExerciseApiPage = () => {
     const navigate = useNavigate();
