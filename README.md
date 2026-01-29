@@ -185,8 +185,8 @@ Optional but recommended:
 ### Step 1: Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/workout-tracker.git
-cd workout-tracker
+git clone https://github.com/amiteliya1/WebApp_WorkOut.git
+cd WebApp_WorkOut
 ```
 
 ### Step 2: Install Dependencies
