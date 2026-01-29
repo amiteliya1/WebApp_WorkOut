@@ -175,16 +175,15 @@ const WorkoutLogForm = () => {
                 </div>
             )}
 
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                <div>
-                    <label htmlFor="day-select" style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>
-                        Day of the week:
+            <form onSubmit={handleSubmit} className="workout-form">
+                <div className="form-field">
+                    <label htmlFor="day-select">
+                        Day of the week
                     </label>
                     <select
                         id="day-select"
                         value={selectedDay}
                         onChange={(e) => setSelectedDay(e.target.value)}
-                        className="form-input"
                         disabled={loading}
                     >
                         <option value="Sunday">Sunday</option>
@@ -197,16 +196,15 @@ const WorkoutLogForm = () => {
                     </select>
                 </div>
 
-                <div>
-                    <label htmlFor="exercise-name" style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>
-                        Exercise Name:
+                <div className="form-field">
+                    <label htmlFor="exercise-name">
+                        Exercise Name
                     </label>
                     <input
                         id="exercise-name"
                         type="text"
                         value={exerciseName}
                         onChange={(e) => setExerciseName(e.target.value)}
-                        className="form-input"
                         placeholder="e.g., Bench Press, Squats..."
                         disabled={loading}
                     />
@@ -217,16 +215,15 @@ const WorkoutLogForm = () => {
                     )}
                 </div>
 
-                <div>
-                    <label htmlFor="weight" style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>
-                        Weight Lifted (kg):
+                <div className="form-field">
+                    <label htmlFor="weight">
+                        Weight Lifted (kg)
                     </label>
                     <input
                         id="weight"
                         type="number"
                         value={weightLifted}
                         onChange={(e) => setWeightLifted(e.target.value)}
-                        className="form-input"
                         placeholder="e.g., 60"
                         min="0"
                         step="0.5"
@@ -239,16 +236,15 @@ const WorkoutLogForm = () => {
                     )}
                 </div>
 
-                <div>
-                    <label htmlFor="sets" style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>
-                        Number of Sets:
+                <div className="form-field">
+                    <label htmlFor="sets">
+                        Number of Sets
                     </label>
                     <input
                         id="sets"
                         type="number"
                         value={setsCount}
                         onChange={(e) => setSetsCount(e.target.value)}
-                        className="form-input"
                         placeholder="e.g., 3"
                         min="1"
                         disabled={loading}
@@ -260,16 +256,15 @@ const WorkoutLogForm = () => {
                     )}
                 </div>
 
-                <div>
-                    <label htmlFor="reps" style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>
-                        Number of Reps:
+                <div className="form-field">
+                    <label htmlFor="reps">
+                        Number of Reps
                     </label>
                     <input
                         id="reps"
                         type="number"
                         value={repsCount}
                         onChange={(e) => setRepsCount(e.target.value)}
-                        className="form-input"
                         placeholder="e.g., 10"
                         min="1"
                         disabled={loading}
@@ -281,15 +276,14 @@ const WorkoutLogForm = () => {
                     )}
                 </div>
 
-                <div>
-                    <label htmlFor="feeling" style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>
+                <div className="form-field">
+                    <label htmlFor="feeling">
                         How do you feel?
                     </label>
                     <select
                         id="feeling"
                         value={feeling}
                         onChange={(e) => setFeeling(e.target.value)}
-                        className="form-input"
                         disabled={loading}
                     >
                         <option value="Bad">Bad</option>
