@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { addFavorite, removeFavorite } from '../store/slices/favoritesSlice';
 import { getMuscleName } from '../utils/muscleMapping';
 import { getSubcategoriesForMuscle } from '../utils/muscleSubcategories';
-import { fetchYoutubeVideos } from '../hooks/useYoutubeVideos';
+import { useYoutubeVideos } from '../hooks/useYoutubeVideos';
 import ErrorState from './ErrorState';
 import Loading from './Loading';
 import { FaHeart, FaRegHeart } from 'react-icons/fa';
@@ -23,49 +23,23 @@ const VideoPlayerPage = () => {
     // Default selected subcategory: "General" or first one
     const defaultSubcategory = subcategories.find(sub => sub.label === 'General') || subcategories[0];
     const [selectedSubcategory, setSelectedSubcategory] = useState(defaultSubcategory);
-    
-    const [videos, setVideos] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
 
-    // Fetch videos when subcategory changes
-    useEffect(() => {
-        const loadVideos = async () => {
-            if (!muscle) {
-                setError('Muscle name is required');
-                setLoading(false);
-                return;
-            }
+    // Build combined query: English label + English query
+    const combinedQuery = selectedSubcategory
+        ? `${selectedSubcategory.label} ${selectedSubcategory.query}`
+        : '';
 
-            if (!selectedSubcategory) {
-                setVideos([]);
-                setLoading(false);
-                return;
-            }
+    // Use custom hook to fetch YouTube videos
+    const { videos, loading, error: videoError, refetch } = useYoutubeVideos(combinedQuery, 20);
 
-            setLoading(true);
-            setError(null);
-
-            // Build combined query: English label + English query
-            const combinedQuery = `${selectedSubcategory.label} ${selectedSubcategory.query}`;
-
-            const result = await fetchYoutubeVideos(combinedQuery, 20);
-
-            if (result.error) {
-                setError(result.error);
-                setVideos([]);
-            } else {
-                setVideos(result.videos);
-                if (result.videos.length === 0) {
-                    setError('No short videos (up to 60 seconds) found for this category');
-                }
-            }
-
-            setLoading(false);
-        };
-
-        loadVideos();
-    }, [muscle, selectedSubcategory]);
+    // Determine final error message
+    const error = !muscle
+        ? 'Muscle name is required'
+        : !selectedSubcategory
+            ? null
+            : videos.length === 0 && !videoError
+                ? 'No short videos (up to 60 seconds) found for this category'
+                : videoError;
 
     // Update selected subcategory when muscle changes
     useEffect(() => {
@@ -144,32 +118,7 @@ const VideoPlayerPage = () => {
                 <div className="card" style={{ marginTop: '20px' }}>
                     <ErrorState
                         message={error}
-                        onRetry={() => {
-                            setError(null);
-                            setLoading(true);
-                            // Trigger refetch by updating state
-                            const loadVideos = async () => {
-                                if (!muscle || !selectedSubcategory) {
-                                    setLoading(false);
-                                    return;
-                                }
-                                const combinedQuery = `${selectedSubcategory.label} ${selectedSubcategory.query}`;
-                                const result = await fetchYoutubeVideos(combinedQuery, 20);
-                                if (result.error) {
-                                    setError(result.error);
-                                    setVideos([]);
-                                } else {
-                                    setVideos(result.videos);
-                                    if (result.videos.length === 0) {
-                                        setError('No short videos (up to 60 seconds) found for this category');
-                                    } else {
-                                        setError(null);
-                                    }
-                                }
-                                setLoading(false);
-                            };
-                            loadVideos();
-                        }}
+                        onRetry={refetch}
                     />
                 </div>
             ) : videos.length > 0 ? (

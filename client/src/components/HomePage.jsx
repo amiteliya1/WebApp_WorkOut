@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { removeFavorite } from '../store/slices/favoritesSlice';
 import { getAllWorkouts, deleteWorkout } from '../services/workouts.api';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 import { FaHeart, FaTrash, FaEdit, FaTimes } from 'react-icons/fa';
 
 const DEFAULT_WEEKLY_WORKOUT = [
@@ -19,7 +20,8 @@ const HomePage = () => {
     const favorites = useSelector((state) => state.favorites.items);
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const [workouts, setWorkouts] = useState(DEFAULT_WEEKLY_WORKOUT);
+    // Use custom hook for weekly plan persistence
+    const [workouts, setWorkouts] = useLocalStorage('weeklyPlan', DEFAULT_WEEKLY_WORKOUT);
     const [selectedDay, setSelectedDay] = useState(null);
     const [dayWorkouts, setDayWorkouts] = useState([]);
     const [allWorkouts, setAllWorkouts] = useState([]); // All workouts from API
@@ -51,25 +53,7 @@ const HomePage = () => {
         fetchAllWorkouts();
     }, []);
 
-    // Load weekly plan from localStorage (keep this - it's just the planning)
-    useEffect(() => {
-        console.log('Loading weekly plan from localStorage');
-
-        const storedWeeklyPlan = localStorage.getItem('weeklyPlan');
-        if (storedWeeklyPlan) {
-            try {
-                const parsed = JSON.parse(storedWeeklyPlan);
-                setWorkouts(parsed);
-                console.log('Weekly plan loaded successfully:', parsed.length, 'days');
-            } catch (error) {
-                console.error('Error loading weekly plan from localStorage:', error);
-                console.log('Using default weekly workout plan');
-                setWorkouts(DEFAULT_WEEKLY_WORKOUT);
-            }
-        } else {
-            console.log('No weekly plan found, using default');
-        }
-    }, []);
+    // Weekly plan is now automatically loaded from localStorage via useLocalStorage hook
 
     const handleDayClick = (dayName) => {
         console.log(`User clicked on day: ${dayName}`);
@@ -168,19 +152,7 @@ const HomePage = () => {
         }
     };
 
-    // Save weekly plan to localStorage (keep this - it's just the planning)
-    const saveWeeklyPlan = (updatedWorkouts) => {
-        console.log('Saving weekly plan to localStorage');
-
-        try {
-            localStorage.setItem('weeklyPlan', JSON.stringify(updatedWorkouts));
-            setWorkouts(updatedWorkouts);
-            console.log('Weekly plan saved successfully');
-        } catch (error) {
-            console.error('Error saving weekly plan to localStorage:', error);
-            alert('Failed to save weekly plan. Please try again.');
-        }
-    };
+    // Weekly plan is now automatically saved to localStorage via useLocalStorage hook
 
     const handleEditDay = (workout) => {
         console.log(`User started editing day: ${workout.day}`);
@@ -202,7 +174,7 @@ const HomePage = () => {
                 ? { ...workout, focus: editFocus.trim() }
                 : workout
         );
-        saveWeeklyPlan(updatedWorkouts);
+        setWorkouts(updatedWorkouts); // Automatically saved to localStorage via useLocalStorage hook
         setEditingDay(null);
         setEditFocus('');
     };
