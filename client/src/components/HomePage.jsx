@@ -16,6 +16,26 @@ const DEFAULT_WEEKLY_WORKOUT = [
     { id: 7, day: 'Saturday', focus: 'Rest', completed: false },
 ];
 
+const WORKOUT_FOCUS_OPTIONS = [
+    'Chest and Shoulders',
+    'Back and Biceps',
+    'Legs and Abs',
+    'Upper Body',
+    'Lower Body',
+    'Full Body',
+    'Push Day',
+    'Pull Day',
+    'Leg Day',
+    'Arms and Abs',
+    'Chest and Triceps',
+    'Back and Traps',
+    'Shoulders and Arms',
+    'HIIT / Cardio',
+    'Rest / Light Cardio',
+    'Rest',
+    'Active Recovery',
+];
+
 const HomePage = () => {
     const favorites = useSelector((state) => state.favorites.items);
     const dispatch = useDispatch();
@@ -125,7 +145,7 @@ const HomePage = () => {
             return;
         }
 
-        if (window.confirm(`Are you sure you want to delete all ${workoutsToDelete.length} workouts for ${dayName}?`)) {
+        if (window.confirm(`Are you sure you want to delete all ${workoutsToDelete.length} logged workout(s) for ${dayName}?\n\nNote: This will only clear your workout logs, not the weekly plan.`)) {
             try {
                 setLoading(true);
 
@@ -135,7 +155,7 @@ const HomePage = () => {
                 );
 
                 console.log(`Deleted ${workoutsToDelete.length} workouts for ${dayName}`);
-                alert(`Deleted ${workoutsToDelete.length} workouts for ${dayName}`);
+                alert(`Successfully cleared ${workoutsToDelete.length} workout(s) for ${dayName}`);
 
                 // Reload workouts from API
                 await fetchAllWorkouts();
@@ -254,12 +274,10 @@ const HomePage = () => {
                                     <strong>{workout.day}:</strong>
                                     {editingDay === workout.id ? (
                                         <div className="edit-focus-container" onClick={(e) => e.stopPropagation()}>
-                                            <input
-                                                type="text"
+                                            <select
                                                 value={editFocus}
                                                 onChange={(e) => setEditFocus(e.target.value)}
                                                 className="edit-focus-input"
-                                                placeholder="Enter workout focus"
                                                 autoFocus
                                                 onKeyDown={(e) => {
                                                     if (e.key === 'Enter') {
@@ -268,7 +286,13 @@ const HomePage = () => {
                                                         handleCancelDayEdit();
                                                     }
                                                 }}
-                                            />
+                                            >
+                                                {WORKOUT_FOCUS_OPTIONS.map((option) => (
+                                                    <option key={option} value={option}>
+                                                        {option}
+                                                    </option>
+                                                ))}
+                                            </select>
                                             <div className="edit-focus-actions">
                                                 <button
                                                     type="button"
@@ -341,10 +365,10 @@ const HomePage = () => {
                                 <button
                                     onClick={() => handleDeleteDay(selectedDay)}
                                     className="delete-day-btn"
-                                    title={`Delete all workouts for ${selectedDay}`}
+                                    title={`Delete all logged workouts for ${selectedDay}`}
                                     disabled={loading}
                                 >
-                                    <FaTrash /> Delete Day
+                                    <FaTrash /> Clear Workouts
                                 </button>
                                 <button
                                     onClick={handleCloseModal}
