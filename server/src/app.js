@@ -52,10 +52,12 @@ const corsOptions = {
 
     // List of allowed origins
     const allowedOrigins = [
-      // New static frontend on Render
+      // Render deployments
       'https://webapp-workout.onrender.com',
+      'https://workout-tracker-frontend.onrender.com',
       // Legacy Vercel client
       'https://web-app-work-out-client.vercel.app',
+      // Local development
       'http://localhost:5173',
       'http://localhost:5174',
       'http://localhost:5175',
@@ -73,6 +75,11 @@ const corsOptions = {
 
     // Check if origin ends with .vercel.app (for preview deployments)
     if (origin.endsWith('.vercel.app')) {
+      return callback(null, true);
+    }
+
+    // Check if origin ends with .onrender.com (for Render deployments)
+    if (origin.endsWith('.onrender.com')) {
       return callback(null, true);
     }
 
@@ -130,17 +137,30 @@ app.get('/api/health', (req, res) => {
 });
 
 // 4) Catch-all route at the VERY END: serve index.html only for non-file SPA routes
+// This is optional - if frontend files don't exist (separate deployment), serve API info instead
 app.get('*', (req, res) => {
   // Do not override file requests (anything with a dot)
   if (req.path.includes('.')) {
     return res.status(404).send('File not found');
   }
 
-  if (!indexExists) {
-    return res.status(503).send('Frontend not built. Please run: npm run build:client');
+  // If frontend files exist, serve the SPA
+  if (indexExists) {
+    return res.sendFile(path.join(distPath, 'index.html'));
   }
 
-  return res.sendFile(path.join(distPath, 'index.html'));
+  // If no frontend files (separate deployment), return API info
+  return res.json({
+    success: true,
+    message: 'Workout Tracker API Server',
+    endpoints: {
+      health: '/api/health',
+      auth: '/api/auth',
+      workouts: '/api/workouts',
+      exercises: '/api'
+    },
+    note: 'Frontend is deployed separately. Visit the frontend URL to access the application.'
+  });
 });
 
 // Step 7: Error handlers - MUST be LAST

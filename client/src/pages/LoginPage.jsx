@@ -15,11 +15,11 @@ const LoginPage = () => {
     const newErrors = {};
 
     if (!email || email.trim().length === 0) {
-      newErrors.email = 'אימייל הוא שדה חובה';
+      newErrors.email = 'Email is required';
     }
 
     if (!password || password.length === 0) {
-      newErrors.password = 'סיסמה היא שדה חובה';
+      newErrors.password = 'Password is required';
     }
 
     setErrors(newErrors);
@@ -28,21 +28,27 @@ const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('LoginPage: Form submitted');
+
     setError('');
     setErrors({});
 
     if (!validateForm()) {
+      console.log('LoginPage: Form validation failed');
       return;
     }
 
+    console.log('LoginPage: Form validation passed, attempting login');
     setLoading(true);
 
     const result = await login(email, password);
 
     if (result.success) {
+      console.log('LoginPage: Login successful, redirecting to home');
       navigate('/');
     } else {
-      setError(result.error || 'התחברות נכשלה');
+      console.log('LoginPage: Login failed:', result.error);
+      setError(result.error || 'Login failed');
     }
 
     setLoading(false);
@@ -51,12 +57,12 @@ const LoginPage = () => {
   return (
     <div className="main-content">
       <div className="card workout-form-card">
-        <h2>התחברות</h2>
+        <h2>Login</h2>
         <form onSubmit={handleSubmit} className="workout-form">
           {error && <div className="form-error" style={{ marginBottom: '16px' }}>{error}</div>}
 
           <div className="form-field">
-            <label htmlFor="email">אימייל *</label>
+            <label htmlFor="email">Email *</label>
             <input
               type="email"
               id="email"
@@ -74,7 +80,7 @@ const LoginPage = () => {
           </div>
 
           <div className="form-field">
-            <label htmlFor="password">סיסמה *</label>
+            <label htmlFor="password">Password *</label>
             <input
               type="password"
               id="password"
@@ -85,7 +91,7 @@ const LoginPage = () => {
                   setErrors(prev => ({ ...prev, password: undefined }));
                 }
               }}
-              placeholder="הזן סיסמה"
+              placeholder="Enter password"
               required
             />
             {errors.password && <span className="form-error">{errors.password}</span>}
@@ -96,12 +102,12 @@ const LoginPage = () => {
             className="btn-primary form-submit-btn"
             disabled={loading}
           >
-            {loading ? 'מתחבר...' : 'התחבר'}
+            {loading ? 'Logging in...' : 'Login'}
           </button>
 
           <div style={{ marginTop: '20px', textAlign: 'center' }}>
             <p style={{ color: 'var(--muted)', marginBottom: '10px' }}>
-              אין לך חשבון?
+              Don't have an account?
             </p>
             <Link
               to="/register"
@@ -111,7 +117,7 @@ const LoginPage = () => {
                 fontWeight: 500,
               }}
             >
-              הירשם כאן
+              Sign up here
             </Link>
           </div>
         </form>

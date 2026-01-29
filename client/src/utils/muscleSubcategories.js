@@ -1,50 +1,49 @@
 /**
- * Muscle subcategories mapping: Hebrew muscle → Array of subcategories
- * 
+ * Muscle subcategories mapping: English muscle → Array of subcategories
+ *
  * Each subcategory has:
- * - labelHe: Hebrew label for display
+ * - label: English label for display
  * - query: English search query for YouTube API
  */
 export const MUSCLE_SUBCATEGORIES = {
-  "חזה": [
-    { labelHe: "כללי", query: "chest workout" },
-    { labelHe: "חזה עליון", query: "upper chest workout" },
-    { labelHe: "חזה רגיל", query: "chest workout" }
+  "Chest": [
+    { label: "General", query: "chest workout" },
+    { label: "Upper Chest", query: "upper chest workout" },
+    { label: "Regular Chest", query: "chest workout" }
   ],
-  "ידיים": [
-    { labelHe: "כללי", query: "arms workout" },
-    { labelHe: "יד קדמי (בייספס)", query: "biceps workout" },
-    { labelHe: "יד אחורי (טרייספס)", query: "triceps workout" }
+  "Arms": [
+    { label: "General", query: "arms workout" },
+    { label: "Front Arm (Biceps)", query: "biceps workout" },
+    { label: "Back Arm (Triceps)", query: "triceps workout" }
   ],
-  "רגליים": [
-    { labelHe: "כללי", query: "leg workout" },
-    { labelHe: "סקוואט", query: "squat tutorial workout" },
-    { labelHe: "לאנג׳ (Lunges)", query: "lunges workout" }
+  "Legs": [
+    { label: "General", query: "leg workout" },
+    { label: "Squat", query: "squat tutorial workout" },
+    { label: "Lunges", query: "lunges workout" }
   ],
-  "גב": [
-    { labelHe: "כללי", query: "back workout" },
-    { labelHe: "גב עליון", query: "upper back workout" },
-    { labelHe: "גב תחתון", query: "lower back workout" }
+  "Back": [
+    { label: "General", query: "back workout" },
+    { label: "Upper Back", query: "upper back workout" },
+    { label: "Lower Back", query: "lower back workout" }
   ],
-  "כתפיים": [
-    { labelHe: "כללי", query: "shoulder workout" },
-    { labelHe: "כתף קדמית", query: "front delts workout" },
-    { labelHe: "כתף צד", query: "lateral delts workout" },
-    { labelHe: "כתף אחורית", query: "rear delts workout" }
+  "Shoulders": [
+    { label: "General", query: "shoulder workout" },
+    { label: "Front Shoulders", query: "front delts workout" },
+    { label: "Side Shoulders", query: "lateral delts workout" },
+    { label: "Rear Shoulders", query: "rear delts workout" }
   ],
-  "בטן": [
-    { labelHe: "כללי", query: "abs workout" },
-    { labelHe: "בטן עליונה", query: "upper abs workout" },
-    { labelHe: "בטן תחתונה", query: "lower abs workout" }
+  "Abs": [
+    { label: "General", query: "abs workout" },
+    { label: "Upper Abs", query: "upper abs workout" },
+    { label: "Lower Abs", query: "lower abs workout" }
   ]
 };
 
 /**
- * Get subcategories for a muscle (Hebrew name)
- * @param {string} hebrewMuscleName - Hebrew name of the muscle
+ * Get subcategories for a muscle (English name)
+ * @param {string} muscleName - English name of the muscle
  * @returns {Array} Array of subcategories, or empty array if not found
  */
-export const getSubcategoriesForMuscle = (hebrewMuscleName) => {
-  return MUSCLE_SUBCATEGORIES[hebrewMuscleName] || [];
+export const getSubcategoriesForMuscle = (muscleName) => {
+  return MUSCLE_SUBCATEGORIES[muscleName] || [];
 };
-

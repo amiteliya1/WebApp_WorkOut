@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Loading = ({ message = 'טוען...' }) => {
+const Loading = ({ message = 'Loading...' }) => {
   return (
     <div className="loading-container">
       <div className="spinner"></div>

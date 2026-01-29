@@ -1,0 +1,37 @@
+services:
+  # Backend API Service
+  - type: web
+    name: workout-tracker-api
+    env: node
+    region: frankfurt
+    plan: free
+    buildCommand: cd server && npm install
+    startCommand: cd server && npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: PORT
+        value: 3002
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false  # Set manually in Render dashboard
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: YOUTUBE_API_KEY
+        sync: false  # Set manually in Render dashboard
+
+  # Frontend Static Site
+  - type: web
+    name: workout-tracker-frontend
+    env: static
+    buildCommand: cd client && npm install && npm run build
+    staticPublishPath: ./client/dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        value: https://workout-tracker-api-wj21.onrender.com/api

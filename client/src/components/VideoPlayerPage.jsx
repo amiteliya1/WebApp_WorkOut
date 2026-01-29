@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { addFavorite, removeFavorite } from '../store/slices/favoritesSlice';
-import { getHebrewName } from '../utils/muscleMapping';
+import { getMuscleName } from '../utils/muscleMapping';
 import { getSubcategoriesForMuscle } from '../utils/muscleSubcategories';
-import { fetchYoutubeVideos } from '../hooks/useYoutubeVideos';
+import { useYoutubeVideos } from '../hooks/useYoutubeVideos';
 import ErrorState from './ErrorState';
 import Loading from './Loading';
 import { FaHeart, FaRegHeart } from 'react-icons/fa';
@@ -13,76 +13,41 @@ const VideoPlayerPage = () => {
     const { muscle } = useParams();
     const dispatch = useDispatch();
     const favorites = useSelector((state) => state.favorites.items);
-    
-    // Get Hebrew muscle name from URL param (could be Hebrew or English)
-    const hebrewMuscleName = getHebrewName(muscle) || muscle;
-    
+
+    // Get muscle name from URL param (could be Hebrew or English)
+    const muscleName = getMuscleName(muscle) || muscle;
+
     // Get subcategories for this muscle
-    const subcategories = getSubcategoriesForMuscle(hebrewMuscleName);
-    
-    // Default selected subcategory: "כללי" (general) or first one
-    const defaultSubcategory = subcategories.find(sub => sub.labelHe === 'כללי') || subcategories[0];
+    const subcategories = getSubcategoriesForMuscle(muscleName);
+
+    // Default selected subcategory: "General" or first one
+    const defaultSubcategory = subcategories.find(sub => sub.label === 'General') || subcategories[0];
     const [selectedSubcategory, setSelectedSubcategory] = useState(defaultSubcategory);
-    
-    const [videos, setVideos] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
 
-    // Get YouTube API key from environment
-    const YOUTUBE_API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY;
+    // Build combined query: English label + English query
+    const combinedQuery = selectedSubcategory
+        ? `${selectedSubcategory.label} ${selectedSubcategory.query}`
+        : '';
 
-    // Fetch videos when subcategory changes
-    useEffect(() => {
-        const loadVideos = async () => {
-            if (!muscle) {
-                setError('נדרש שם שריר');
-                setLoading(false);
-                return;
-            }
+    // Use custom hook to fetch YouTube videos
+    const { videos, loading, error: videoError, refetch } = useYoutubeVideos(combinedQuery, 20);
 
-            if (!YOUTUBE_API_KEY) {
-                setError('חסר מפתח YouTube API (VITE_YOUTUBE_API_KEY)');
-                setLoading(false);
-                return;
-            }
-
-            if (!selectedSubcategory) {
-                setVideos([]);
-                setLoading(false);
-                return;
-            }
-
-            setLoading(true);
-            setError(null);
-
-            // Build combined query: Hebrew label + English query
-            const combinedQuery = `${selectedSubcategory.labelHe} ${selectedSubcategory.query}`;
-
-            const result = await fetchYoutubeVideos(combinedQuery, YOUTUBE_API_KEY, 20);
-
-            if (result.error) {
-                setError(result.error);
-                setVideos([]);
-            } else {
-                setVideos(result.videos);
-                if (result.videos.length === 0) {
-                    setError('לא נמצאו סרטונים קצרים (עד 60 שניות) עבור הקטגוריה הזו');
-                }
-            }
-
-            setLoading(false);
-        };
-
-        loadVideos();
-    }, [muscle, selectedSubcategory, YOUTUBE_API_KEY]);
+    // Determine final error message
+    const error = !muscle
+        ? 'Muscle name is required'
+        : !selectedSubcategory
+            ? null
+            : videos.length === 0 && !videoError
+                ? 'No short videos (up to 60 seconds) found for this category'
+                : videoError;
 
     // Update selected subcategory when muscle changes
     useEffect(() => {
         if (subcategories.length > 0) {
-            const defaultSub = subcategories.find(sub => sub.labelHe === 'כללי') || subcategories[0];
+            const defaultSub = subcategories.find(sub => sub.label === 'General') || subcategories[0];
             setSelectedSubcategory(defaultSub);
         }
-    }, [hebrewMuscleName, subcategories]);
+    }, [muscleName, subcategories]);
 
     const handleSubcategoryClick = (subcategory) => {
         setSelectedSubcategory(subcategory);
@@ -109,7 +74,7 @@ const VideoPlayerPage = () => {
         return (
             <div className="card">
                 <div className="error-message" style={{ color: 'var(--error, #ff4444)', padding: '20px', textAlign: 'center' }}>
-                    לא נמצאו קטגוריות משנה עבור "{hebrewMuscleName}"
+                    No subcategories found for "{muscleName}"
                 </div>
             </div>
         );
@@ -117,30 +82,30 @@ const VideoPlayerPage = () => {
 
     return (
         <div className="card">
-            <h2>סרטונים עבור: {hebrewMuscleName}</h2>
-            
+            <h2>Videos for: {muscleName}</h2>
+
             {/* Subcategories List */}
-            <div style={{ 
+            <div style={{
                 marginBottom: '24px',
                 paddingBottom: '20px',
                 borderBottom: '1px solid var(--border, #333)'
             }}>
-                <h3 style={{ 
-                    fontSize: '16px', 
-                    fontWeight: '600', 
+                <h3 style={{
+                    fontSize: '16px',
+                    fontWeight: '600',
                     marginBottom: '12px',
                     color: 'var(--text, #fff)'
                 }}>
-                    קטגוריות משנה:
+                    Subcategories:
                 </h3>
                 <div className="subcategories-list">
                     {subcategories.map((sub, index) => (
                         <button
                             key={index}
                             onClick={() => handleSubcategoryClick(sub)}
-                            className={`subcategory-button ${selectedSubcategory.labelHe === sub.labelHe ? 'active' : ''}`}
+                            className={`subcategory-button ${selectedSubcategory.label === sub.label ? 'active' : ''}`}
                         >
-                            {sub.labelHe}
+                            {sub.label}
                         </button>
                     ))}
                 </div>
@@ -148,48 +113,23 @@ const VideoPlayerPage = () => {
 
             {/* Videos Section */}
             {loading ? (
-                <Loading message={`מחפש סרטונים עבור "${selectedSubcategory.labelHe}"... ⏳`} />
+                <Loading message={`Searching for videos for "${selectedSubcategory.label}"...`} />
             ) : error ? (
                 <div className="card" style={{ marginTop: '20px' }}>
-                    <ErrorState 
-                        message={error} 
-                        onRetry={() => {
-                            setError(null);
-                            setLoading(true);
-                            // Trigger refetch by updating state
-                            const loadVideos = async () => {
-                                if (!muscle || !YOUTUBE_API_KEY || !selectedSubcategory) {
-                                    setLoading(false);
-                                    return;
-                                }
-                                const combinedQuery = `${selectedSubcategory.labelHe} ${selectedSubcategory.query}`;
-                                const result = await fetchYoutubeVideos(combinedQuery, YOUTUBE_API_KEY, 20);
-                                if (result.error) {
-                                    setError(result.error);
-                                    setVideos([]);
-                                } else {
-                                    setVideos(result.videos);
-                                    if (result.videos.length === 0) {
-                                        setError('לא נמצאו סרטונים קצרים (עד 60 שניות) עבור הקטגוריה הזו');
-                                    } else {
-                                        setError(null);
-                                    }
-                                }
-                                setLoading(false);
-                            };
-                            loadVideos();
-                        }}
+                    <ErrorState
+                        message={error}
+                        onRetry={refetch}
                     />
                 </div>
             ) : videos.length > 0 ? (
                 <>
-                    <h3 style={{ 
-                        fontSize: '16px', 
-                        fontWeight: '600', 
+                    <h3 style={{
+                        fontSize: '16px',
+                        fontWeight: '600',
                         marginBottom: '16px',
                         color: 'var(--text, #fff)'
                     }}>
-                        סרטונים קצרים עבור: {selectedSubcategory.labelHe}
+                        Short videos for: {selectedSubcategory.label}
                     </h3>
                     <div style={{ 
                         display: 'grid', 
@@ -266,7 +206,7 @@ const VideoPlayerPage = () => {
                                                 padding: '4px',
                                                 flexShrink: 0,
                                             }}
-                                            title={isFavorite(video.id.videoId) ? "הסר ממועדפים" : "הוסף למועדפים"}
+                                            title={isFavorite(video.id.videoId) ? "Remove from favorites" : "Add to favorites"}
                                         >
                                             {isFavorite(video.id.videoId) ? <FaHeart /> : <FaRegHeart />}
                                         </button>
@@ -291,9 +231,9 @@ const VideoPlayerPage = () => {
                 </>
             ) : (
                 <div style={{ textAlign: 'center', padding: '40px', color: 'var(--muted, #999)' }}>
-                    <p>לא נמצאו סרטונים קצרים עבור "{selectedSubcategory.labelHe}".</p>
+                    <p>No short videos found for "{selectedSubcategory.label}".</p>
                     <p style={{ marginTop: '12px', fontSize: '0.9rem' }}>
-                        נסה לבחור קטגוריה אחרת או לבדוק את החיבור לאינטרנט.
+                        Try selecting another category or check your internet connection.
                     </p>
                 </div>
             )}

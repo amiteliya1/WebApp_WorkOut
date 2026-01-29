@@ -7,6 +7,13 @@ body {
   background-attachment: fixed;
 }
 
+/* App Container - Flexbox Layout for Footer Positioning */
+#root > div {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
 /* Layout Structure - Removed constraints to allow navbar full width */
 
 /* ============================================
@@ -50,15 +57,7 @@ body.light-theme .top-navbar {
   gap: 32px;
 }
 
-/* Left side group (RTL): Brand + Controls */
-.navbar-left-group {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  flex-shrink: 0;
-}
-
-/* Brand/Logo */
+/* Brand/Logo - Left side */
 .navbar-brand {
   flex-shrink: 0;
 }
@@ -73,13 +72,13 @@ body.light-theme .top-navbar {
   white-space: nowrap;
 }
 
-/* Navigation Links - Right side (RTL) */
+/* Navigation Links - Center */
 .navbar-nav {
   display: flex;
   align-items: center;
   gap: 18px;
   flex: 1;
-  justify-content: flex-end;
+  justify-content: center;
 }
 
 .nav-link {
@@ -275,11 +274,26 @@ body.light-theme .logout-btn:hover {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 32px 24px;
   display: flex;
   justify-content: center;
   position: relative;
   z-index: 1;
+  box-sizing: border-box;
+  flex: 1;
+}
+
+/* Responsive - Main Content */
+@media (max-width: 768px) {
+  .main-content {
+    padding: 20px 16px;
+  }
+}
+
+@media (max-width: 640px) {
+  .main-content {
+    padding: 16px 12px;
+  }
 }
 
 /* Header Controls - Icons Container */
@@ -369,9 +383,29 @@ body.light-theme .theme-toggle-btn:hover {
   margin-bottom: 20px;
   color: var(--text);
   width: 100%;
-  max-width: 600px;
-  text-align: right;
+  max-width: 800px; /* Increased default size */
+  text-align: left;
   transition: all 300ms ease;
+  box-sizing: border-box;
+}
+
+/* Responsive - Card */
+@media (max-width: 968px) {
+  .card {
+    padding: 32px;
+  }
+}
+
+@media (max-width: 768px) {
+  .card {
+    padding: 24px;
+  }
+}
+
+@media (max-width: 640px) {
+  .card {
+    padding: 20px 16px;
+  }
 }
 
 /* Night Mode - Dark cards */
@@ -425,13 +459,13 @@ body.light-theme .card {
    Workout Form - Premium Design
    ============================================ */
 .workout-form-card {
-  max-width: 520px;
+  max-width: 600px;
   margin: 0 auto;
 }
 
 .workout-form-card h2 {
   margin-bottom: 32px;
-  text-align: right;
+  text-align: left;
   font-size: 2rem;
   font-weight: 700;
   color: var(--text);
@@ -441,13 +475,13 @@ body.light-theme .card {
   display: flex;
   flex-direction: column;
   gap: 24px;
-  text-align: right;
+  text-align: left;
 }
 
 .form-field {
   display: flex;
   flex-direction: column;
-  text-align: right;
+  text-align: left;
   gap: 8px;
 }
 
@@ -513,9 +547,9 @@ body.light-theme .card {
 .form-field select {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23e0e0e0' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: left 16px center;
-  padding-right: 16px;
-  padding-left: 40px;
+  background-position: right 16px center;
+  padding-left: 16px;
+  padding-right: 40px;
   cursor: pointer;
 }
 
@@ -566,12 +600,13 @@ body.light-theme .form-field select {
    ============================================ */
 .existing-workouts-card {
   margin-top: 32px;
-  max-width: 800px;
+  max-width: 900px;
+  width: 100%;
 }
 
 .existing-workouts-card h2 {
   margin-bottom: 24px;
-  text-align: right;
+  text-align: left;
 }
 
 .workout-day-section {
@@ -643,7 +678,7 @@ body.light-theme .form-field select {
 .workout-item:hover {
   border-color: var(--accent);
   box-shadow: var(--shadow);
-  transform: translateX(-4px);
+  transform: translateX(4px);
 }
 
 .workout-info {
@@ -651,7 +686,7 @@ body.light-theme .form-field select {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  text-align: right;
+  text-align: left;
 }
 
 .workout-info strong {
@@ -784,12 +819,29 @@ body.light-theme .workout-day-section {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-  max-width: 800px;
-  width: 100%;
+  max-width: 900px;
+  width: 95%;
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
   animation: slideUp 300ms ease;
+  box-sizing: border-box;
+}
+
+/* Responsive - Modal */
+@media (max-width: 768px) {
+  .modal-content {
+    width: 95%;
+    max-height: 85vh;
+  }
+}
+
+@media (max-width: 640px) {
+  .modal-content {
+    width: 98%;
+    max-height: 90vh;
+    border-radius: 8px;
+  }
 }
 
 @keyframes slideUp {
@@ -900,7 +952,7 @@ body.light-theme .workout-day-card:hover {
 .workout-day-card.selected {
   background-color: rgba(0, 230, 118, 0.1) !important;
   border-left: 3px solid var(--accent);
-  padding-right: 5px;
+  padding-left: 5px;
 }
 
 body.light-theme .workout-day-card.selected {
@@ -911,7 +963,7 @@ body.light-theme .workout-day-card.selected {
   display: flex;
   align-items: center;
   gap: 12px;
-  text-align: right;
+  text-align: left;
 }
 
 .workout-day-content strong {
@@ -1025,7 +1077,7 @@ body.light-theme .workout-day-card.selected {
 .workout-day-card.selected {
   background-color: rgba(0, 230, 118, 0.1) !important;
   border-left: 3px solid var(--accent);
-  padding-right: 7px;
+  padding-left: 7px;
 }
 
 body.light-theme .workout-day-card.selected {
@@ -1117,12 +1169,13 @@ body.light-theme li:hover {
    Exercise Library - Muscle Cards Grid
    ============================================ */
 .exercise-library-card {
-  max-width: 1000px;
+  max-width: 1100px;
+  width: 100%;
 }
 
 .exercise-library-card h2 {
   margin-bottom: 32px;
-  text-align: right;
+  text-align: left;
 }
 
 .muscle-grid {
@@ -1252,7 +1305,7 @@ body.light-theme .muscle-card-overlay {
   font-size: 1.5rem;
   font-weight: 700;
   margin: 0;
-  text-align: right;
+  text-align: left;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
   transition: color 300ms ease;
 }
@@ -1279,6 +1332,11 @@ body.light-theme .muscle-card-title {
   .muscle-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 20px;
+  }
+
+  .exercise-library-card,
+  .existing-workouts-card {
+    max-width: 100%;
   }
 }
 
@@ -1307,6 +1365,27 @@ body.light-theme .muscle-card-title {
   .subcategory-button {
     width: 100%;
   }
+
+  /* Ensure all cards fit mobile */
+  .card,
+  .workout-form-card,
+  .exercise-library-card,
+  .existing-workouts-card {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  /* Workout items responsive */
+  .workout-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .workout-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
 }
 
 /* Subcategories List Styles */
@@ -1318,7 +1397,7 @@ body.light-theme .muscle-card-title {
 
 .subcategory-button {
   padding: 12px 16px;
-  text-align: right;
+  text-align: left;
   border-radius: var(--radius);
   cursor: pointer;
   font-size: 14px;

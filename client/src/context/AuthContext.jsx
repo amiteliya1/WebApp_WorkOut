@@ -31,30 +31,20 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const loadUser = async () => {
       if (token) {
+        console.log('Loading user from token...');
         try {
           const response = await axios.get(`${API_URL}/auth/me`);
-          const currentUser = response.data.data;
-          setUser(currentUser);
-          
-          // Clear old localStorage data when user logs in (prevent mixing workouts between users)
-          const lastUserId = localStorage.getItem('lastUserId');
-          if (lastUserId && lastUserId !== currentUser.id) {
-            // Different user logged in - clear old localStorage workout data
-            localStorage.removeItem('weeklyWorkouts');
-            localStorage.removeItem('weeklyPlan');
-            console.log('🧹 Cleared localStorage for new user');
-          }
-          localStorage.setItem('lastUserId', currentUser.id);
+          setUser(response.data.data);
+          console.log('User loaded successfully:', response.data.data.email);
         } catch (error) {
           // Token is invalid, clear it
+          console.error('Failed to load user - token invalid:', error.response?.status || error.message);
           setToken(null);
           setUser(null);
           localStorage.removeItem('token');
-          localStorage.removeItem('lastUserId');
         }
       } else {
-        // No token - clear user tracking
-        localStorage.removeItem('lastUserId');
+        console.log('No token found, user not authenticated');
       }
       setLoading(false);
     };
@@ -63,6 +53,8 @@ export const AuthProvider = ({ children }) => {
   }, [token]);
 
   const login = async (email, password) => {
+    console.log(`Login attempt for email: ${email}`);
+
     try {
       const response = await axios.post(`${API_URL}/auth/login`, {
         email,
@@ -71,21 +63,27 @@ export const AuthProvider = ({ children }) => {
       const { token: newToken, user: userData } = response.data.data;
       setToken(newToken);
       setUser(userData);
+
+      console.log(`Login successful for user: ${userData.email}`);
+
       return { success: true };
     } catch (error) {
       // Improved error handling
-      let errorMessage = 'התחברות נכשלה';
+      let errorMessage = 'Login failed';
       if (error.response) {
         // Server responded with error status
         const status = error.response.status;
         const serverError = error.response.data?.error || error.response.data?.message;
-        errorMessage = serverError || `שגיאת שרת (${status})`;
+        errorMessage = serverError || `Server error (${status})`;
+        console.error(`Login failed - Server error (${status}):`, serverError);
       } else if (error.request) {
         // Request was made but no response received
-        errorMessage = 'לא ניתן להתחבר לשרת. ודא שהשרת פועל.';
+        errorMessage = 'Unable to connect to server. Please ensure the server is running.';
+        console.error('Login failed - Unable to connect to server');
       } else {
         // Error in request setup
-        errorMessage = error.message || 'שגיאה בהתחברות';
+        errorMessage = error.message || 'Login error';
+        console.error('Login failed - Request setup error:', error.message);
       }
       return {
         success: false,
@@ -95,6 +93,8 @@ export const AuthProvider = ({ children }) => {
   };
 
   const register = async (name, email, password) => {
+    console.log(`Registration attempt for email: ${email}`);
+
     try {
       const response = await axios.post(`${API_URL}/auth/register`, {
         name,
@@ -104,21 +104,27 @@ export const AuthProvider = ({ children }) => {
       const { token: newToken, user: userData } = response.data.data;
       setToken(newToken);
       setUser(userData);
+
+      console.log(`Registration successful for user: ${userData.email}`);
+
       return { success: true };
     } catch (error) {
       // Improved error handling
-      let errorMessage = 'הרשמה נכשלה';
+      let errorMessage = 'Registration failed';
       if (error.response) {
         // Server responded with error status
         const status = error.response.status;
         const serverError = error.response.data?.error || error.response.data?.message;
-        errorMessage = serverError || `שגיאת שרת (${status})`;
+        errorMessage = serverError || `Server error (${status})`;
+        console.error(`Registration failed - Server error (${status}):`, serverError);
       } else if (error.request) {
         // Request was made but no response received
-        errorMessage = 'לא ניתן להתחבר לשרת. ודא שהשרת פועל.';
+        errorMessage = 'Unable to connect to server. Please ensure the server is running.';
+        console.error('Registration failed - Unable to connect to server');
       } else {
         // Error in request setup
-        errorMessage = error.message || 'שגיאה בהרשמה';
+        errorMessage = error.message || 'Registration error';
+        console.error('Registration failed - Request setup error:', error.message);
       }
       return {
         success: false,
@@ -127,15 +133,56 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const deleteAccount = async () => {
+    console.log('User requesting account deletion');
+
+    try {
+      const response = await axios.delete(`${API_URL}/auth/me`);
+
+      console.log('Account deleted successfully:', response.data);
+
+      // Clear auth state after deletion
+      setToken(null);
+      setUser(null);
+      localStorage.removeItem('token');
+      delete axios.defaults.headers.common['Authorization'];
+
+      return {
+        success: true,
+        message: response.data.message,
+        deletedWorkouts: response.data.data?.deletedWorkouts || 0
+      };
+    } catch (error) {
+      let errorMessage = 'Failed to delete account';
+
+      if (error.response) {
+        const serverError = error.response.data?.error || error.response.data?.message;
+        errorMessage = serverError || `Server error (${error.response.status})`;
+        console.error(`Account deletion failed - Server error (${error.response.status}):`, serverError);
+      } else if (error.request) {
+        errorMessage = 'Unable to connect to server. Please ensure the server is running.';
+        console.error('Account deletion failed - Unable to connect to server');
+      } else {
+        errorMessage = error.message || 'Account deletion error';
+        console.error('Account deletion failed - Request setup error:', error.message);
+      }
+
+      return {
+        success: false,
+        error: errorMessage,
+      };
+    }
+  };
+
   const logout = () => {
+    console.log('User logging out');
+
     setToken(null);
     setUser(null);
     localStorage.removeItem('token');
-    localStorage.removeItem('lastUserId');
-    // Clear old localStorage workout data on logout
-    localStorage.removeItem('weeklyWorkouts');
-    localStorage.removeItem('weeklyPlan');
     delete axios.defaults.headers.common['Authorization'];
+
+    console.log('Logout successful');
   };
 
   return (
@@ -147,6 +194,7 @@ export const AuthProvider = ({ children }) => {
         login,
         register,
         logout,
+        deleteAccount,
       }}
     >
       {children}

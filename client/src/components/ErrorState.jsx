@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaExclamationTriangle, FaRedo } from 'react-icons/fa';
 
-const ErrorState = ({ message = 'אירעה שגיאה בטעינת הנתונים', onRetry = null }) => {
+const ErrorState = ({ message = 'An error occurred while loading data', onRetry = null }) => {
   return (
     <div className="error-state" style={{ 
       textAlign: 'center', 
@@ -21,7 +21,7 @@ const ErrorState = ({ message = 'אירעה שגיאה בטעינת הנתוני
             marginTop: '12px',
           }}
         >
-          <FaRedo /> נסה שוב
+          <FaRedo /> Retry
         </button>
       )}
     </div>

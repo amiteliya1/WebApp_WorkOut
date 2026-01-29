@@ -160,12 +160,12 @@ a:focus-visible {
 }
 
 /* ============================================
-   RTL Support
+   LTR Support (English)
    ============================================ */
-html[dir="rtl"],
-html[dir="rtl"] body {
-  direction: rtl;
-  text-align: right;
+html,
+body {
+  direction: ltr;
+  text-align: left;
 }
 
 /* ============================================

@@ -3,17 +3,15 @@ import { Routes, Route, NavLink, useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { useTheme } from './hooks/useTheme'
 import { useAuth } from './hooks/useAuth'
-import HomePage from './pages/HomePage'
-// Make sure we're using the MongoDB version, not the localStorage one
+import HomePage from './components/HomePage'
+import WorkoutLogForm from './components/WorkoutLogForm'
 import ExerciseApiPage from './components/ExerciseApiPage'
 import VideoPlayerPage from './components/VideoPlayerPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import NotFoundPage from './components/NotFoundPage'
-import NewWorkoutPage from './pages/NewWorkoutPage'
-import EditWorkoutPage from './pages/EditWorkoutPage'
-import WorkoutDetailPage from './pages/WorkoutDetailPage'
+import Footer from './components/Footer'
 import { FaHeart, FaSun, FaMoon, FaBars, FaTimes, FaSignInAlt, FaSignOutAlt } from 'react-icons/fa'
 import './App.css'
 
@@ -24,7 +22,7 @@ function App() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
 
-  // עדכון class של body לפי theme
+  // Update body class based on theme
   useEffect(() => {
     document.body.className = theme === 'light' ? 'light-theme' : 'dark-theme'
   }, [theme])
@@ -43,62 +41,63 @@ function App() {
     <div style={{ margin: 0, padding: 0, width: '100%' }}>
       <header className="top-navbar">
         <div className="navbar-container">
-          {/* Right side (RTL): Navigation Links */}
+          {/* Left side: Brand Logo */}
+          <div className="navbar-brand">
+            <h1 className="navbar-logo">WORKOUT TRACKER</h1>
+          </div>
+
+          {/* Center: Navigation Links */}
           <nav className="navbar-nav">
             {user ? (
               <>
-                <NavLink 
-                  to="/" 
+                <NavLink
+                  to="/"
                   className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
                   end
                   onClick={closeMobileMenu}
                 >
-                  בית
+                  Home
                 </NavLink>
                 <span className="nav-separator">|</span>
-                <NavLink 
-                  to="/new" 
+                <NavLink
+                  to="/form"
                   className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
                   onClick={closeMobileMenu}
                 >
-                  בניית תוכנית
+                  Build Program
                 </NavLink>
                 <span className="nav-separator">|</span>
-                <NavLink 
-                  to="/exercises" 
+                <NavLink
+                  to="/exercises"
                   className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
                   onClick={closeMobileMenu}
                 >
-                  ספריית תרגילים
+                  Exercise Library
                 </NavLink>
               </>
             ) : (
               <>
-                <NavLink 
-                  to="/login" 
+                <NavLink
+                  to="/login"
                   className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
                   onClick={closeMobileMenu}
                 >
-                  התחבר
+                  Login
                 </NavLink>
                 <span className="nav-separator">|</span>
-                <NavLink 
-                  to="/register" 
+                <NavLink
+                  to="/register"
                   className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
                   onClick={closeMobileMenu}
                 >
-                  הירשם
+                  Sign Up
                 </NavLink>
               </>
             )}
           </nav>
 
-          {/* Left side (RTL): Brand + Controls */}
-          <div className="navbar-left-group">
-            <div className="navbar-brand">
-              <h1 className="navbar-logo">WORKOUT TRACKER</h1>
-            </div>
-            <div className="navbar-controls">
+          {/* Right side: User Controls */}
+          <div className="navbar-controls">
               {favoritesCount > 0 && (
                 <span className="favorites-badge">
                   <FaHeart /> {favoritesCount}
@@ -108,7 +107,7 @@ function App() {
                 <button
                   onClick={handleLogout}
                   className="logout-btn"
-                  title="התנתק"
+                  title="Logout"
                   style={{
                     background: 'transparent',
                     border: '1px solid var(--border)',
@@ -123,7 +122,7 @@ function App() {
                     transition: 'all 250ms ease',
                   }}
                 >
-                  <FaSignOutAlt /> התנתק
+                  <FaSignOutAlt /> Logout
                 </button>
               ) : (
                 <NavLink
@@ -138,25 +137,24 @@ function App() {
                     gap: '6px',
                   }}
                 >
-                  <FaSignInAlt /> התחבר
+                  <FaSignInAlt /> Login
                 </NavLink>
               )}
               <button
                 onClick={toggleTheme}
                 className="theme-toggle-btn"
-                title={theme === 'light' ? 'עבור למצב כהה' : 'עבור למצב בהיר'}
+                title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
               >
                 {theme === 'light' ? <FaMoon /> : <FaSun />}
               </button>
               <button
                 className="mobile-menu-toggle"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                aria-label="תפריט"
+                aria-label="Menu"
               >
                 {mobileMenuOpen ? <FaTimes /> : <FaBars />}
               </button>
             </div>
-          </div>
         </div>
 
         {/* Mobile Menu */}
@@ -170,21 +168,21 @@ function App() {
                   end
                   onClick={closeMobileMenu}
                 >
-                  בית
+                  Home
                 </NavLink>
-                <NavLink 
-                  to="/new" 
+                <NavLink
+                  to="/form"
                   className={({ isActive }) => `mobile-nav-link ${isActive ? 'active' : ''}`}
                   onClick={closeMobileMenu}
                 >
-                  בניית תוכנית
+                  Build Program
                 </NavLink>
-                <NavLink 
-                  to="/exercises" 
+                <NavLink
+                  to="/exercises"
                   className={({ isActive }) => `mobile-nav-link ${isActive ? 'active' : ''}`}
                   onClick={closeMobileMenu}
                 >
-                  ספריית תרגילים
+                  Exercise Library
                 </NavLink>
                 <button
                   onClick={handleLogout}
@@ -197,7 +195,7 @@ function App() {
                     cursor: 'pointer',
                   }}
                 >
-                  התנתק
+                  Logout
                 </button>
               </>
             ) : (
@@ -206,7 +204,7 @@ function App() {
                 className={({ isActive }) => `mobile-nav-link ${isActive ? 'active' : ''}`}
                 onClick={closeMobileMenu}
               >
-                התחבר
+                Login
               </NavLink>
             )}
           </div>
@@ -226,26 +224,10 @@ function App() {
             }
           />
           <Route
-            path="/new"
+            path="/form"
             element={
               <ProtectedRoute>
-                <NewWorkoutPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/workouts/:id"
-            element={
-              <ProtectedRoute>
-                <WorkoutDetailPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/edit/:id"
-            element={
-              <ProtectedRoute>
-                <EditWorkoutPage />
+                <WorkoutLogForm />
               </ProtectedRoute>
             }
           />
@@ -268,6 +250,8 @@ function App() {
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
+
+      <Footer />
     </div>
   )
 }
