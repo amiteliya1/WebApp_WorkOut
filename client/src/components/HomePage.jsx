@@ -121,6 +121,7 @@ const HomePage = () => {
 
         if (workoutsToDelete.length === 0) {
             alert(`No workouts found for ${dayName}`);
+            handleCloseModal(); // ✅ סוגר את המודל
             return;
         }
 
