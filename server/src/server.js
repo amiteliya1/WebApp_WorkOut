@@ -13,11 +13,24 @@ dotenv.config({ path: join(__dirname, '../.env') });
 
 const PORT = process.env.PORT || 10000;
 
-// Connect to database
-connectDB();
+// Start server function
+const startServer = async () => {
+  try {
+    // Connect to database FIRST
+    await connectDB();
+    console.log('✅ MongoDB connection established');
 
-// Start server - Render requires binding to 0.0.0.0
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`);
-});
+    // THEN start server - Render requires binding to 0.0.0.0
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+      console.log(`📡 Health check available at: http://0.0.0.0:${PORT}/api/health`);
+    });
+  } catch (error) {
+    console.error('❌ Failed to start server:', error);
+    process.exit(1);
+  }
+};
+
+// Start the server
+startServer();
 
