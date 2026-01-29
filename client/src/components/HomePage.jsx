@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { removeFavorite } from '../store/slices/favoritesSlice';
 import { getAllWorkouts, deleteWorkout } from '../services/workouts.api';
-import { useLocalStorage } from '../hooks/useLocalStorage';
+import { getWeeklyPlan, updateWeeklyPlan } from '../services/weeklyPlan.api';
 import { FaHeart, FaTrash, FaEdit, FaTimes } from 'react-icons/fa';
 
 const DEFAULT_WEEKLY_WORKOUT = [
@@ -40,8 +40,8 @@ const HomePage = () => {
     const favorites = useSelector((state) => state.favorites.items);
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    // Use custom hook for weekly plan persistence
-    const [workouts, setWorkouts] = useLocalStorage('weeklyPlan', DEFAULT_WEEKLY_WORKOUT);
+    // Weekly plan loaded from database
+    const [workouts, setWorkouts] = useState(DEFAULT_WEEKLY_WORKOUT);
     const [selectedDay, setSelectedDay] = useState(null);
     const [dayWorkouts, setDayWorkouts] = useState([]);
     const [allWorkouts, setAllWorkouts] = useState([]); // All workouts from API
@@ -50,6 +50,20 @@ const HomePage = () => {
     const [editingDay, setEditingDay] = useState(null);
     const [editFocus, setEditFocus] = useState('');
     const [showEditDayModal, setShowEditDayModal] = useState(false);
+
+    // Load weekly plan from database
+    const fetchWeeklyPlan = async () => {
+        try {
+            console.log('Fetching weekly plan from database');
+            const planData = await getWeeklyPlan();
+            setWorkouts(planData);
+            console.log(`Loaded weekly plan from database`);
+        } catch (err) {
+            console.error('Error fetching weekly plan:', err);
+            // If error, keep default plan
+            console.log('Using default weekly plan');
+        }
+    };
 
     // Load all workouts from API
     const fetchAllWorkouts = async () => {
@@ -68,12 +82,11 @@ const HomePage = () => {
         }
     };
 
-    // Load workouts on component mount
+    // Load workouts and weekly plan on component mount
     useEffect(() => {
         fetchAllWorkouts();
+        fetchWeeklyPlan();
     }, []);
-
-    // Weekly plan is now automatically loaded from localStorage via useLocalStorage hook
 
     const handleDayClick = (dayName) => {
         console.log(`User clicked on day: ${dayName}`);
@@ -173,15 +186,13 @@ const HomePage = () => {
         }
     };
 
-    // Weekly plan is now automatically saved to localStorage via useLocalStorage hook
-
     const handleEditDay = (workout) => {
         console.log(`User started editing day: ${workout.day}`);
         setEditingDay(workout.id);
         setEditFocus(workout.focus);
     };
 
-    const handleSaveDayEdit = (dayId) => {
+    const handleSaveDayEdit = async (dayId) => {
         console.log(`User saving edit for day ID: ${dayId}, new focus: "${editFocus}"`);
 
         if (!editFocus.trim()) {
@@ -195,7 +206,18 @@ const HomePage = () => {
                 ? { ...workout, focus: editFocus.trim() }
                 : workout
         );
-        setWorkouts(updatedWorkouts); // Automatically saved to localStorage via useLocalStorage hook
+
+        setWorkouts(updatedWorkouts);
+
+        // Save to database
+        try {
+            await updateWeeklyPlan(updatedWorkouts);
+            console.log('Weekly plan saved to database');
+        } catch (error) {
+            console.error('Error saving weekly plan:', error);
+            alert('Failed to save weekly plan. Please try again.');
+        }
+
         setEditingDay(null);
         setEditFocus('');
     };

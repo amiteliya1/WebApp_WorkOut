@@ -357,3 +357,74 @@ export const removeFavorite = async (req, res, next) => {
   }
 };
 
+// @desc    Get user weekly plan
+// @route   GET /api/auth/weeklyPlan
+// @access  Private
+export const getWeeklyPlan = async (req, res, next) => {
+  try {
+    console.log(`Fetching weekly plan for user ID: ${req.user.id}`);
+
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      console.log(`User not found: ${req.user.id}`);
+      return res.status(404).json({
+        success: false,
+        error: 'User not found',
+      });
+    }
+
+    console.log(`Found weekly plan with ${user.weeklyPlan.length} days for user ${user.email}`);
+
+    res.status(200).json({
+      success: true,
+      data: user.weeklyPlan,
+    });
+  } catch (error) {
+    console.error('Error fetching weekly plan:', error.message);
+    next(error);
+  }
+};
+
+// @desc    Update user weekly plan
+// @route   PUT /api/auth/weeklyPlan
+// @access  Private
+export const updateWeeklyPlan = async (req, res, next) => {
+  try {
+    const { weeklyPlan } = req.body;
+    console.log(`Updating weekly plan for user ID: ${req.user.id}`);
+
+    if (!weeklyPlan || !Array.isArray(weeklyPlan)) {
+      console.log('Invalid weekly plan data provided');
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid weekly plan data',
+      });
+    }
+
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      console.log(`User not found: ${req.user.id}`);
+      return res.status(404).json({
+        success: false,
+        error: 'User not found',
+      });
+    }
+
+    // Update weekly plan
+    user.weeklyPlan = weeklyPlan;
+    await user.save();
+
+    console.log(`Updated weekly plan for user ${user.email}`);
+
+    res.status(200).json({
+      success: true,
+      data: user.weeklyPlan,
+    });
+  } catch (error) {
+    console.error('Error updating weekly plan:', error.message);
+    next(error);
+  }
+};
+

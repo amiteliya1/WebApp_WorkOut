@@ -28,6 +28,18 @@ const userSchema = new mongoose.Schema(
       type: [mongoose.Schema.Types.Mixed],
       default: [],
     },
+    weeklyPlan: {
+      type: [mongoose.Schema.Types.Mixed],
+      default: [
+        { id: 1, day: 'Sunday', focus: 'Chest and Shoulders', completed: false },
+        { id: 2, day: 'Monday', focus: 'Back and Biceps', completed: false },
+        { id: 3, day: 'Tuesday', focus: 'Legs and Abs', completed: false },
+        { id: 4, day: 'Wednesday', focus: 'Rest / Light Cardio', completed: false },
+        { id: 5, day: 'Thursday', focus: 'Upper Body', completed: false },
+        { id: 6, day: 'Friday', focus: 'Lower Body', completed: false },
+        { id: 7, day: 'Saturday', focus: 'Rest', completed: false },
+      ],
+    },
   },
   {
     timestamps: true,
