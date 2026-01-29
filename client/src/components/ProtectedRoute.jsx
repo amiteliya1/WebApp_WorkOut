@@ -9,7 +9,7 @@ const ProtectedRoute = ({ children }) => {
     return (
       <div className="main-content">
         <div className="card" style={{ textAlign: 'center', padding: '60px' }}>
-          <p>טוען...</p>
+          <p>Loading...</p>
         </div>
       </div>
     );
