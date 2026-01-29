@@ -55,7 +55,7 @@ A comprehensive, production-ready workout tracking application built with the ME
 - ✅ **Read Workouts** - View all workouts organized by day
 - ✅ **Update Workouts** - Edit existing workout entries
 - ✅ **Delete Workouts** - Remove individual workouts or entire day schedules
-- ✅ **Weekly Planning** - Default weekly workout plan with customizable focus areas
+- ✅ **Weekly Planning** - Personalized weekly workout plan stored in database (synced across devices)
 
 ### Exercise Library
 - ✅ **YouTube Integration** - 600+ exercise videos from YouTube API
@@ -113,6 +113,7 @@ A comprehensive, production-ready workout tracking application built with the ME
 │  │  │    Users     │      │   Workouts   │     │           │
 │  │  │  Collection  │      │  Collection  │     │           │
 │  │  │  - favorites │      │              │     │           │
+│  │  │  - weeklyPlan│      │              │     │           │
 │  │  └──────────────┘      └──────────────┘     │           │
 │  └──────────────────────────────────────────────┘           │
 └─────────────────────────────────────────────────────────────┘
@@ -425,6 +426,57 @@ Response: 200 OK
 {
   "success": true,
   "data": [ ... ] // Updated favorites array
+}
+```
+
+#### Get Weekly Plan
+```http
+GET /auth/weeklyPlan
+Authorization: Bearer {token}
+
+Response: 200 OK
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "day": "Sunday",
+      "focus": "Chest and Shoulders",
+      "completed": false
+    },
+    {
+      "id": 2,
+      "day": "Monday",
+      "focus": "Back and Biceps",
+      "completed": false
+    },
+    ...
+  ]
+}
+```
+
+#### Update Weekly Plan
+```http
+PUT /auth/weeklyPlan
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "weeklyPlan": [
+    {
+      "id": 1,
+      "day": "Sunday",
+      "focus": "Upper Body",
+      "completed": false
+    },
+    ...
+  ]
+}
+
+Response: 200 OK
+{
+  "success": true,
+  "data": [ ... ] // Updated weekly plan array
 }
 ```
 
