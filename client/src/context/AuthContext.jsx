@@ -189,6 +189,7 @@ export const AuthProvider = ({ children }) => {
       setToken(null);
       setUser(null);
       localStorage.removeItem('token');
+      localStorage.removeItem('weeklyPlan'); // Clear weekly plan to prevent cross-user contamination
       delete axios.defaults.headers.common['Authorization'];
 
       // Clear favorites from Redux store and localStorage
@@ -227,6 +228,7 @@ export const AuthProvider = ({ children }) => {
     setToken(null);
     setUser(null);
     localStorage.removeItem('token');
+    localStorage.removeItem('weeklyPlan'); // Clear weekly plan to prevent cross-user contamination
     delete axios.defaults.headers.common['Authorization'];
 
     // Clear favorites from Redux store and localStorage
