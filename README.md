@@ -762,35 +762,7 @@ Contributions are welcome! Please follow these guidelines:
 
 ---
 
-## 📄 License
 
-This project is licensed under the **ISC License**.
-
-```
-ISC License
-
-Copyright (c) 2026 Workout Tracker
-
-Permission to use, copy, modify, and/or distribute this software for any
-purpose with or without fee is hereby granted, provided that the above
-copyright notice and this permission notice appear in all copies.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-```
-
----
-
-## 👨‍💻 Authors
-
-- **Your Name** - Initial work
-
----
 
 ## 🙏 Acknowledgments
 
@@ -800,21 +772,5 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 - React community for excellent documentation
 - Express.js team for robust backend framework
 
----
-
-## 📞 Support
-
-For support, email your-email@example.com or open an issue on GitHub.
-
----
-
-## 🎓 Project Information
-
-**Course**: Web Application Development
-**Institution**: Shenkar College of Engineering and Design
-**Year**: 2026
-**Semester**: Spring
-
----
 
 **⭐ If you found this project helpful, please give it a star on GitHub!**
