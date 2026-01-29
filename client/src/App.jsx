@@ -38,7 +38,7 @@ function App() {
   }
 
   return (
-    <div style={{ margin: 0, padding: 0, width: '100%' }}>
+    <div style={{ margin: 0, padding: 0, width: '100%', maxWidth: '100vw', overflowX: 'hidden' }}>
       <header className="top-navbar">
         <div className="navbar-container">
           {/* Left side: Brand Logo */}

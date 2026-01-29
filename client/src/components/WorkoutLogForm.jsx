@@ -3,76 +3,49 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { FaTimes } from 'react-icons/fa';
 import { createWorkout, updateWorkout } from '../services/workouts.api';
 
-// Common exercises list for autocomplete
+// Common exercises list for autocomplete - 30 exercises (5 per muscle group)
 const COMMON_EXERCISES = [
-    // Chest exercises
+    // Chest exercises (5)
     'Barbell Bench Press',
     'Dumbbell Bench Press',
     'Incline Bench Press',
-    'Decline Bench Press',
-    'Chest Fly',
-    'Cable Crossover',
     'Push-ups',
-    'Dips',
+    'Chest Fly',
 
-    // Back exercises
+    // Back exercises (5)
     'Pull-ups',
-    'Chin-ups',
-    'Lat Pulldown',
-    'Bent Over Row',
-    'T-Bar Row',
-    'Seated Cable Row',
     'Deadlift',
-    'Romanian Deadlift',
-    'Face Pulls',
+    'Bent Over Row',
+    'Lat Pulldown',
+    'Seated Cable Row',
 
-    // Shoulder exercises
+    // Shoulder exercises (5)
     'Overhead Press',
-    'Military Press',
     'Dumbbell Shoulder Press',
     'Lateral Raise',
     'Front Raise',
     'Rear Delt Fly',
-    'Arnold Press',
-    'Upright Row',
 
-    // Arms exercises
+    // Arms exercises (5)
     'Barbell Curl',
     'Dumbbell Curl',
-    'Hammer Curl',
-    'Preacher Curl',
     'Tricep Dip',
     'Tricep Pushdown',
-    'Skull Crusher',
-    'Overhead Tricep Extension',
-    'Close Grip Bench Press',
+    'Hammer Curl',
 
-    // Leg exercises
+    // Leg exercises (5)
     'Barbell Squat',
-    'Front Squat',
     'Leg Press',
-    'Leg Extension',
-    'Leg Curl',
     'Lunges',
-    'Bulgarian Split Squat',
+    'Leg Extension',
     'Calf Raise',
-    'Hack Squat',
 
-    // Core/Abs exercises
+    // Core/Abs exercises (5)
     'Plank',
     'Crunches',
     'Russian Twist',
     'Leg Raises',
-    'Cable Crunch',
-    'Ab Wheel Rollout',
     'Mountain Climbers',
-    'Bicycle Crunches',
-
-    // Compound exercises
-    'Clean and Press',
-    'Snatch',
-    'Thruster',
-    'Burpees',
 ].sort();
 
 const WorkoutLogForm = () => {

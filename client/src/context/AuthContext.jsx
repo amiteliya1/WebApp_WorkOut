@@ -81,6 +81,11 @@ export const AuthProvider = ({ children }) => {
         password,
       });
       const { token: newToken, user: userData } = response.data.data;
+
+      // Set axios header immediately before loading favorites
+      axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+      localStorage.setItem('token', newToken);
+
       setToken(newToken);
       setUser(userData);
 
@@ -129,6 +134,11 @@ export const AuthProvider = ({ children }) => {
         password,
       });
       const { token: newToken, user: userData } = response.data.data;
+
+      // Set axios header immediately before loading favorites
+      axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+      localStorage.setItem('token', newToken);
+
       setToken(newToken);
       setUser(userData);
 
