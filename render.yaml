@@ -34,4 +34,4 @@ services:
         destination: /index.html
     envVars:
       - key: VITE_API_URL
-        value: https://workout-tracker-api.onrender.com/api
+        value: https://workout-tracker-api-wj21.onrender.com/api
