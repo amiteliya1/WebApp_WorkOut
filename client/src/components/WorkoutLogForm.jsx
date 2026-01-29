@@ -3,66 +3,32 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { FaTimes } from 'react-icons/fa';
 import { createWorkout, updateWorkout } from '../services/workouts.api';
 
-// Common exercise names for autocomplete
+// Exercise categories - 6 main muscle groups and their combinations
 const COMMON_EXERCISES = [
-    // Chest
-    'Bench Press',
-    'Incline Bench Press',
-    'Decline Bench Press',
-    'Dumbbell Press',
-    'Incline Dumbbell Press',
-    'Chest Fly',
-    'Cable Fly',
-    'Push-ups',
-    'Dips',
-    // Back
-    'Deadlift',
-    'Pull-ups',
-    'Chin-ups',
-    'Barbell Row',
-    'Dumbbell Row',
-    'T-Bar Row',
-    'Seated Cable Row',
-    'Lat Pulldown',
-    'Face Pulls',
-    // Shoulders
-    'Overhead Press',
-    'Military Press',
-    'Dumbbell Shoulder Press',
-    'Lateral Raises',
-    'Front Raises',
-    'Rear Delt Fly',
-    'Shrugs',
-    'Arnold Press',
-    // Arms
-    'Barbell Curl',
-    'Dumbbell Curl',
-    'Hammer Curl',
-    'Preacher Curl',
-    'Cable Curl',
-    'Tricep Pushdown',
-    'Overhead Tricep Extension',
-    'Skull Crushers',
-    'Close Grip Bench Press',
-    // Legs
-    'Squats',
-    'Front Squats',
-    'Leg Press',
-    'Leg Extension',
-    'Leg Curl',
-    'Lunges',
-    'Bulgarian Split Squat',
-    'Calf Raises',
-    'Romanian Deadlift',
-    'Hip Thrust',
-    // Abs
-    'Crunches',
-    'Sit-ups',
-    'Leg Raises',
-    'Planks',
-    'Russian Twists',
-    'Ab Wheel',
-    'Cable Crunches',
+    // Single muscle groups
+    'Abs',
+    'Arms',
+    'Back',
+    'Chest',
+    'Legs',
+    'Shoulders',
+
+    // Two muscle group combinations
+    'Abs and Arms',
+    'Abs and Back',
+    'Abs and Chest',
+    'Abs and Legs',
+    'Abs and Shoulders',
+    'Arms and Back',
+    'Arms and Chest',
+    'Arms and Legs',
+    'Arms and Shoulders',
+    'Back and Chest',
+    'Back and Legs',
+    'Back and Shoulders',
+    'Chest and Legs',
+    'Chest and Shoulders',
+    'Legs and Shoulders',
 ].sort();
 
 const WorkoutLogForm = () => {
