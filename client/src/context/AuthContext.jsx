@@ -1,5 +1,8 @@
 import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import { store } from '../store/store';
+import { clearFavorites, setFavorites } from '../store/slices/favoritesSlice';
+import { getFavorites } from '../services/favorites.api';
 
 // Get API URL - always use VITE_API_URL (or localhost fallback)
 const getApiUrl = () => {
@@ -27,6 +30,20 @@ export const AuthProvider = ({ children }) => {
     }
   }, [token]);
 
+  // Helper function to load favorites from database
+  const loadFavorites = async () => {
+    try {
+      console.log('Loading favorites from database...');
+      const favorites = await getFavorites();
+      store.dispatch(setFavorites(favorites));
+      console.log(`Loaded ${favorites.length} favorites from database`);
+    } catch (error) {
+      console.error('Failed to load favorites:', error);
+      // If failed, just set empty array
+      store.dispatch(setFavorites([]));
+    }
+  };
+
   // Load user on mount if token exists
   useEffect(() => {
     const loadUser = async () => {
@@ -36,6 +53,9 @@ export const AuthProvider = ({ children }) => {
           const response = await axios.get(`${API_URL}/auth/me`);
           setUser(response.data.data);
           console.log('User loaded successfully:', response.data.data.email);
+
+          // Load favorites after user is authenticated
+          await loadFavorites();
         } catch (error) {
           // Token is invalid, clear it
           console.error('Failed to load user - token invalid:', error.response?.status || error.message);
@@ -65,6 +85,13 @@ export const AuthProvider = ({ children }) => {
       setUser(userData);
 
       console.log(`Login successful for user: ${userData.email}`);
+
+      // Load favorites after successful login
+      try {
+        await loadFavorites();
+      } catch (favError) {
+        console.error('Failed to load favorites after login:', favError);
+      }
 
       return { success: true };
     } catch (error) {
@@ -107,6 +134,13 @@ export const AuthProvider = ({ children }) => {
 
       console.log(`Registration successful for user: ${userData.email}`);
 
+      // Load favorites after successful registration (will be empty for new users)
+      try {
+        await loadFavorites();
+      } catch (favError) {
+        console.error('Failed to load favorites after registration:', favError);
+      }
+
       return { success: true };
     } catch (error) {
       // Improved error handling
@@ -147,6 +181,9 @@ export const AuthProvider = ({ children }) => {
       localStorage.removeItem('token');
       delete axios.defaults.headers.common['Authorization'];
 
+      // Clear favorites from Redux store and localStorage
+      store.dispatch(clearFavorites());
+
       return {
         success: true,
         message: response.data.message,
@@ -181,6 +218,9 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     localStorage.removeItem('token');
     delete axios.defaults.headers.common['Authorization'];
+
+    // Clear favorites from Redux store and localStorage
+    store.dispatch(clearFavorites());
 
     console.log('Logout successful');
   };

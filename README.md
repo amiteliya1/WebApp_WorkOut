@@ -59,17 +59,20 @@ A comprehensive, production-ready workout tracking application built with the ME
 
 ### Exercise Library
 - ✅ **YouTube Integration** - 600+ exercise videos from YouTube API
-- ✅ **Muscle Group Filtering** - Browse exercises by target muscle groups
-- ✅ **Favorites System** - Save favorite exercises using Redux
+- ✅ **Muscle Group Filtering** - Browse exercises by target muscle groups (Abs, Arms, Back, Chest, Legs, Shoulders)
+- ✅ **Favorites System** - Save favorite exercises to database (synced across devices)
 - ✅ **Video Playback** - Watch exercise demonstrations directly in the app
+- ✅ **Exercise Autocomplete** - 55+ pre-defined exercises with custom input support
 
 ### User Experience
 - ✅ **Responsive Design** - Optimized for mobile, tablet, and desktop
 - ✅ **Dark/Light Themes** - Toggle between color schemes
 - ✅ **Loading States** - Visual feedback during API calls
 - ✅ **Error Handling** - User-friendly error messages
-- ✅ **Form Validation** - Client-side and server-side validation
+- ✅ **Form Validation** - Client-side and server-side validation (6-character minimum password)
 - ✅ **Professional Footer** - Links, social media, and account management
+- ✅ **Session Persistence** - JWT tokens saved in localStorage for automatic login
+- ✅ **Optimized Performance** - StrictMode removed for stable authentication flow
 
 ---
 
@@ -109,6 +112,7 @@ A comprehensive, production-ready workout tracking application built with the ME
 │  │  ┌──────────────┐      ┌──────────────┐     │           │
 │  │  │    Users     │      │   Workouts   │     │           │
 │  │  │  Collection  │      │  Collection  │     │           │
+│  │  │  - favorites │      │              │     │           │
 │  │  └──────────────┘      └──────────────┘     │           │
 │  └──────────────────────────────────────────────┘           │
 └─────────────────────────────────────────────────────────────┘
@@ -361,6 +365,69 @@ Response: 200 OK
 }
 ```
 
+#### Get User Favorites
+```http
+GET /auth/favorites
+Authorization: Bearer {token}
+
+Response: 200 OK
+{
+  "success": true,
+  "data": [
+    {
+      "id": {
+        "videoId": "abc123"
+      },
+      "snippet": {
+        "title": "How to do Push-ups",
+        "description": "Push-up tutorial",
+        "thumbnails": { ... },
+        "channelTitle": "Fitness Channel"
+      }
+    }
+  ]
+}
+```
+
+#### Add Favorite Video
+```http
+POST /auth/favorites
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "video": {
+    "id": {
+      "videoId": "abc123"
+    },
+    "snippet": {
+      "title": "How to do Push-ups",
+      "description": "Push-up tutorial",
+      "thumbnails": { ... },
+      "channelTitle": "Fitness Channel"
+    }
+  }
+}
+
+Response: 200 OK
+{
+  "success": true,
+  "data": [ ... ] // Updated favorites array
+}
+```
+
+#### Remove Favorite Video
+```http
+DELETE /auth/favorites/:videoId
+Authorization: Bearer {token}
+
+Response: 200 OK
+{
+  "success": true,
+  "data": [ ... ] // Updated favorites array
+}
+```
+
 ### Workout Endpoints
 
 #### Get All Workouts
@@ -538,11 +605,12 @@ workout-tracker/
 │   │   │   ├── LoginPage.jsx        # Login page
 │   │   │   └── RegisterPage.jsx     # Registration page
 │   │   ├── services/                # API Services
+│   │   │   ├── favorites.api.js     # Favorites API calls
 │   │   │   └── workouts.api.js      # Workout API calls
 │   │   ├── store/                   # Redux Store
 │   │   │   ├── store.js             # Store configuration
 │   │   │   └── slices/
-│   │   │       └── favoritesSlice.js # Favorites reducer
+│   │   │       └── favoritesSlice.js # Favorites reducer (with database sync)
 │   │   ├── App.jsx                  # Root component
 │   │   ├── App.css                  # Main styles
 │   │   ├── index.css                # Global styles
@@ -625,9 +693,10 @@ Open your browser and navigate to: `http://localhost:5173`
 
 #### Exercise Library
 1. Navigate to **"Exercise Library"**
-2. Browse exercises by muscle group
+2. Browse exercises by muscle group (Abs, Arms, Back, Chest, Legs, Shoulders)
 3. Click on any exercise to watch the video
-4. Save favorites for quick access
+4. Click the heart icon to save favorites (synced to database - accessible from any device)
+5. View your favorites on the Home page
 
 #### Theme Toggle
 - Click the sun/moon icon in the navigation bar

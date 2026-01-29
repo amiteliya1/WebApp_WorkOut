@@ -24,6 +24,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    favorites: {
+      type: [mongoose.Schema.Types.Mixed],
+      default: [],
+    },
   },
   {
     timestamps: true,

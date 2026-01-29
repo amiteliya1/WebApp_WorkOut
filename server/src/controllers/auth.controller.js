@@ -227,3 +227,133 @@ export const deleteAccount = async (req, res, next) => {
   }
 };
 
+// @desc    Get user favorites
+// @route   GET /api/auth/favorites
+// @access  Private
+export const getFavorites = async (req, res, next) => {
+  try {
+    console.log(`Fetching favorites for user ID: ${req.user.id}`);
+
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      console.log(`User not found: ${req.user.id}`);
+      return res.status(404).json({
+        success: false,
+        error: 'User not found',
+      });
+    }
+
+    console.log(`Found ${user.favorites.length} favorites for user ${user.email}`);
+
+    res.status(200).json({
+      success: true,
+      data: user.favorites,
+    });
+  } catch (error) {
+    console.error('Error fetching favorites:', error.message);
+    next(error);
+  }
+};
+
+// @desc    Add favorite video
+// @route   POST /api/auth/favorites
+// @access  Private
+export const addFavorite = async (req, res, next) => {
+  try {
+    const { video } = req.body;
+    console.log(`Adding favorite for user ID: ${req.user.id}`);
+
+    if (!video || !video.id || !video.id.videoId) {
+      console.log('Invalid video data provided');
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid video data',
+      });
+    }
+
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      console.log(`User not found: ${req.user.id}`);
+      return res.status(404).json({
+        success: false,
+        error: 'User not found',
+      });
+    }
+
+    // Check if video is already in favorites
+    const exists = user.favorites.some(
+      (fav) => fav.id.videoId === video.id.videoId
+    );
+
+    if (exists) {
+      console.log(`Video ${video.id.videoId} already in favorites`);
+      return res.status(400).json({
+        success: false,
+        error: 'Video already in favorites',
+      });
+    }
+
+    // Add to favorites
+    user.favorites.push(video);
+    await user.save();
+
+    console.log(`Added favorite video ${video.id.videoId} for user ${user.email}`);
+
+    res.status(200).json({
+      success: true,
+      data: user.favorites,
+    });
+  } catch (error) {
+    console.error('Error adding favorite:', error.message);
+    next(error);
+  }
+};
+
+// @desc    Remove favorite video
+// @route   DELETE /api/auth/favorites/:videoId
+// @access  Private
+export const removeFavorite = async (req, res, next) => {
+  try {
+    const { videoId } = req.params;
+    console.log(`Removing favorite ${videoId} for user ID: ${req.user.id}`);
+
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      console.log(`User not found: ${req.user.id}`);
+      return res.status(404).json({
+        success: false,
+        error: 'User not found',
+      });
+    }
+
+    // Filter out the video to remove
+    const initialLength = user.favorites.length;
+    user.favorites = user.favorites.filter(
+      (fav) => fav.id.videoId !== videoId
+    );
+
+    if (user.favorites.length === initialLength) {
+      console.log(`Video ${videoId} not found in favorites`);
+      return res.status(404).json({
+        success: false,
+        error: 'Video not found in favorites',
+      });
+    }
+
+    await user.save();
+
+    console.log(`Removed favorite video ${videoId} for user ${user.email}`);
+
+    res.status(200).json({
+      success: true,
+      data: user.favorites,
+    });
+  } catch (error) {
+    console.error('Error removing favorite:', error.message);
+    next(error);
+  }
+};
+

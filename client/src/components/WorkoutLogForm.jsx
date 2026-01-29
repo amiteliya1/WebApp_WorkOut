@@ -3,32 +3,76 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { FaTimes } from 'react-icons/fa';
 import { createWorkout, updateWorkout } from '../services/workouts.api';
 
-// Exercise categories - 6 main muscle groups and their combinations
+// Common exercises list for autocomplete
 const COMMON_EXERCISES = [
-    // Single muscle groups
-    'Abs',
-    'Arms',
-    'Back',
-    'Chest',
-    'Legs',
-    'Shoulders',
+    // Chest exercises
+    'Barbell Bench Press',
+    'Dumbbell Bench Press',
+    'Incline Bench Press',
+    'Decline Bench Press',
+    'Chest Fly',
+    'Cable Crossover',
+    'Push-ups',
+    'Dips',
 
-    // Two muscle group combinations
-    'Abs and Arms',
-    'Abs and Back',
-    'Abs and Chest',
-    'Abs and Legs',
-    'Abs and Shoulders',
-    'Arms and Back',
-    'Arms and Chest',
-    'Arms and Legs',
-    'Arms and Shoulders',
-    'Back and Chest',
-    'Back and Legs',
-    'Back and Shoulders',
-    'Chest and Legs',
-    'Chest and Shoulders',
-    'Legs and Shoulders',
+    // Back exercises
+    'Pull-ups',
+    'Chin-ups',
+    'Lat Pulldown',
+    'Bent Over Row',
+    'T-Bar Row',
+    'Seated Cable Row',
+    'Deadlift',
+    'Romanian Deadlift',
+    'Face Pulls',
+
+    // Shoulder exercises
+    'Overhead Press',
+    'Military Press',
+    'Dumbbell Shoulder Press',
+    'Lateral Raise',
+    'Front Raise',
+    'Rear Delt Fly',
+    'Arnold Press',
+    'Upright Row',
+
+    // Arms exercises
+    'Barbell Curl',
+    'Dumbbell Curl',
+    'Hammer Curl',
+    'Preacher Curl',
+    'Tricep Dip',
+    'Tricep Pushdown',
+    'Skull Crusher',
+    'Overhead Tricep Extension',
+    'Close Grip Bench Press',
+
+    // Leg exercises
+    'Barbell Squat',
+    'Front Squat',
+    'Leg Press',
+    'Leg Extension',
+    'Leg Curl',
+    'Lunges',
+    'Bulgarian Split Squat',
+    'Calf Raise',
+    'Hack Squat',
+
+    // Core/Abs exercises
+    'Plank',
+    'Crunches',
+    'Russian Twist',
+    'Leg Raises',
+    'Cable Crunch',
+    'Ab Wheel Rollout',
+    'Mountain Climbers',
+    'Bicycle Crunches',
+
+    // Compound exercises
+    'Clean and Press',
+    'Snatch',
+    'Thruster',
+    'Burpees',
 ].sort();
 
 const WorkoutLogForm = () => {
