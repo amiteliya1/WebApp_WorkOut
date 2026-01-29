@@ -137,17 +137,30 @@ app.get('/api/health', (req, res) => {
 });
 
 // 4) Catch-all route at the VERY END: serve index.html only for non-file SPA routes
+// This is optional - if frontend files don't exist (separate deployment), serve API info instead
 app.get('*', (req, res) => {
   // Do not override file requests (anything with a dot)
   if (req.path.includes('.')) {
     return res.status(404).send('File not found');
   }
 
-  if (!indexExists) {
-    return res.status(503).send('Frontend not built. Please run: npm run build:client');
+  // If frontend files exist, serve the SPA
+  if (indexExists) {
+    return res.sendFile(path.join(distPath, 'index.html'));
   }
 
-  return res.sendFile(path.join(distPath, 'index.html'));
+  // If no frontend files (separate deployment), return API info
+  return res.json({
+    success: true,
+    message: 'Workout Tracker API Server',
+    endpoints: {
+      health: '/api/health',
+      auth: '/api/auth',
+      workouts: '/api/workouts',
+      exercises: '/api'
+    },
+    note: 'Frontend is deployed separately. Visit the frontend URL to access the application.'
+  });
 });
 
 // Step 7: Error handlers - MUST be LAST
