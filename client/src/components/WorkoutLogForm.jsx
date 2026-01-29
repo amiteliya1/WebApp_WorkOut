@@ -3,6 +3,68 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { FaTimes } from 'react-icons/fa';
 import { createWorkout, updateWorkout } from '../services/workouts.api';
 
+// Common exercise names for autocomplete
+const COMMON_EXERCISES = [
+    // Chest
+    'Bench Press',
+    'Incline Bench Press',
+    'Decline Bench Press',
+    'Dumbbell Press',
+    'Incline Dumbbell Press',
+    'Chest Fly',
+    'Cable Fly',
+    'Push-ups',
+    'Dips',
+    // Back
+    'Deadlift',
+    'Pull-ups',
+    'Chin-ups',
+    'Barbell Row',
+    'Dumbbell Row',
+    'T-Bar Row',
+    'Seated Cable Row',
+    'Lat Pulldown',
+    'Face Pulls',
+    // Shoulders
+    'Overhead Press',
+    'Military Press',
+    'Dumbbell Shoulder Press',
+    'Lateral Raises',
+    'Front Raises',
+    'Rear Delt Fly',
+    'Shrugs',
+    'Arnold Press',
+    // Arms
+    'Barbell Curl',
+    'Dumbbell Curl',
+    'Hammer Curl',
+    'Preacher Curl',
+    'Cable Curl',
+    'Tricep Pushdown',
+    'Overhead Tricep Extension',
+    'Skull Crushers',
+    'Close Grip Bench Press',
+    // Legs
+    'Squats',
+    'Front Squats',
+    'Leg Press',
+    'Leg Extension',
+    'Leg Curl',
+    'Lunges',
+    'Bulgarian Split Squat',
+    'Calf Raises',
+    'Romanian Deadlift',
+    'Hip Thrust',
+    // Abs
+    'Crunches',
+    'Sit-ups',
+    'Leg Raises',
+    'Planks',
+    'Russian Twists',
+    'Ab Wheel',
+    'Cable Crunches',
+].sort();
+
 const WorkoutLogForm = () => {
     const location = useLocation();
     const navigate = useNavigate();
@@ -203,11 +265,18 @@ const WorkoutLogForm = () => {
                     <input
                         id="exercise-name"
                         type="text"
+                        list="exercises-list"
                         value={exerciseName}
                         onChange={(e) => setExerciseName(e.target.value)}
-                        placeholder="e.g., Bench Press, Squats..."
+                        placeholder="Choose from list or type your own..."
                         disabled={loading}
+                        autoComplete="off"
                     />
+                    <datalist id="exercises-list">
+                        {COMMON_EXERCISES.map((exercise) => (
+                            <option key={exercise} value={exercise} />
+                        ))}
+                    </datalist>
                     {errors.exerciseName && (
                         <span style={{ color: '#ef4444', fontSize: '0.875rem', marginTop: '4px', display: 'block' }}>
                             {errors.exerciseName}
