@@ -52,10 +52,12 @@ const corsOptions = {
 
     // List of allowed origins
     const allowedOrigins = [
-      // New static frontend on Render
+      // Render deployments
       'https://webapp-workout.onrender.com',
+      'https://workout-tracker-frontend.onrender.com',
       // Legacy Vercel client
       'https://web-app-work-out-client.vercel.app',
+      // Local development
       'http://localhost:5173',
       'http://localhost:5174',
       'http://localhost:5175',
@@ -73,6 +75,11 @@ const corsOptions = {
 
     // Check if origin ends with .vercel.app (for preview deployments)
     if (origin.endsWith('.vercel.app')) {
+      return callback(null, true);
+    }
+
+    // Check if origin ends with .onrender.com (for Render deployments)
+    if (origin.endsWith('.onrender.com')) {
       return callback(null, true);
     }
 
