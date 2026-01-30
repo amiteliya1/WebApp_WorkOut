@@ -28,6 +28,13 @@ export const useTheme = () => {
         setTheme(newTheme);
         document.body.className = newTheme === 'light' ? 'light-theme' : 'dark-theme';
 
+        // Only save to database if user is logged in
+        const token = localStorage.getItem('token');
+        if (!token) {
+            console.log('User not logged in, theme change only applied locally');
+            return;
+        }
+
         // Save to database
         try {
             await updateTheme(newTheme);

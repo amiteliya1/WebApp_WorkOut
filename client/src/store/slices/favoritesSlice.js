@@ -41,6 +41,20 @@ export const { setFavorites, clearFavorites, setLoading, setError } = favoritesS
 // Thunk action to add favorite (with API call)
 export const addFavorite = (video) => async (dispatch, getState) => {
     try {
+        // Check if already loading to prevent duplicate requests
+        const { loading, items } = getState().favorites;
+        if (loading) {
+            console.log('Already processing a favorite operation, skipping...');
+            return;
+        }
+
+        // Check if already in favorites
+        const alreadyFavorite = items.some(fav => fav.id.videoId === video.id.videoId);
+        if (alreadyFavorite) {
+            console.log('Video already in favorites');
+            return;
+        }
+
         dispatch(setLoading(true));
         console.log('Adding favorite to database:', video.id.videoId);
 
