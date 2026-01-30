@@ -428,3 +428,74 @@ export const updateWeeklyPlan = async (req, res, next) => {
   }
 };
 
+// @desc    Get user theme
+// @route   GET /api/auth/theme
+// @access  Private
+export const getTheme = async (req, res, next) => {
+  try {
+    console.log(`Fetching theme for user ID: ${req.user.id}`);
+
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      console.log(`User not found: ${req.user.id}`);
+      return res.status(404).json({
+        success: false,
+        error: 'User not found',
+      });
+    }
+
+    console.log(`Found theme '${user.theme}' for user ${user.email}`);
+
+    res.status(200).json({
+      success: true,
+      data: user.theme,
+    });
+  } catch (error) {
+    console.error('Error fetching theme:', error.message);
+    next(error);
+  }
+};
+
+// @desc    Update user theme
+// @route   PUT /api/auth/theme
+// @access  Private
+export const updateTheme = async (req, res, next) => {
+  try {
+    const { theme } = req.body;
+    console.log(`Updating theme for user ID: ${req.user.id} to '${theme}'`);
+
+    if (!theme || !['light', 'dark'].includes(theme)) {
+      console.log('Invalid theme provided');
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid theme. Must be "light" or "dark"',
+      });
+    }
+
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      console.log(`User not found: ${req.user.id}`);
+      return res.status(404).json({
+        success: false,
+        error: 'User not found',
+      });
+    }
+
+    // Update theme
+    user.theme = theme;
+    await user.save();
+
+    console.log(`Updated theme to '${theme}' for user ${user.email}`);
+
+    res.status(200).json({
+      success: true,
+      data: user.theme,
+    });
+  } catch (error) {
+    console.error('Error updating theme:', error.message);
+    next(error);
+  }
+};
+

@@ -47,6 +47,7 @@ const HomePage = () => {
     const [allWorkouts, setAllWorkouts] = useState([]); // All workouts from API
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [successMessage, setSuccessMessage] = useState(null);
     const [editingDay, setEditingDay] = useState(null);
     const [editFocus, setEditFocus] = useState('');
     const [showEditDayModal, setShowEditDayModal] = useState(false);
@@ -123,10 +124,13 @@ const HomePage = () => {
         if (window.confirm('Are you sure you want to delete this workout?')) {
             try {
                 setLoading(true);
+                setError(null);
+                setSuccessMessage(null);
                 await deleteWorkout(workoutId);
 
                 console.log(`Workout ${workoutId} deleted successfully`);
-                alert('Workout deleted successfully!');
+                setSuccessMessage('Workout deleted successfully!');
+                setTimeout(() => setSuccessMessage(null), 3000);
 
                 // Reload workouts from API
                 await fetchAllWorkouts();
@@ -138,7 +142,8 @@ const HomePage = () => {
                 setDayWorkouts(updatedDayWorkouts);
             } catch (error) {
                 console.error('Error deleting workout:', error);
-                alert('Failed to delete workout. Please try again.');
+                setError('Failed to delete workout. Please try again.');
+                setTimeout(() => setError(null), 3000);
             } finally {
                 setLoading(false);
             }
@@ -153,14 +158,17 @@ const HomePage = () => {
         const workoutsToDelete = allWorkouts.filter(workout => workout.day === dayName);
 
         if (workoutsToDelete.length === 0) {
-            alert(`No workouts found for ${dayName}`);
-            handleCloseModal(); // ✅ סוגר את המודל
+            setError(`No workouts found for ${dayName}`);
+            setTimeout(() => setError(null), 3000);
+            handleCloseModal();
             return;
         }
 
         if (window.confirm(`Are you sure you want to delete all ${workoutsToDelete.length} logged workout(s) for ${dayName}?\n\nNote: This will only clear your workout logs, not the weekly plan.`)) {
             try {
                 setLoading(true);
+                setError(null);
+                setSuccessMessage(null);
 
                 // Delete all workouts for this day
                 await Promise.all(
@@ -168,7 +176,8 @@ const HomePage = () => {
                 );
 
                 console.log(`Deleted ${workoutsToDelete.length} workouts for ${dayName}`);
-                alert(`Successfully cleared ${workoutsToDelete.length} workout(s) for ${dayName}`);
+                setSuccessMessage(`Successfully cleared ${workoutsToDelete.length} workout(s) for ${dayName}`);
+                setTimeout(() => setSuccessMessage(null), 3000);
 
                 // Reload workouts from API
                 await fetchAllWorkouts();
@@ -177,7 +186,8 @@ const HomePage = () => {
                 setSelectedDay(null);
             } catch (error) {
                 console.error(`Error deleting workouts for ${dayName}:`, error);
-                alert('Failed to delete workouts. Please try again.');
+                setError('Failed to delete workouts. Please try again.');
+                setTimeout(() => setError(null), 3000);
             } finally {
                 setLoading(false);
             }
@@ -197,7 +207,8 @@ const HomePage = () => {
 
         if (!editFocus.trim()) {
             console.log('Save cancelled: empty focus');
-            alert('Please enter workout focus');
+            setError('Please enter workout focus');
+            setTimeout(() => setError(null), 3000);
             return;
         }
 
@@ -211,11 +222,16 @@ const HomePage = () => {
 
         // Save to database
         try {
+            setError(null);
+            setSuccessMessage(null);
             await updateWeeklyPlan(updatedWorkouts);
             console.log('Weekly plan saved to database');
+            setSuccessMessage('Weekly plan updated successfully!');
+            setTimeout(() => setSuccessMessage(null), 3000);
         } catch (error) {
             console.error('Error saving weekly plan:', error);
-            alert('Failed to save weekly plan. Please try again.');
+            setError('Failed to save weekly plan. Please try again.');
+            setTimeout(() => setError(null), 3000);
         }
 
         setEditingDay(null);
@@ -255,6 +271,19 @@ const HomePage = () => {
                     color: '#ef4444'
                 }}>
                     {error}
+                </div>
+            )}
+
+            {successMessage && (
+                <div className="success-message" style={{
+                    padding: '16px',
+                    marginBottom: '20px',
+                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                    border: '1px solid rgba(34, 197, 94, 0.3)',
+                    borderRadius: 'var(--radius)',
+                    color: '#22c55e'
+                }}>
+                    {successMessage}
                 </div>
             )}
 

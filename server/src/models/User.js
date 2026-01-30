@@ -40,6 +40,11 @@ const userSchema = new mongoose.Schema(
         { id: 7, day: 'Saturday', focus: 'Rest', completed: false },
       ],
     },
+    theme: {
+      type: String,
+      enum: ['light', 'dark'],
+      default: 'dark',
+    },
   },
   {
     timestamps: true,

@@ -66,9 +66,9 @@ A comprehensive, production-ready workout tracking application built with the ME
 
 ### User Experience
 - ✅ **Responsive Design** - Optimized for mobile, tablet, and desktop
-- ✅ **Dark/Light Themes** - Toggle between color schemes
+- ✅ **Dark/Light Themes** - Toggle between color schemes (synced to database)
 - ✅ **Loading States** - Visual feedback during API calls
-- ✅ **Error Handling** - User-friendly error messages
+- ✅ **Error Handling** - Inline error and success messages (no popups)
 - ✅ **Form Validation** - Client-side and server-side validation (6-character minimum password)
 - ✅ **Professional Footer** - Links, social media, and account management
 - ✅ **Session Persistence** - JWT tokens saved in localStorage for automatic login
@@ -114,6 +114,7 @@ A comprehensive, production-ready workout tracking application built with the ME
 │  │  │  Collection  │      │  Collection  │     │           │
 │  │  │  - favorites │      │              │     │           │
 │  │  │  - weeklyPlan│      │              │     │           │
+│  │  │  - theme     │      │              │     │           │
 │  │  └──────────────┘      └──────────────┘     │           │
 │  └──────────────────────────────────────────────┘           │
 └─────────────────────────────────────────────────────────────┘
@@ -480,6 +481,35 @@ Response: 200 OK
 }
 ```
 
+#### Get User Theme
+```http
+GET /auth/theme
+Authorization: Bearer {token}
+
+Response: 200 OK
+{
+  "success": true,
+  "data": "dark"  // "light" or "dark"
+}
+```
+
+#### Update User Theme
+```http
+PUT /auth/theme
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "theme": "light"  // "light" or "dark"
+}
+
+Response: 200 OK
+{
+  "success": true,
+  "data": "light"
+}
+```
+
 ### Workout Endpoints
 
 #### Get All Workouts
@@ -753,7 +783,7 @@ Open your browser and navigate to: `http://localhost:5173`
 #### Theme Toggle
 - Click the sun/moon icon in the navigation bar
 - Toggle between light and dark themes
-- Your preference is saved locally
+- Your preference is saved to the database (synced across devices)
 
 #### Account Management
 - Scroll to the footer

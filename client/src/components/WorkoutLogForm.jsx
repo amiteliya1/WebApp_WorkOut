@@ -62,6 +62,7 @@ const WorkoutLogForm = () => {
     const [isEditingFromHome, setIsEditingFromHome] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [successMessage, setSuccessMessage] = useState(null);
 
     useEffect(() => {
         // Check if editing
@@ -136,19 +137,20 @@ const WorkoutLogForm = () => {
         try {
             setLoading(true);
             setError(null);
+            setSuccessMessage(null);
 
             if (editingId && isEditingFromHome) {
                 // Update existing workout
                 console.log(`Updating workout ID: ${editingId}`, workoutData);
                 await updateWorkout(editingId, workoutData);
                 console.log('Workout updated successfully');
-                alert('Workout updated successfully!');
+                setSuccessMessage('Workout updated successfully!');
             } else {
                 // Add new workout
                 console.log('Creating new workout', workoutData);
                 await createWorkout(workoutData);
                 console.log('Workout saved successfully');
-                alert('Workout saved successfully!');
+                setSuccessMessage('Workout saved successfully!');
             }
 
             // Reset form
@@ -161,14 +163,13 @@ const WorkoutLogForm = () => {
             setEditingId(null);
             setIsEditingFromHome(false);
 
-            // Return to home page using navigate
+            // Return to home page after short delay
             console.log('Navigating back to home page');
-            navigate('/');
+            setTimeout(() => navigate('/'), 1500);
         } catch (error) {
             console.error('Error saving workout:', error);
             const errorMessage = error.response?.data?.error || 'Failed to save workout. Please try again.';
             setError(errorMessage);
-            alert(errorMessage);
         } finally {
             setLoading(false);
         }
@@ -217,6 +218,19 @@ const WorkoutLogForm = () => {
                     color: '#ef4444'
                 }}>
                     {error}
+                </div>
+            )}
+
+            {successMessage && (
+                <div className="success-message" style={{
+                    padding: '16px',
+                    marginBottom: '20px',
+                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                    border: '1px solid rgba(34, 197, 94, 0.3)',
+                    borderRadius: 'var(--radius)',
+                    color: '#22c55e'
+                }}>
+                    {successMessage}
                 </div>
             )}
 
