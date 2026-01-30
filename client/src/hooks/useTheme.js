@@ -4,6 +4,7 @@ import { getTheme, updateTheme } from '../services/theme.api';
 export const useTheme = () => {
     const [theme, setTheme] = useState('dark'); // Default to dark
     const [loading, setLoading] = useState(true);
+    const [message, setMessage] = useState(null);
 
     // Load theme from database on mount
     useEffect(() => {
@@ -32,6 +33,9 @@ export const useTheme = () => {
         const token = localStorage.getItem('token');
         if (!token) {
             console.log('User not logged in, theme change only applied locally');
+            setMessage('Please log in to save theme preference');
+            // Clear message after 3 seconds
+            setTimeout(() => setMessage(null), 3000);
             return;
         }
 
@@ -47,7 +51,7 @@ export const useTheme = () => {
         }
     };
 
-    return [theme, toggleTheme, loading];
+    return [theme, toggleTheme, loading, message];
 };
 
 

@@ -17,7 +17,7 @@ import './App.css'
 
 function App() {
   const favoritesCount = useSelector((state) => state.favorites.items.length)
-  const [theme, toggleTheme] = useTheme()
+  const [theme, toggleTheme, loading, themeMessage] = useTheme()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { user, logout } = useAuth()
   const navigate = useNavigate()
@@ -39,6 +39,26 @@ function App() {
 
   return (
     <div style={{ margin: 0, padding: 0, width: '100%', maxWidth: '100vw', overflowX: 'hidden' }}>
+      {/* Theme Message Notification */}
+      {themeMessage && (
+        <div style={{
+          position: 'fixed',
+          top: '80px',
+          right: '20px',
+          zIndex: 9999,
+          backgroundColor: 'rgba(255, 193, 7, 0.95)',
+          color: '#000',
+          padding: '12px 20px',
+          borderRadius: '8px',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+          fontWeight: '500',
+          fontSize: '14px',
+          animation: 'slideInRight 0.3s ease-out',
+        }}>
+          {themeMessage}
+        </div>
+      )}
+
       <header className="top-navbar">
         <div className="navbar-container">
           {/* Left side: Brand Logo */}
