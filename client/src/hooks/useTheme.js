@@ -25,19 +25,20 @@ export const useTheme = () => {
     }, []);
 
     const toggleTheme = async () => {
-        const newTheme = theme === 'light' ? 'dark' : 'light';
-        setTheme(newTheme);
-        document.body.className = newTheme === 'light' ? 'light-theme' : 'dark-theme';
-
-        // Only save to database if user is logged in
+        // Check if user is logged in first
         const token = localStorage.getItem('token');
         if (!token) {
-            console.log('User not logged in, theme change only applied locally');
-            setMessage('Please log in to save theme preference');
+            console.log('User not logged in, cannot change theme');
+            setMessage('Please log in to change theme');
             // Clear message after 3 seconds
             setTimeout(() => setMessage(null), 3000);
             return;
         }
+
+        // User is logged in, proceed with theme change
+        const newTheme = theme === 'light' ? 'dark' : 'light';
+        setTheme(newTheme);
+        document.body.className = newTheme === 'light' ? 'light-theme' : 'dark-theme';
 
         // Save to database
         try {
